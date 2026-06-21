@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduReçu — Gestion Scolaire</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+@media print{*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box;}body>*:not(#PRINT_FRAME){display:none!important;}#PRINT_FRAME{display:block!important;position:fixed;inset:0;background:#fff;z-index:99999;padding:0;margin:0;}#PRINT_FRAME .recu{box-shadow:none!important;border-radius:0!important;}@page{size:A5 portrait;margin:0;}}
+:root{--bg:#07101f;--bg2:#0d1829;--bg3:#141f30;--card:#101a2a;--b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.11);--ac:#3b7dff;--ac2:#6830e0;--g1:#16a34a;--g2:#22c55e;--am:#f59e0b;--re:#ef4444;--wa:#25d366;--tg:#2ca5e0;--tx:#eef2f8;--mu:#8898b4;--di:#3f5068;--r:12px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh;}
+#PRINT_FRAME{display:none;}
+header{background:var(--card);border-bottom:1px solid var(--b1);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;display:flex;align-items:center;gap:9px;}
+.logo-pill{background:linear-gradient(135deg,var(--ac),var(--ac2));width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.hdr-r{display:flex;align-items:center;gap:10px;}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:var(--di);display:inline-block;transition:background .3s;}
+.sync-dot.syncing{background:var(--am);animation:pulse 1s infinite;}
+.sync-dot.synced{background:var(--g2);}
+.sync-dot.error{background:var(--re);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.chip{background:rgba(59,125,255,.1);border:1px solid rgba(59,125,255,.2);color:#7aaaff;font-size:12px;font-weight:500;padding:4px 12px;border-radius:20px;}
+.wrap{display:grid;grid-template-columns:255px 1fr;min-height:calc(100vh - 60px);}
+aside{background:var(--card);border-right:1px solid var(--b1);padding:18px 10px;display:flex;flex-direction:column;gap:2px;}
+.nav-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--di);text-transform:uppercase;padding:8px 10px 4px;}
+.nav-i{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;cursor:pointer;color:var(--mu);font-size:13.5px;transition:all .12s;border:1px solid transparent;}
+.nav-i:hover{background:var(--bg3);color:var(--tx);}
+.nav-i.on{background:rgba(59,125,255,.09);color:#7aaaff;border-color:rgba(59,125,255,.18);font-weight:500;}
+.nav-ico{font-size:17px;width:22px;text-align:center;}
+.sdiv{height:1px;background:var(--b1);margin:10px 0;}
+.stat-box{background:var(--bg3);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-top:auto;}
+.s-lbl{font-size:10px;color:var(--di);text-transform:uppercase;letter-spacing:.07em;}
+.s-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--g2);margin-top:2px;}
+.s-sub{font-size:11px;color:var(--mu);margin-top:1px;}
+main{padding:28px 30px;overflow-y:auto;}
+.sec{display:none;}.sec.on{display:block;}
+.ph{font-family:'Syne',sans-serif;font-size:23px;font-weight:700;margin-bottom:4px;}
+.ps{color:var(--mu);font-size:13.5px;margin-bottom:22px;}
+.drop{border:2px dashed var(--b2);border-radius:16px;padding:44px;text-align:center;cursor:pointer;background:var(--card);transition:all .2s;margin-bottom:18px;}
+.drop:hover,.drop.drag{border-color:var(--ac);background:rgba(59,125,255,.04);}
+.drop-ico{font-size:42px;margin-bottom:10px;}
+.drop-t{font-size:16px;font-weight:600;margin-bottom:4px;}
+.drop-s{color:var(--mu);font-size:13px;}
+#fileInp{display:none;}
+.card{background:var(--card);border:1px solid var(--b1);border-radius:16px;padding:20px;margin-bottom:16px;}
+.ct{font-size:14px;font-weight:600;margin-bottom:3px;}.cs{font-size:12px;color:var(--mu);margin-bottom:14px;}
+.tw{background:var(--card);border:1px solid var(--b1);border-radius:16px;overflow:hidden;margin-bottom:18px;}
+.th2{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;border-bottom:1px solid var(--b1);flex-wrap:wrap;gap:8px;}
+.th2-t{font-weight:600;font-size:14px;}
+.tc{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--bg3);color:var(--di);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:9px 13px;text-align:left;}
+.th-sort{cursor:pointer;user-select:none;white-space:nowrap;}
+.th-sort:hover{color:var(--tx);}
+.sort-ico{margin-left:4px;opacity:.5;font-size:10px;}
+.th-sort.asc .sort-ico::after{content:'↑';opacity:1;}
+.th-sort.desc .sort-ico::after{content:'↓';opacity:1;}
+.th-sort:not(.asc):not(.desc) .sort-ico::after{content:'↕';}
+tbody tr{border-bottom:1px solid var(--b1);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg3);}
+tbody td{padding:11px 13px;font-size:13.5px;color:var(--mu);}
+td.p{color:var(--tx);font-weight:500;}
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.bpd{background:rgba(22,163,74,.12);color:var(--g2);border:1px solid rgba(22,163,74,.2);}
+.bpe{background:rgba(245,158,11,.12);color:var(--am);border:1px solid rgba(245,158,11,.2);}
+.blt{background:rgba(239,68,68,.12);color:var(--re);border:1px solid rgba(239,68,68,.2);}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:9px;color:var(--tx);padding:9px 13px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .14s;}
+.inp:focus{border-color:var(--ac);}
+.inp::placeholder{color:var(--di);}
+.month-picker{position:relative;}
+.month-picker-btn{display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;}
+.month-picker-btn:hover{border-color:var(--ac);}
+.month-picker-ico{font-size:14px;opacity:.65;}
+.month-picker-pop{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:var(--card);border:1px solid var(--b2);border-radius:12px;padding:12px;width:250px;box-shadow:0 10px 30px rgba(0,0,0,.45);}
+.month-picker-pop.open{display:block;}
+.month-picker-year{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:700;font-family:'Syne',sans-serif;font-size:15px;}
+.month-picker-year .btn{padding:4px 10px;}
+.month-picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.month-cell{padding:9px 4px;text-align:center;border-radius:8px;font-size:12.5px;cursor:pointer;border:1px solid transparent;color:var(--mu);transition:all .12s;}
+.month-cell:hover{background:var(--bg3);color:var(--tx);}
+.month-cell.on{background:var(--ac);color:#fff;font-weight:600;}
+.month-cell.now:not(.on){border-color:var(--ac);color:#7aaaff;}
+.month-picker-today{margin-top:10px;padding-top:10px;border-top:1px solid var(--b1);text-align:center;font-size:12px;color:var(--ac);cursor:pointer;font-weight:500;}
+.month-picker-today:hover{text-decoration:underline;}
+.lbl{display:block;font-size:12px;font-weight:500;color:var(--mu);margin-bottom:5px;}
+.fg{margin-bottom:13px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+textarea.inp{resize:vertical;}
+.btn{padding:9px 16px;border-radius:9px;font-size:13.5px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;border:none;transition:all .12s;display:inline-flex;align-items:center;gap:6px;}
+.bp{background:var(--ac);color:#fff;}.bp:hover{background:#2d6ef0;transform:translateY(-1px);}
+.bg{background:transparent;border:1px solid var(--b2);color:var(--mu);}.bg:hover{background:var(--bg3);color:var(--tx);}
+.btg{background:rgba(44,165,224,.09);border:1px solid rgba(44,165,224,.22);color:var(--tg);}.btg:hover{background:rgba(44,165,224,.17);}
+.bwa{background:rgba(37,211,102,.09);border:1px solid rgba(37,211,102,.22);color:var(--wa);}.bwa:hover{background:rgba(37,211,102,.17);}
+.bgr{background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);color:var(--g2);}.bgr:hover{background:rgba(22,163,74,.18);}
+.bre{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--re);}.bre:hover{background:rgba(239,68,68,.14);}
+.bsm{padding:5px 11px;font-size:12px;border-radius:7px;}
+.brow{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.tabs{display:flex;gap:3px;background:var(--card);border:1px solid var(--b1);border-radius:11px;padding:3px;width:fit-content;margin-bottom:20px;}
+.tab{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:var(--mu);transition:all .12s;}
+.tab.on{background:var(--ac);color:#fff;}
+.notif-tabs{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:3px;margin-bottom:16px;}
+.ntab{padding:6px 14px;border-radius:7px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--mu);transition:all .12s;display:flex;align-items:center;gap:6px;}
+.ntab.on-tg{background:rgba(44,165,224,.15);color:var(--tg);}
+.ntab.on-wa{background:rgba(37,211,102,.15);color:var(--wa);}
+.ib{background:rgba(59,125,255,.06);border:1px solid rgba(59,125,255,.14);border-radius:10px;padding:13px;font-size:13px;color:#7aaaff;line-height:1.65;margin-bottom:13px;}
+.ib code{background:rgba(255,255,255,.08);border-radius:4px;padding:1px 5px;font-family:monospace;font-size:12px;}
+.ib-tg{background:rgba(44,165,224,.06);border-color:rgba(44,165,224,.2);color:#7dd3f7;}
+.ib-wa{background:rgba(37,211,102,.06);border-color:rgba(37,211,102,.2);color:#6ee7a0;}
+.ib-warn{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);color:#fcd34d;}
+.ib-ok{background:rgba(34,197,94,.06);border-color:rgba(34,197,94,.2);color:#6ee7a0;}
+.ib-err{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2);color:#fca5a5;}
+.ib-sec{background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.2);color:#c4b5fd;}
+.tmpl{background:var(--card);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:16px;}
+.tr2{display:grid;grid-template-columns:repeat(6,1fr);border-bottom:1px solid var(--b1);}
+.tr2:last-child{border-bottom:none;}
+.tc2{padding:8px 10px;font-size:11.5px;border-right:1px solid var(--b1);}
+.tc2:last-child{border-right:none;}
+.tc2.h{background:var(--bg3);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--di);}
+.empty{text-align:center;padding:48px 20px;color:var(--di);}
+.e-ico{font-size:42px;margin-bottom:10px;}
+.e-t{font-size:14px;font-weight:600;color:var(--mu);margin-bottom:4px;}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--card);border:1px solid var(--b2);border-radius:var(--r);padding:12px 16px;font-size:13.5px;display:flex;align-items:center;gap:10px;z-index:999;transform:translateY(70px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:310px;box-shadow:0 8px 28px rgba(0,0,0,.45);}
+.toast.show{transform:translateY(0);opacity:1;}
+.t-ico{font-size:18px;flex-shrink:0;}
+.t-msg{font-weight:500;}.t-sub{font-size:11.5px;color:var(--mu);margin-top:1px;}
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;}
+.mov.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--b2);border-radius:20px;padding:26px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.m-t{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.m-s{color:var(--mu);font-size:13px;margin-bottom:16px;}
+.m-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--b1);}
+.recu-modal{background:var(--card);border:1px solid var(--b2);border-radius:20px;padding:0;width:700px;max-width:97vw;max-height:95vh;overflow:hidden;display:flex;flex-direction:column;}
+.rv-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--b1);flex-shrink:0;}
+.rv-t{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.rv-act{display:flex;gap:8px;}
+.rv-body{overflow-y:auto;padding:24px;background:var(--bg3);flex:1;display:flex;justify-content:center;}
+.recu{width:148mm;background:#fff;color:#1e293b;font-family:'DM Sans','Helvetica Neue',Arial,sans-serif;font-size:11pt;border-radius:6pt;overflow:hidden;box-shadow:0 4px 30px rgba(0,0,0,.5);}
+.r-top{background:#3b7dff;padding:7mm 11mm;display:flex;justify-content:space-between;align-items:flex-start;}
+.r-sname{font-size:14pt;font-weight:800;color:#fff;}
+.r-ssub{font-size:7.5pt;opacity:.85;margin-top:1.5mm;line-height:1.5;color:#fff;}
+.r-num{text-align:right;}
+.r-nlbl{font-size:7pt;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.75);}
+.r-nval{font-size:22pt;font-weight:800;color:#fff;line-height:1.1;margin:1mm 0;}
+.r-ndate{font-size:7.5pt;color:rgba(255,255,255,.8);}
+.r-body{padding:7mm 11mm;}
+.r-grid{display:grid;grid-template-columns:1fr 1fr;gap:3mm 7mm;margin-bottom:5mm;}
+.r-flbl{font-size:7pt;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:.5mm;}
+.r-fval{font-weight:600;font-size:10.5pt;color:#1e293b;}
+.r-amt{background:#f0f5ff;border:1px solid #c7d7fd;border-radius:6pt;padding:4mm 5mm;display:flex;justify-content:space-between;align-items:center;margin-bottom:5mm;}
+.r-albl{color:#3b7dff;font-weight:700;font-size:8.5pt;}
+.r-asub{font-size:7.5pt;color:#94a3b8;margin-top:.5mm;}
+.r-aval{font-size:22pt;font-weight:800;color:#1e293b;}
+.r-acur{font-size:10pt;color:#64748b;margin-left:1mm;}
+.r-note{background:#f8fafc;border-left:2.5pt solid #e2e8f0;padding:2mm 3mm;font-size:8.5pt;color:#64748b;margin-bottom:5mm;}
+.r-foot{border-top:1px solid #e2e8f0;margin:0 11mm;padding:4mm 0;display:flex;justify-content:space-between;align-items:center;}
+.r-sig{font-size:7.5pt;color:#94a3b8;}
+.r-stamp{background:#dcfce7;border:1.5pt solid #16a34a;border-radius:4pt;padding:1.5mm 4mm;color:#15803d;font-weight:800;font-size:10pt;transform:rotate(-3deg);display:inline-block;}
+.r-gen{font-size:7pt;color:#cbd5e1;text-align:right;}
+.wa-popup{background:var(--card);border:1px solid rgba(37,211,102,.3);border-radius:20px;padding:26px;width:540px;max-width:95vw;}
+.wa-msg-box{background:var(--bg3);border:1px solid var(--b2);border-radius:10px;padding:14px;font-family:monospace;font-size:12px;color:var(--mu);white-space:pre-wrap;line-height:1.7;max-height:180px;overflow-y:auto;margin-bottom:16px;}
+#loginScreen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.login-box{background:var(--card);border:1px solid var(--b2);border-radius:20px;padding:36px 32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.login-logo-pill{background:linear-gradient(135deg,var(--ac),var(--ac2));width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.login-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+.login-sub{color:var(--mu);font-size:13px;margin-bottom:28px;}
+.login-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5;border-radius:9px;padding:10px 13px;font-size:13px;margin-bottom:14px;display:none;}
+.login-role{display:flex;align-items:center;gap:7px;font-size:12px;padding:4px 10px;border-radius:20px;font-weight:500;}
+.role-admin{background:rgba(59,125,255,.12);color:#7aaaff;border:1px solid rgba(59,125,255,.2);}
+.role-user{background:rgba(34,197,94,.1);color:var(--g2);border:1px solid rgba(34,197,94,.2);}
+.user-badge{position:fixed;top:68px;right:14px;z-index:99;display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--b2);border-radius:20px;padding:5px 12px 5px 8px;font-size:12px;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.user-badge:hover{background:var(--bg3);}
+#loadingOverlay{position:fixed;inset:0;background:var(--bg);z-index:8888;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.spin{width:40px;height:40px;border:3px solid var(--b2);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.kpi-card{background:var(--card);border:1px solid var(--b1);border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;align-items:flex-start;gap:6px;transition:transform .15s;}
+.kpi-card:hover{transform:translateY(-2px);}
+.kpi-accent{background:rgba(59,125,255,.08);border-color:rgba(59,125,255,.2);}
+.kpi-ico{font-size:22px;line-height:1;}
+.kpi-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--tx);line-height:1;}
+.kpi-lbl{font-size:12px;color:var(--mu);}
+.kpi-accent .kpi-val{color:#7aaaff;}
+#sessionBar{position:fixed;top:60px;left:0;right:0;height:3px;background:var(--b1);z-index:90;display:none;}
+#sessionProgress{height:100%;background:var(--g2);transition:width 5s linear;width:100%;}
+.bottom-nav{display:none;}
+.mobile-stat{display:none;}
+@media(max-width:768px){
+  header{padding:0 14px;height:54px;}
+  .logo{font-size:17px;}
+  .logo-pill{width:28px;height:28px;font-size:14px;}
+  .chip{font-size:11px;padding:3px 9px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .wrap{grid-template-columns:1fr;min-height:calc(100vh - 54px);}
+  aside{display:none;}
+  .bottom-nav{display:flex;align-items:stretch;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--b1);z-index:100;height:62px;}
+  .bn-item{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;cursor:pointer;color:var(--di);font-size:11px;font-weight:500;transition:color .12s;border:none;background:none;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+  .bn-item.on{color:var(--ac);}
+  .bn-ico{font-size:24px;line-height:1;display:block;}
+  .mobile-stat{display:flex!important;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--g2);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);padding:3px 10px;border-radius:20px;}
+  main{padding:16px 14px 84px;}
+  .ph{font-size:19px;}.ps{font-size:13px;margin-bottom:16px;}
+  .kpi-val{font-size:18px;}.drop{padding:26px 14px;}.drop-ico{font-size:32px;}.drop-t{font-size:14px;}
+  .fg2{grid-template-columns:1fr!important;}.tw{overflow-x:auto;}table{min-width:900px;}
+  thead th{font-size:9px;padding:8px 9px;}tbody td{font-size:12.5px;padding:9px 9px;}.card{padding:14px;}
+  .brow{flex-direction:column;}.brow .btn{width:100%;justify-content:center;}
+  .tabs{width:100%;}.tab{flex:1;text-align:center;font-size:12px;padding:7px 6px;}
+  .mov{align-items:flex-end;}
+  .modal{border-radius:16px 16px 0 0;width:100%;max-width:100%;position:fixed;bottom:0;left:0;right:0;max-height:88vh;padding:18px 14px;}
+  .wa-popup{border-radius:16px 16px 0 0;width:100%;max-width:100%;position:fixed;bottom:0;left:0;right:0;padding:18px 14px;}
+  .recu-modal{border-radius:16px 16px 0 0;width:100%;max-width:100%;max-height:92vh;}
+  .rv-hdr{padding:12px 14px;}.rv-t{font-size:14px;}.rv-body{padding:10px;overflow-x:auto;}
+  .recu{width:100%;min-width:280px;}.tmpl{overflow-x:auto;}.tr2{min-width:420px;}
+  .toast{bottom:80px;right:10px;left:10px;max-width:calc(100% - 20px);}
+  .notif-tabs{flex-direction:column;}.ntab{justify-content:center;}
+  .m-ft{flex-direction:column-reverse;}.m-ft .btn{width:100%;justify-content:center;}
+}
+@media(max-width:380px){.logo{font-size:15px;}.chip{display:none;}.ph{font-size:17px;}main{padding:12px 10px 84px;}}
+[data-lucide]{width:1em;height:1em;stroke-width:2;vertical-align:-0.14em;flex-shrink:0;}
+.ic-sm{width:14px;height:14px;vertical-align:-2px;}
+.ic-xl{width:26px;height:26px;}
+.nav-ico [data-lucide]{width:17px;height:17px;vertical-align:middle;}
+.bn-ico [data-lucide]{width:22px;height:22px;display:block;margin:0 auto;}
+.kpi-ico [data-lucide]{width:22px;height:22px;}
+.drop-ico [data-lucide]{width:40px;height:40px;stroke-width:1.5;opacity:.65;}
+.e-ico [data-lucide]{width:36px;height:36px;stroke-width:1.5;opacity:.45;}
+.m-t [data-lucide]{width:20px;height:20px;vertical-align:-3px;}
+.ct [data-lucide]{width:14px;height:14px;vertical-align:-2px;}
+.month-picker-ico [data-lucide]{width:14px;height:14px;vertical-align:middle;opacity:.65;}
+@keyframes spin-ico{to{transform:rotate(360deg);}}
+.spin-ico [data-lucide]{animation:spin-ico .8s linear infinite;}
+</style>
+</head>
+<body>
+<div id="PRINT_FRAME"></div>
+<div id="loadingOverlay">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="login-logo-pill" id="loadPill"><i data-lucide="graduation-cap" class="ic-xl"></i></div>
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800">EduReçu</div>
+  </div>
+  <div class="spin"></div>
+  <div style="font-size:13px;color:var(--mu)" id="loadMsg">Connexion à Firebase…</div>
+</div>
+<div id="sessionBar"><div id="sessionProgress"></div></div>
+<div id="loginScreen" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-pill" id="loginLogoPill"><i data-lucide="graduation-cap" class="ic-xl"></i></div>
+      <div class="login-title">EduReçu</div>
+    </div>
+    <div class="login-sub">Gestion scolaire — École privée Maroc</div>
+    <div id="offlineMsg" style="display:none;text-align:center;padding:10px 14px;font-size:12.5px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);color:#fcd34d;border-radius:10px;margin-bottom:12px"><i data-lucide="wifi-off"></i> Hors ligne — connexion impossible sans internet</div>
+    <div id="fbConfigPanel" style="display:none">
+      <div style="background:rgba(59,125,255,.06);border:1px solid rgba(59,125,255,.18);border-radius:12px;padding:16px;margin-bottom:14px">
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px"><i data-lucide="flame" class="ic-sm"></i> Configuration Firebase requise</div>
+        <div style="font-size:12px;color:var(--mu);margin-bottom:14px">Collez vos identifiants Firebase pour connecter l'application</div>
+        <div class="fg"><label class="lbl">API Key</label><input class="inp" id="setup_apiKey" placeholder="AIzaSy…" autocomplete="off"></div>
+        <div class="fg"><label class="lbl">Project ID</label><input class="inp" id="setup_projectId" placeholder="mon-projet-12345" autocomplete="off"></div>
+        <div class="fg"><label class="lbl">App ID</label><input class="inp" id="setup_appId" placeholder="1:123:web:abc…" autocomplete="off"></div>
+        <div class="fg"><label class="lbl">Auth Domain</label><input class="inp" id="setup_authDomain" placeholder="mon-projet.firebaseapp.com" autocomplete="off"></div>
+        <div id="fbConfigErr" style="display:none;color:#fca5a5;font-size:12.5px;margin-bottom:10px"></div>
+        <button class="btn bp" style="width:100%;justify-content:center" onclick="saveFirebaseConfig()"><i data-lucide="flame" class="ic-sm"></i> Connecter Firebase</button>
+      </div>
+    </div>
+    <div id="loginFormPanel">
+      <div class="login-err" id="loginErr"></div>
+      <div class="fg"><label class="lbl">Email</label><input class="inp" type="email" id="loginUser" placeholder="votre@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="fg"><label class="lbl">Mot de passe</label><input class="inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div id="loginStatus" style="text-align:center;font-size:12px;color:var(--di);margin-bottom:6px;min-height:18px"></div>
+      <button class="btn bp" id="loginBtn" style="width:100%;justify-content:center;margin-top:8px;padding:11px" onclick="doLogin()"><i data-lucide="log-in" class="ic-sm"></i> Se connecter</button>
+      <div style="text-align:center;margin-top:12px"><a href="#" style="font-size:11.5px;color:var(--di)" onclick="showFbConfig();return false"><i data-lucide="settings" class="ic-sm"></i> Reconfigurer Firebase</a></div>
+    </div>
+  </div>
+</div>
+<div class="user-badge" id="userBadge" style="display:none" onclick="toggleUserMenu()">
+  <span><i data-lucide="user" class="ic-sm"></i></span><span id="userBadgeName">—</span>
+  <span id="userBadgeRole" class="login-role role-admin" style="font-size:10px;padding:2px 7px">—</span>
+</div>
+<div id="userMenu" style="display:none;position:fixed;top:110px;right:14px;z-index:99;background:var(--card);border:1px solid var(--b2);border-radius:12px;padding:8px;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.4)">
+  <div style="padding:8px 10px;font-size:12px;color:var(--mu);border-bottom:1px solid var(--b1);margin-bottom:6px" id="userMenuInfo"></div>
+  <button class="btn bg bsm" id="btnChangePwd" style="width:100%;justify-content:flex-start;display:none" onclick="changePassword()"><i data-lucide="key" class="ic-sm"></i> Changer le mot de passe</button>
+  <button class="btn bg bsm" style="width:100%;justify-content:flex-start;margin-top:4px;color:var(--re)" onclick="doLogout()"><i data-lucide="log-out" class="ic-sm"></i> Se déconnecter</button>
+</div>
+<div class="mov" id="modalMdp">
+  <div class="modal">
+    <div class="m-t"><i data-lucide="key"></i> Changer le mot de passe</div>
+    <div class="m-s">Modifiez votre mot de passe Firebase</div>
+    <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="newPass1" placeholder="Minimum 6 caractères" autocomplete="new-password"></div>
+    <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="newPass2" placeholder="Répéter" autocomplete="new-password"></div>
+    <div id="mdpErr" style="color:var(--re);font-size:13px;margin-top:4px;display:none"></div>
+    <div class="m-ft"><button class="btn bg" onclick="closeM('modalMdp')">Annuler</button><button class="btn bp" onclick="saveMdp()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
+  </div>
+</div>
+<header>
+  <div class="logo"><div class="logo-pill" id="appLogoPill"><i data-lucide="graduation-cap"></i></div>EduReçu</div>
+  <div class="hdr-r">
+    <div class="mobile-stat"><span id="mStatTotal">0</span></div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu)">
+      <span class="sync-dot" id="syncDot" title="Statut Firebase"></span>
+      <span id="syncLabel" style="font-size:11px">—</span>
+    </div>
+    <div class="chip" id="schoolChip">École non définie</div>
+  </div>
+</header>
+<div class="wrap">
+  <aside>
+    <div class="nav-lbl">Menu</div>
+    <div class="nav-i" onclick="nav('dashboard')"><span class="nav-ico"><i data-lucide="layout-dashboard"></i></span>Tableau de bord</div>
+
+    <div class="nav-i" onclick="nav('eleves')"><span class="nav-ico"><i data-lucide="users"></i></span>Élèves</div>
+    <div class="nav-i" onclick="nav('paiement')"><span class="nav-ico"><i data-lucide="credit-card"></i></span>Nouveau Paiement</div>
+    <div class="nav-i" onclick="nav('historique')"><span class="nav-ico"><i data-lucide="clipboard-list"></i></span>Historique</div>
+    <div class="nav-i" onclick="nav('parametres')"><span class="nav-ico"><i data-lucide="settings"></i></span>Paramètres</div>
+    <div class="sdiv"></div>
+    <div class="stat-box">
+      <div class="s-lbl">Encaissé ce mois</div>
+      <div class="s-val" id="statTotal">0 MAD</div>
+      <div class="s-sub" id="statNb">0 paiements</div>
+    </div>
+  </aside>
+  <main>
+    <!-- DASHBOARD -->
+    <div class="sec" id="sec-dashboard">
+      <div class="ph">Tableau de bord</div>
+      <div class="ps">Vue d'ensemble des paiements et statistiques</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">
+        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="wallet"></i></div><div class="kpi-val" id="kpi-total">0 MAD</div><div class="kpi-lbl">Total encaissé</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clipboard-list"></i></div><div class="kpi-val" id="kpi-recus">0</div><div class="kpi-lbl">Reçus générés</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="check-circle-2"></i></div><div class="kpi-val" id="kpi-payes">0</div><div class="kpi-lbl">Élèves à jour</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clock"></i></div><div class="kpi-val" id="kpi-attente">0</div><div class="kpi-lbl">En attente</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="circle-alert"></i></div><div class="kpi-val" id="kpi-retard">0</div><div class="kpi-lbl">En retard</div></div>
+        <div class="kpi-card kpi-accent"><div class="kpi-ico"><i data-lucide="trending-up"></i></div><div class="kpi-val" id="kpi-taux">0%</div><div class="kpi-lbl">Taux de paiement</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="card" style="min-height:260px"><div class="ct"><i data-lucide="wallet" class="ic-sm"></i> Encaissements par mois</div><div class="cs">6 derniers mois</div><canvas id="chartMois" height="180"></canvas></div>
+        <div class="card" style="min-height:260px;display:flex;flex-direction:column"><div class="ct"><i data-lucide="target" class="ic-sm"></i> Répartition des statuts</div><div class="cs">État actuel des élèves</div><div style="flex:1;display:flex;align-items:center;justify-content:center"><canvas id="chartStatuts" style="max-height:180px;max-width:180px"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px"><div class="ct"><i data-lucide="school" class="ic-sm"></i> Encaissements par classe</div><div class="cs">Comparaison entre classes</div><canvas id="chartClasses" height="120"></canvas></div>
+      <div class="card" style="background:rgba(59,125,255,.04);border-color:rgba(59,125,255,.15);margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+          <div><div class="ct" style="margin-bottom:2px"><i data-lucide="save" class="ic-sm"></i> Sauvegarde rapide</div><div class="cs" id="dashBackupInfo">Élèves et paiements inclus</div></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn bp" onclick="exportBackup()">⬇️ Sauvegarder</button>
+            <button class="btn bg" onclick="document.getElementById('restoreInput2').click()">⬆️ Restaurer</button>
+            <input type="file" id="restoreInput2" accept=".json" style="display:none" onchange="importBackup(this)">
+          </div>
+        </div>
+      </div>
+      <div class="card"><div class="ct" style="margin-bottom:14px"><i data-lucide="clock" class="ic-sm"></i> Derniers paiements</div><div id="dashLastPay" style="color:var(--di);font-size:13px;text-align:center;padding:20px">Aucun paiement enregistré</div></div>
+    </div>
+    <!-- IMPORT -->
+    <div class="sec" id="sec-import">
+      <div class="ph">Import base de données</div>
+      <div class="ps">Chargez le fichier Excel contenant la liste des élèves</div>
+      <div class="drop" id="dropZone" onclick="document.getElementById('fileInp').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="onDrop(event)">
+        <div class="drop-ico"><i data-lucide="upload-cloud"></i></div><div class="drop-t">Glissez votre fichier Excel ici</div>
+        <div class="drop-s">ou cliquez pour parcourir · .xlsx · .xls · .csv</div>
+      </div>
+      <input type="file" id="fileInp" accept=".xlsx,.xls,.csv" onchange="onFileChange(event)">
+      <div class="ph" style="font-size:16px;margin-bottom:7px">Format attendu</div>
+      <div class="tmpl">
+        <div class="tr2" style="grid-template-columns:repeat(8,1fr)"><div class="tc2 h">indice</div><div class="tc2 h">nom</div><div class="tc2 h">prenom</div><div class="tc2 h">classe</div><div class="tc2 h">telephone</div><div class="tc2 h">frais_mensuel</div><div class="tc2 h">frais_inscription</div><div class="tc2 h">statut</div></div>
+        <div class="tr2" style="grid-template-columns:repeat(8,1fr)"><div class="tc2">001</div><div class="tc2">ALAMI</div><div class="tc2">Youssef</div><div class="tc2">3ème A</div><div class="tc2">+212661234567</div><div class="tc2">850</div><div class="tc2">500</div><div class="tc2">payé</div></div>
+        <div class="tr2" style="grid-template-columns:repeat(8,1fr)"><div class="tc2">002</div><div class="tc2">BENALI</div><div class="tc2">Fatima</div><div class="tc2">2ème B</div><div class="tc2">+212677654321</div><div class="tc2">750</div><div class="tc2">500</div><div class="tc2">en attente</div></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn bg" onclick="loadDemo()"><i data-lucide="zap" class="ic-sm"></i> Charger données de démonstration</button>
+      </div>
+    </div>
+    <!-- ÉLÈVES -->
+    <div class="sec" id="sec-eleves">
+      <div class="ph">Liste des Élèves</div>
+      <div class="ps">Gérez les élèves et leurs statuts de paiement</div>
+      <div class="tw">
+        <div class="th2">
+          <div class="th2-t" id="eleveCnt">0 élèves</div>
+          <div class="tc">
+            <button class="btn bp bsm" onclick="openAddEleve()" style="white-space:nowrap"><i data-lucide="plus" class="ic-sm"></i> Ajouter</button>
+            <button class="btn bg bsm" onclick="document.getElementById('fileInpAddEleves').click()" style="white-space:nowrap" title="Ajoute les élèves du fichier à la liste actuelle, sans rien supprimer"><i data-lucide="file-up" class="ic-sm"></i> Importer Excel</button>
+            <input type="file" id="fileInpAddEleves" accept=".xlsx,.xls,.csv" style="display:none" onchange="onFileChangeAddEleves(event)">
+            <input class="inp" style="width:140px" placeholder="🔍 Rechercher…" id="search" oninput="filterE()">
+            <select class="inp" style="width:110px" id="filtCls" onchange="filterE()"><option value="">Toutes classes</option></select>
+            <select class="inp" style="width:110px" id="filtAnnee" onchange="onAnneeChange()"><option value="">Toutes années</option></select>
+            <select class="inp" style="width:130px" id="filtMois" onchange="filterE()"><option value="">Tous les mois</option></select>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th style="width:32px;text-align:center">#</th>
+            <th class="th-sort" id="th-indice" onclick="sortBy('indice')">CODE <span class="sort-ico"></span></th>
+            <th class="th-sort" id="th-prenom" onclick="sortBy('prenom')">PRÉNOM <span class="sort-ico"></span></th>
+            <th class="th-sort" id="th-nom" onclick="sortBy('nom')">NOM <span class="sort-ico"></span></th>
+            <th class="th-sort" id="th-classe" onclick="sortBy('classe')">CLASSE <span class="sort-ico"></span></th>
+            <th>SEXE</th><th>DATE NAISS.</th><th>LIEU NAISS.</th>
+            <th>FRAIS / STATUT</th><th>TÉL.</th>
+            <th style="white-space:nowrap">🎓 INSCRIPTION</th>
+            <th style="white-space:nowrap"><i data-lucide="shield" class="ic-sm"></i> ASSURANCE</th><th>ACTIONS</th>
+          </tr></thead>
+          <tbody id="eleveTb"><tr><td colspan="13"><div class="empty"><div class="e-ico"><i data-lucide="table" class="ic-xl"></i></div><div class="e-t">Importez un fichier Excel</div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <!-- PAIEMENT -->
+    <div class="sec" id="sec-paiement">
+      <div class="ph">Enregistrer un Paiement</div>
+      <div class="ps">Remplissez le formulaire et générez le reçu PDF imprimable</div>
+      <div class="tabs">
+        <div class="tab on" id="tab-form" onclick="switchTab('form')"><i data-lucide="file-text" class="ic-sm"></i> Formulaire</div>
+        <div class="tab" id="tab-prev" onclick="switchTab('prev')"><i data-lucide="eye" class="ic-sm"></i> Aperçu reçu</div>
+      </div>
+      <div id="pane-form">
+        <!-- Sélecteur mode : Par classe ou par élève -->
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <div style="font-size:13px;font-weight:600;color:var(--mu)">Sélection :</div>
+          <div class="tabs" style="margin-bottom:0">
+            <div class="tab on" id="mode-eleve" onclick="switchPayMode('eleve')">👤 Par élève</div>
+            <div class="tab" id="mode-classe" onclick="switchPayMode('classe')">🏫 Par classe</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <!-- Sélection par élève -->
+            <div id="payByEleve">
+              <div class="fg"><label class="lbl">Élève *</label><select class="inp" id="selEleve" onchange="onEleveChange()"><option value="">— Sélectionner —</option></select></div>
+            </div>
+            <!-- Sélection par classe -->
+            <div id="payByClasse" style="display:none">
+              <div class="fg"><label class="lbl">Classe *</label><select class="inp" id="selClasse" onchange="onClasseChange()"><option value="">— Sélectionner —</option></select></div>
+              <!-- Liste des élèves de la classe avec checkboxes -->
+              <div id="classeElevesList" style="display:none">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <label class="lbl" style="margin:0">Élèves <span id="classeElevesCount" style="color:var(--ac)"></span></label>
+                  <div style="display:flex;gap:6px">
+                    <button type="button" class="btn bg bsm" onclick="selectAllElevesClasse(true)">Tout sélect.</button>
+                    <button type="button" class="btn bg bsm" onclick="selectAllElevesClasse(false)">Désélect.</button>
+                  </div>
+                </div>
+                <div id="classeElevesGrid" style="background:var(--bg3);border:1px solid var(--b2);border-radius:9px;padding:8px;max-height:200px;overflow-y:auto;display:grid;gap:4px"></div>
+              </div>
+            </div>
+            <div class="fg"><label class="lbl">Type de paiement *</label>
+              <select class="inp" id="typePay" onchange="onTypePayChange()">
+                <option value="mensualite">📅 Mensualité</option>
+                <option value="inscription">🎓 Frais d'inscription</option>
+                <option value="assurance">🛡️ Assurance scolaire</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label class="lbl">Mois concerné *</label>
+              <div class="month-picker" id="moisPayWrap">
+                <button type="button" class="inp month-picker-btn" id="moisPayBtn" onclick="toggleMonthPicker(event)">
+                  <span id="moisPayLabel">—</span><span class="month-picker-ico"><i data-lucide="calendar"></i></span>
+                </button>
+                <input type="hidden" id="moisPay">
+                <div class="month-picker-pop" id="moisPayPop">
+                  <div class="month-picker-year">
+                    <button type="button" class="btn bg bsm" onclick="changeMPYear(-1)">‹</button>
+                    <span id="moisPayYear"></span>
+                    <button type="button" class="btn bg bsm" onclick="changeMPYear(1)">›</button>
+                  </div>
+                  <div class="month-picker-grid" id="moisPayGrid"></div>
+                  <div class="month-picker-today" onclick="selectToday()"><i data-lucide="map-pin" class="ic-sm"></i> Mois actuel</div>
+                </div>
+              </div>
+            </div>
+            <div class="fg" id="payMontantRow"><label class="lbl">Montant *</label><input class="inp" type="number" id="mtPay" placeholder="ex: 850" min="0" step="10"></div>
+            <div class="fg"><label class="lbl">Mode de paiement</label>
+              <select class="inp" id="modePay"><option>Espèces</option><option>Virement bancaire</option><option>Chèque</option><option>Mobile Money</option><option>Carte bancaire</option></select></div>
+            <div class="fg"><label class="lbl">Remarque</label><input class="inp" type="text" id="remPay" placeholder="Optionnel…"></div>
+          </div>
+          <div><div class="card"><div class="ct">Récapitulatif</div><div class="cs">Renseigné automatiquement</div><div id="eleveRecap" style="color:var(--di);font-size:13px">Sélectionnez un élève ou une classe</div></div></div>
+        </div>
+        <div class="brow">
+          <button class="btn bp" onclick="genererRecu()"><i data-lucide="printer" class="ic-sm"></i> Générer &amp; Imprimer le PDF</button>
+          <button class="btn bg" onclick="switchTab('prev')"><i data-lucide="eye" class="ic-sm"></i> Aperçu reçu</button>
+          <button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><i data-lucide="x" class="ic-sm"></i> Annuler</button>
+        </div>
+      </div>
+      <div id="pane-prev" style="display:none">
+        <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:14px;padding:22px;display:flex;justify-content:center;margin-bottom:16px;overflow:auto"><div id="prevBox"><div style="color:var(--di);padding:40px;text-align:center">Sélectionnez un élève</div></div></div>
+        <div class="brow"><button class="btn bp" onclick="genererRecu()"><i data-lucide="printer" class="ic-sm"></i> Générer &amp; Imprimer le PDF</button><button class="btn bg" onclick="switchTab('form')">← Retour</button><button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><i data-lucide="x" class="ic-sm"></i> Annuler</button></div>
+      </div>
+    </div>
+    <!-- HISTORIQUE -->
+    <div class="sec" id="sec-historique">
+      <div class="ph">Historique des Paiements</div>
+      <div class="ps">Consultez et réimprimez tous les reçus générés</div>
+      <div class="tw">
+        <div class="th2">
+          <div class="th2-t" id="histCnt">0 paiements</div>
+          <div class="tc">
+            <input class="inp" style="width:160px" placeholder="🔍 Rechercher…" id="histSearch" oninput="filterHist()">
+            <select class="inp" style="width:130px" id="histFiltMois" onchange="filterHist()"><option value="">Tous les mois</option></select>
+            <button class="btn bg bsm" onclick="exportHist()"><i data-lucide="download" class="ic-sm"></i> Export Excel</button>
+          </div>
+        </div>
+        <div id="histBody"><div class="empty"><div class="e-ico"><i data-lucide="clipboard-list" class="ic-xl"></i></div><div class="e-t">Aucun paiement enregistré</div></div></div>
+      </div>
+    </div>
+    <!-- PARAMÈTRES -->
+    <div class="sec" id="sec-parametres">
+      <div class="ph">Paramètres</div>
+      <div class="ps">Configuration de l'application et de l'école</div>
+      <!-- FIREBASE -->
+      <div class="card" id="cardFirebase">
+        <div class="ct"><i data-lucide="flame" class="ic-sm"></i> Base de données Firebase</div>
+        <div class="cs">Synchronisation en temps réel sur tous vos appareils</div>
+        <div class="ib" id="fbStatusBox" style="margin-bottom:14px">⏳ Initialisation…</div>
+        <div class="fg2">
+          <div class="fg"><label class="lbl">API Key</label><input class="inp" id="fb_apiKey" placeholder="AIzaSy…" autocomplete="off"></div>
+          <div class="fg"><label class="lbl">Project ID</label><input class="inp" id="fb_projectId" placeholder="mon-projet-12345" autocomplete="off"></div>
+          <div class="fg"><label class="lbl">App ID</label><input class="inp" id="fb_appId" placeholder="1:123:web:abc…" autocomplete="off"></div>
+          <div class="fg"><label class="lbl">Auth Domain</label><input class="inp" id="fb_authDomain" placeholder="mon-projet.firebaseapp.com" autocomplete="off"></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn bp" onclick="initFirebase()"><i data-lucide="flame" class="ic-sm"></i> Connecter Firebase</button>
+          <button class="btn bg" onclick="syncToFirebase()"><i data-lucide="upload" class="ic-sm"></i> Envoyer vers Firebase</button>
+          <button class="btn bg" onclick="syncFromFirebase()"><i data-lucide="download" class="ic-sm"></i> Charger depuis Firebase</button>
+          <button class="btn bg" onclick="downloadConfiguredHTML()" title="Télécharger le fichier HTML avec la config Firebase intégrée — à utiliser sur tout autre navigateur/PC"><i data-lucide="file-down" class="ic-sm"></i> Télécharger fichier configuré</button>
+        </div>
+        <div class="ib ib-ok" style="margin-top:10px;font-size:12.5px">
+          💡 <strong>Config permanente</strong> : après connexion, un fichier HTML mis à jour est automatiquement téléchargé avec la config Firebase intégrée. Remplacez votre ancien fichier par ce nouveau — il fonctionnera sur n'importe quel navigateur sans reconfiguration. Vous pouvez aussi le télécharger manuellement avec le bouton ci-dessus.
+        </div>
+          <summary style="cursor:pointer;font-size:13px;color:var(--mu);font-weight:600;padding:8px 0"><i data-lucide="clipboard-list" class="ic-sm"></i> Règles Firestore sécurisées (à copier dans la console)</summary>
+          <div class="ib ib-sec" style="margin-top:10px;font-family:monospace;font-size:11px;white-space:pre;overflow-x:auto">rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    match /eleves/{id}    { allow read, write: if request.auth != null; }
+    match /paiements/{id} { allow read, write: if request.auth != null; }
+    match /config/{id}    { allow read, write: if request.auth != null; }
+    match /roles/{uid} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        &amp;&amp; get(/databases/$(db)/documents/roles/$(request.auth.uid)).data.role == 'admin';
+    }
+  }
+}</div>
+          <div class="ib ib-warn" style="margin-top:8px;font-size:12px"><i data-lucide="triangle-alert" class="ic-sm"></i> N'utilisez PAS le mode test (lecture/écriture libre) en production.</div>
+        </details>
+      </div>
+      <!-- IMPORT DEPUIS PARAMÈTRES -->
+      <div class="card">
+        <div class="ct"><i data-lucide="folder-open" class="ic-sm"></i> Import de la liste des élèves</div>
+        <div class="cs">Importez (en remplaçant toute la liste) ou exportez la liste des élèves</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn bp" onclick="document.getElementById('fileInpParam').click()"><i data-lucide="upload" class="ic-sm"></i> Importer Excel / CSV (remplacer la liste)</button>
+          <button class="btn bg" onclick="exportElevesExcel()"><i data-lucide="download" class="ic-sm"></i> Exporter liste élèves (.xlsx)</button>
+          <input type="file" id="fileInpParam" accept=".xlsx,.xls,.csv" style="display:none" onchange="onFileChangeParam(event)">
+        </div>
+        <div class="ib ib-warn" style="margin-top:12px;font-size:12px"><i data-lucide="triangle-alert" class="ic-sm"></i> Cet import <strong>remplace toute la liste existante</strong>. Faites une sauvegarde avant.</div>
+        <div class="ib" style="margin-top:8px;font-size:12px"><i data-lucide="lightbulb" class="ic-sm"></i> Pour <strong>ajouter</strong> des élèves à la liste actuelle sans rien supprimer, utilisez le bouton <strong><i data-lucide="file-up" class="ic-sm"></i> Importer Excel</strong> dans la section <strong>Élèves</strong>.</div>
+      </div>
+      <!-- SAUVEGARDE -->
+      <div class="card">
+        <div class="ct"><i data-lucide="save" class="ic-sm"></i> Sauvegarde &amp; Restauration</div>
+        <div class="cs">Exportez toutes vos données en JSON ou restaurez depuis une sauvegarde</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btn bp" onclick="exportBackup()"><i data-lucide="download" class="ic-sm"></i> Sauvegarder (JSON)</button>
+          <button class="btn bg" onclick="document.getElementById('restoreInput').click()"><i data-lucide="upload" class="ic-sm"></i> Restaurer depuis fichier</button>
+          <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="importBackup(this)">
+        </div>
+        <div id="lastBackupInfo" style="font-size:12px;color:var(--di);margin-bottom:10px"></div>
+        <div class="ib ib-warn" style="font-size:12.5px"><i data-lucide="triangle-alert" class="ic-sm"></i> La restauration remplace toutes les données actuelles. Action irréversible.</div>
+      </div>
+      <!-- INFOS ÉCOLE -->
+      <div class="card">
+        <div class="ct"><i data-lucide="school" class="ic-sm"></i> Informations de l'École</div><div class="cs">Apparaissent sur tous les reçus générés</div>
+        <div class="fg2">
+          <div class="fg"><label class="lbl">Nom de l'école</label><input class="inp" id="c_ecole"></div>
+          <div class="fg"><label class="lbl">Adresse</label><input class="inp" id="c_adresse"></div>
+          <div class="fg"><label class="lbl">Téléphone</label><input class="inp" id="c_tel"></div>
+          <div class="fg"><label class="lbl">Email</label><input class="inp" id="c_email"></div>
+        </div>
+        <div class="fg"><label class="lbl">Devise</label>
+          <select class="inp" id="c_devise" style="width:260px">
+            <option value="MAD">MAD — Dirham Marocain</option><option value="EUR">EUR — Euro</option>
+            <option value="USD">USD — Dollar US</option><option value="XOF">XOF — Franc CFA</option>
+          </select>
+        </div>
+        <div style="height:1px;background:var(--b1);margin:16px 0"></div>
+        <div class="ct" style="margin-bottom:3px"><i data-lucide="image" class="ic-sm"></i> Logos</div><div class="cs">Formats acceptés : PNG, JPG, SVG</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px">
+          <div>
+            <div class="lbl" style="margin-bottom:8px">Logo de l'application (header)</div>
+            <div onclick="document.getElementById('appLogoInp').click()" style="border:2px dashed var(--b2);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--bg3);min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+              <div id="appLogoPreview" style="display:none;width:48px;height:48px;border-radius:10px;overflow:hidden;border:1px solid var(--b2)"><img id="appLogoImg" src="" style="width:100%;height:100%;object-fit:cover"></div>
+              <div id="appLogoPlaceholder"><div style="font-size:24px;margin-bottom:4px"><i data-lucide="graduation-cap" class="ic-xl"></i></div><div style="font-size:12px;color:var(--mu)">Cliquez pour choisir</div></div>
+            </div>
+            <input type="file" id="appLogoInp" accept="image/*" style="display:none" onchange="loadLogo('app',this)">
+            <button class="btn bg bsm" style="margin-top:8px;width:100%" onclick="removeLogo('app')"><i data-lucide="x" class="ic-sm"></i> Supprimer</button>
+          </div>
+          <div>
+            <div class="lbl" style="margin-bottom:8px">Logo de l'école (reçus PDF)</div>
+            <div onclick="document.getElementById('schoolLogoInp').click()" style="border:2px dashed var(--b2);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--bg3);min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
+              <div id="schoolLogoPreview" style="display:none;height:48px;overflow:hidden"><img id="schoolLogoImg" src="" style="height:100%;max-width:120px;object-fit:contain"></div>
+              <div id="schoolLogoPlaceholder"><div style="font-size:24px;margin-bottom:4px"><i data-lucide="school" class="ic-xl"></i></div><div style="font-size:12px;color:var(--mu)">Cliquez pour choisir</div></div>
+            </div>
+            <input type="file" id="schoolLogoInp" accept="image/*" style="display:none" onchange="loadLogo('school',this)">
+            <button class="btn bg bsm" style="margin-top:8px;width:100%" onclick="removeLogo('school')"><i data-lucide="x" class="ic-sm"></i> Supprimer</button>
+          </div>
+        </div>
+      </div>
+      <!-- NOTIFICATIONS -->
+      <div class="card">
+        <div class="ct"><i data-lucide="megaphone" class="ic-sm"></i> Alertes &amp; Notifications</div>
+        <div class="cs">Choisissez votre canal — Telegram (automatique) ou WhatsApp (lien direct)</div>
+        <div class="notif-tabs">
+          <div class="ntab on-tg" id="ntab-tg" onclick="switchNotifTab('tg')"><i data-lucide="send" class="ic-sm"></i> Telegram <span style="font-size:10px;opacity:.7">(recommandé)</span></div>
+          <div class="ntab" id="ntab-wa" onclick="switchNotifTab('wa')"><i data-lucide="message-circle" class="ic-sm"></i> WhatsApp</div>
+        </div>
+        <div id="notif-tg">
+          <div class="ib ib-tg"><strong>Telegram Bot — envoi automatique, 100% gratuit</strong><br><br>
+            1. Ouvrez Telegram → <code>@BotFather</code> → <code>/newbot</code> → récupérez le <strong>Token</strong><br>
+            2. Cherchez votre bot, envoyez <code>/start</code><br>
+            3. Visitez <code>https://api.telegram.org/bot[TOKEN]/getUpdates</code> → copiez le <strong>Chat ID</strong>
+          </div>
+          <div class="fg2">
+            <div class="fg"><label class="lbl">Token du Bot Telegram</label><input class="inp" id="c_tgToken" placeholder="123456789:ABCdef…"></div>
+            <div class="fg"><label class="lbl">Chat ID</label><input class="inp" id="c_tgChat" placeholder="123456789"></div>
+          </div>
+          <button class="btn btg" onclick="testTg()"><i data-lucide="send" class="ic-sm"></i> Envoyer un message test</button>
+        </div>
+        <div id="notif-wa" style="display:none">
+          <div class="ib ib-wa"><strong>WhatsApp via lien direct — aucune API requise</strong><br><br>À chaque reçu généré, un bouton ouvre WhatsApp avec le message pré-rempli.</div>
+          <div class="fg"><label class="lbl">Numéro WhatsApp (avec code pays)</label><input class="inp" id="c_waNum" placeholder="+212661234567" style="max-width:280px"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct"><i data-lucide="file-text" class="ic-sm"></i> Modèle de message d'alerte</div>
+        <div class="cs">Variables : {eleve} {classe} {mois} {montant} {devise} {recu} {ecole} {date} {remarque} · La ligne 🏷️ (type de paiement) est ajoutée automatiquement</div>
+        <div class="fg"><textarea class="inp" id="c_alertMsg" rows="7"></textarea></div>
+      </div>
+      <!-- PERSONNALISATION REÇU -->
+      <div class="card">
+        <div class="ct"><i data-lucide="palette" class="ic-sm"></i> Personnalisation du Reçu</div><div class="cs">Aperçu en temps réel</div>
+        <div style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Couleurs &amp; Style</div>
+        <div class="fg2">
+          <div class="fg"><label class="lbl">Couleur du bandeau</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="r_color" value="#3b7dff" oninput="S.rColor=this.value;document.getElementById('r_colorHex').value=this.value;livePreview()" style="width:44px;height:36px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);cursor:pointer;padding:2px"><input class="inp" id="r_colorHex" value="#3b7dff" style="flex:1;font-family:monospace" oninput="S.rColor=this.value;document.getElementById('r_color').value=this.value;livePreview()"></div></div>
+          <div class="fg"><label class="lbl">Couleur du tampon PAYÉ</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="r_stamp" value="#16a34a" oninput="S.rStampColor=this.value;document.getElementById('r_stampHex').value=this.value;livePreview()" style="width:44px;height:36px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);cursor:pointer;padding:2px"><input class="inp" id="r_stampHex" value="#16a34a" style="flex:1;font-family:monospace" oninput="S.rStampColor=this.value;document.getElementById('r_stamp').value=this.value;livePreview()"></div></div>
+          <div class="fg"><label class="lbl">Fond du reçu</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="r_bg" value="#ffffff" oninput="S.rBg=this.value;document.getElementById('r_bgHex').value=this.value;livePreview()" style="width:44px;height:36px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);cursor:pointer;padding:2px"><input class="inp" id="r_bgHex" value="#ffffff" style="flex:1;font-family:monospace" oninput="S.rBg=this.value;document.getElementById('r_bg').value=this.value;livePreview()"></div></div>
+          <div class="fg"><label class="lbl">Police</label><select class="inp" id="r_font" onchange="S.rFont=this.value;livePreview()"><option value="DM Sans">DM Sans (défaut)</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Trebuchet MS">Trebuchet MS</option></select></div>
+        </div>
+        <div style="display:flex;gap:18px;margin-bottom:14px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--tx)"><input type="radio" name="r_format" id="r_fmtA5" value="A5" checked onchange="S.rFormat='A5';livePreview()" style="accent-color:var(--ac)"> A5 compact (recommandé)</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--tx)"><input type="radio" name="r_format" id="r_fmtA4" value="A4" onchange="S.rFormat='A4';livePreview()" style="accent-color:var(--ac)"> A4 pleine page</label>
+        </div>
+        <div class="fg2" style="margin-bottom:14px">
+          <div class="fg"><label class="lbl">Matricule (vide = masqué)</label><input class="inp" id="r_matricule" placeholder="ex: MAT-2024-001" oninput="S.rExtraFields.matricule=this.value;livePreview()"></div>
+          <div class="fg"><label class="lbl">Niveau</label><input class="inp" id="r_niveau" placeholder="ex: Collège, Lycée…" oninput="S.rExtraFields.niveau=this.value;livePreview()"></div>
+          <div class="fg"><label class="lbl">Section / Filière</label><input class="inp" id="r_section" placeholder="ex: Sciences, Lettres…" oninput="S.rExtraFields.section=this.value;livePreview()"></div>
+        </div>
+        <div class="fg"><input class="inp" id="r_footer" value="Merci pour votre confiance !" oninput="S.rFooter=this.value;livePreview()"></div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showSig" checked onchange="S.rShowSignature=this.checked;livePreview()" style="accent-color:var(--ac)"> Zone de signature</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showStamp" checked onchange="S.rShowStamp=this.checked;livePreview()" style="accent-color:var(--ac)"> Tampon PAYÉ</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showGen" checked onchange="S.rShowGenerated=this.checked;livePreview()" style="accent-color:var(--ac)"> Mention EduReçu</label>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:12px;padding:16px;display:flex;justify-content:center;overflow:auto"><div id="recuLivePreview"></div></div>
+      </div>
+      <!-- COMPTES -->
+      <div class="card" id="cardComptes">
+        <div class="ct"><i data-lucide="users" class="ic-sm"></i> Gestion des Comptes</div><div class="cs">Comptes gérés via Firebase Authentication</div>
+        <div style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px"><i data-lucide="key" class="ic-sm"></i> Modifier un mot de passe (Admin)</div>
+        <div class="fg2">
+          <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="adm_pass1" placeholder="Minimum 6 caractères" autocomplete="new-password"></div>
+          <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="adm_pass2" placeholder="Répéter" autocomplete="new-password"></div>
+        </div>
+        <div class="fg"><label class="lbl">Email du compte cible</label><input class="inp" id="adm_target_email" placeholder="email@exemple.com — laisser vide pour votre propre compte" autocomplete="off"></div>
+        <button class="btn bp bsm" onclick="changeMyPassword()"><i data-lucide="save" class="ic-sm"></i> Modifier le mot de passe</button>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--b1)">
+          <div class="ib" style="font-size:12.5px">
+            <i data-lucide="lightbulb" class="ic-sm"></i> <strong>Seul l'administrateur peut modifier les mots de passe.</strong><br><br>Pour modifier le mot de passe d'un <em>autre compte</em>, utilisez la <a href="https://console.firebase.google.com" target="_blank" style="color:var(--ac)">Console Firebase</a> → Authentication → Users → ⋮ → Reset password.<br><br>Pour créer/supprimer des comptes : Console Firebase → Authentication → Users.<br><br>Pour définir le rôle admin : Firestore → <code>roles/{uid}</code> → <code>{role: "admin"}</code>.
+          </div>
+        </div>
+      </div>
+      <button class="btn bp" style="margin-top:4px" onclick="saveSettings()"><i data-lucide="save" class="ic-sm"></i> Enregistrer les paramètres</button>
+    </div>
+  </main>
+</div>
+<nav class="bottom-nav">
+  <button class="bn-item" id="bn-dashboard" onclick="nav('dashboard')"><span class="bn-ico"><i data-lucide="layout-dashboard"></i></span>Board</button>
+
+  <button class="bn-item" id="bn-eleves" onclick="nav('eleves')"><span class="bn-ico"><i data-lucide="users"></i></span>Élèves</button>
+  <button class="bn-item" id="bn-paiement" onclick="nav('paiement')"><span class="bn-ico"><i data-lucide="credit-card"></i></span>Paiement</button>
+  <button class="bn-item" id="bn-historique" onclick="nav('historique')"><span class="bn-ico"><i data-lucide="clipboard-list"></i></span>Historique</button>
+  <button class="bn-item" id="bn-parametres" onclick="nav('parametres')"><span class="bn-ico"><i data-lucide="settings"></i></span>Params</button>
+</nav>
+<!-- MODALS -->
+<div class="mov" id="modalOk"><div class="modal"><div class="m-t"><i data-lucide="check-circle-2"></i> Reçu généré !</div><div class="m-s" id="mOkMsg"></div><div id="mOkAlerte" style="margin:10px 0"></div><div class="m-ft"><button class="btn bg" onclick="closeM('modalOk')">Fermer</button><button class="btn bp" onclick="closeM('modalOk');nav('historique')">Voir l'historique →</button></div></div></div>
+<div class="mov" id="modalWa">
+  <div class="wa-popup">
+    <div style="font-size:40px;margin-bottom:12px"><i data-lucide="message-circle" class="ic-xl"></i></div>
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px">Envoyer l'alerte WhatsApp</div>
+    <div style="color:var(--mu);font-size:13px;margin-bottom:18px;line-height:1.6">Le message est prêt. Cliquez pour ouvrir WhatsApp.</div>
+    <div class="wa-msg-box" id="waMsgBox"></div>
+    <div style="display:flex;gap:10px"><a id="waLinkBtn" href="#" target="_blank" class="btn bwa" style="text-decoration:none;flex:1;justify-content:center" onclick="closeM('modalWa')"><i data-lucide="message-circle" class="ic-sm"></i> Ouvrir WhatsApp &amp; Envoyer</a><button class="btn bg" onclick="closeM('modalWa')">Ignorer</button></div>
+  </div>
+</div>
+<div class="mov" id="modalViewer">
+  <div class="recu-modal">
+    <div class="rv-hdr"><div class="rv-t" id="rvTitle">Reçu</div><div class="rv-act"><button class="btn bp bsm" onclick="printViewer()"><i data-lucide="printer" class="ic-sm"></i> Imprimer / PDF</button><button class="btn bg bsm" onclick="closeM('modalViewer')"><i data-lucide="x" class="ic-sm"></i> Fermer</button></div></div>
+    <div class="rv-body"><div id="rvContent"></div></div>
+  </div>
+</div>
+<div class="mov" id="modalEleve">
+  <div class="modal" style="width:580px">
+    <div class="m-t" id="modalEleveTitle"><i data-lucide="plus"></i> Ajouter un élève</div>
+    <div class="m-s">Remplissez les informations de l'élève</div>
+    <input type="hidden" id="eleveEditId" value="-1">
+    <div class="fg2">
+      <div class="fg"><label class="lbl">Code / Indice</label><input class="inp" id="el_indice" placeholder="Ex: D187081557"></div>
+      <div class="fg"><label class="lbl">Sexe</label><select class="inp" id="el_sexe"><option value="">— Choisir —</option><option value="ذكر">♂️ ذكر (Masculin)</option><option value="أنثى">♀️ أنثى (Féminin)</option></select></div>
+    </div>
+    <div class="fg2">
+      <div class="fg"><label class="lbl">Nom (النسب) *</label><input class="inp" id="el_nom" placeholder="Nom de famille" dir="auto"></div>
+      <div class="fg"><label class="lbl">Prénom (الإسم) *</label><input class="inp" id="el_prenom" placeholder="Prénom" dir="auto"></div>
+    </div>
+    <div class="fg2">
+      <div class="fg"><label class="lbl">Date de naissance</label><input class="inp" type="date" id="el_dateNaissance"></div>
+      <div class="fg"><label class="lbl">Lieu de naissance</label><input class="inp" id="el_lieuNaissance" placeholder="Ville" dir="auto"></div>
+    </div>
+    <div class="fg2">
+      <div class="fg"><label class="lbl">Classe</label><input class="inp" id="el_classe" placeholder="Ex: 1APIC-1"></div>
+      <div class="fg"><label class="lbl">Téléphone</label><input class="inp" id="el_tel" placeholder="+212661234567"></div>
+    </div>
+    <div class="fg2">
+      <div class="fg2">
+        <div class="fg"><label class="lbl">Frais mensuels</label><input class="inp" type="number" id="el_frais" placeholder="850" min="0"></div>
+        <div class="fg"><label class="lbl">Frais d'inscription</label><input class="inp" type="number" id="el_fraisInscription" placeholder="500" min="0"></div>
+      <div class="fg" style="margin-top:-4px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="el_inscriptionPayee" style="accent-color:var(--ac);width:15px;height:15px"><i data-lucide="check-circle-2" class="ic-sm" style="color:var(--g2)"></i> Frais d'inscription déjà payés</label></div>
+      </div>
+      <div class="fg"><label class="lbl">Statut</label><select class="inp" id="el_statut"><option value="en attente">⏳ En attente</option><option value="payé">✅ Payé</option><option value="retard">🔴 Retard</option></select></div>
+    </div>
+    <div class="m-ft"><button class="btn bg" onclick="closeM('modalEleve')">Annuler</button><button class="btn bp" onclick="saveEleve()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
+  </div>
+</div>
+<div class="mov" id="modalAssurance">
+  <div class="modal" style="width:520px">
+    <div class="m-t"><i data-lucide="shield"></i> Assurance Annuelle</div>
+    <div class="m-s" id="assuranceSubtitle">Gérer le paiement de l'assurance</div>
+    <input type="hidden" id="assuranceEleveId" value="-1">
+    <div class="fg2">
+      <div class="fg"><label class="lbl">Montant total</label><input class="inp" type="number" id="ass_total" placeholder="150" min="0" oninput="updateAssuranceCalc()"></div>
+      <div class="fg"><label class="lbl">Montant déjà payé</label><input class="inp" type="number" id="ass_paye" placeholder="0" min="0" oninput="updateAssuranceCalc()"></div>
+    </div>
+    <div class="fg2">
+      <div class="fg"><label class="lbl">Date de paiement</label><input class="inp" type="date" id="ass_date"></div>
+      <div class="fg"><label class="lbl">Statut</label><select class="inp" id="ass_statut"><option value="en attente">⏳ En attente</option><option value="partiel">⚠️ Paiement partiel</option><option value="payé">✅ Payé intégralement</option></select></div>
+    </div>
+    <div class="fg"><label class="lbl">Remarque</label><input class="inp" id="ass_remarque" placeholder="Ex: Payé en deux fois…"></div>
+    <div style="background:var(--bg3);border-radius:10px;padding:14px;display:flex;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:80px;text-align:center"><div style="font-size:11px;color:var(--di);text-transform:uppercase">Total</div><div id="ass_r_total" style="font-size:18px;font-weight:700">—</div></div>
+      <div style="flex:1;min-width:80px;text-align:center"><div style="font-size:11px;color:var(--di);text-transform:uppercase">Payé</div><div id="ass_r_paye" style="font-size:18px;font-weight:700;color:var(--g2)">—</div></div>
+      <div style="flex:1;min-width:80px;text-align:center"><div style="font-size:11px;color:var(--di);text-transform:uppercase">Reste</div><div id="ass_r_reste" style="font-size:18px;font-weight:700;color:var(--re)">—</div></div>
+      <div style="flex:1;min-width:80px;text-align:center"><div style="font-size:11px;color:var(--di);text-transform:uppercase">Avancement</div><div id="ass_r_pct" style="font-size:18px;font-weight:700;color:var(--am)">—</div></div>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);display:flex;align-items:center;gap:8px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tx);flex:1">
+        <input type="checkbox" id="ass_genRecu" checked style="accent-color:var(--ac);width:16px;height:16px">
+        <i data-lucide="printer" class="ic-sm"></i> Générer et imprimer un reçu d'assurance
+      </label>
+    </div>
+    <div class="m-ft"><button class="btn bg" onclick="closeM('modalAssurance')">Annuler</button><button class="btn bp" onclick="saveAssurance()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"><span class="t-ico" id="tIco"></span><div><div class="t-msg" id="tMsg"></div><div class="t-sub" id="tSub"></div></div></div>
+<script>
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let eleves=[], paiements=[], recuN=1000, sortState={col:'nom',dir:'asc'};
+let currentViewerHTML='', currentUser=null;
+let _sessionTimer=null, _sessionStart=null, _sessionExpiring=false;
+const SESSION_DURATION = 10*60*1000;
+
+let S={
+  ecole:'École Privée', adresse:'', tel:'', email:'', devise:'MAD',
+  notifMode:'tg', tgToken:'', tgChat:'', waNum:'',
+  appLogo:'', schoolLogo:'',
+  rColor:'#3b7dff', rBg:'#ffffff', rFont:'DM Sans', rFormat:'A5',
+  rStampColor:'#16a34a', rFooter:'Merci pour votre confiance !',
+  rShowSignature:true, rShowStamp:true, rShowGenerated:true,
+  rExtraFields:{matricule:'',niveau:'',section:''},
+  alertMsg:`🎓 *{ecole}*\n✅ Reçu n°{recu}\n👤 {eleve} · {classe}\n📅 {mois} · 💰 {montant} {devise}\n📝 {remarque}\n📆 {date}`,
+  fbConfig:/*FBCONFIG_START*/null/*FBCONFIG_END*/
+};
+
+// ─── Session ───
+// ─── EMBED CONFIG DANS LE HTML ───
+async function embedConfigInHTML(config){
+  try{
+    // Lire le source HTML de la page courante
+    const resp=await fetch(window.location.href);
+    if(!resp.ok)return false;
+    let html=await resp.text();
+    // Remplacer le marqueur par la config sérialisée
+    const marker=/\/\*FBCONFIG_START\*\/[\s\S]*?\/\*FBCONFIG_END\*\//;
+    const replacement='/*FBCONFIG_START*/'+JSON.stringify(config)+'/*FBCONFIG_END*/';
+    if(!marker.test(html))return false;
+    html=html.replace(marker,replacement);
+    // Télécharger le fichier mis à jour
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='edurecu_v2.html';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    return true;
+  }catch(e){console.warn('embedConfigInHTML:',e);return false;}
+}
+function resetSession(){
+  _sessionStart=Date.now();
+  _sessionExpiring=false;
+  clearTimeout(_sessionTimer);
+  _sessionTimer=setTimeout(triggerSessionExpiry,SESSION_DURATION);
+}
+function triggerSessionExpiry(){
+  if(!currentUser||_sessionExpiring)return;
+  _sessionExpiring=true;
+  clearTimeout(_sessionTimer);
+  toast('⏱️','Session expirée','Reconnexion requise');
+  setTimeout(doLogout,1500);
+}
+function updateSessionBar(){
+  if(!_sessionStart||!currentUser)return;
+  const elapsed=Date.now()-_sessionStart;
+  const pct=Math.max(0,100-(elapsed/SESSION_DURATION*100));
+  const bar=document.getElementById('sessionProgress');
+  if(bar){bar.style.width=pct+'%';bar.style.background=pct>40?'var(--g2)':pct>20?'var(--am)':'var(--re)';}
+  // Filet de sécurité : si le délai est dépassé (ex: setTimeout retardé par un onglet en arrière-plan), forcer la déconnexion
+  if(elapsed>=SESSION_DURATION) triggerSessionExpiry();
+}
+setInterval(updateSessionBar,5000);
+// Activité "délibérée" uniquement (clic, saisie, tap) — mousemove est exclu car trop sensible (mouvements involontaires de souris/trackpad)
+['click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,()=>{if(currentUser)resetSession();},{passive:true}));
+
+// ─── Sync UI ───
+function setSyncStatus(state,label){
+  const dot=document.getElementById('syncDot');const lbl=document.getElementById('syncLabel');
+  if(dot)dot.className='sync-dot '+state;if(lbl)lbl.textContent=label;
+}
+
+// ─── Firebase Auth ───
+async function saveFirebaseConfig(){
+  const config={
+    apiKey:(document.getElementById('setup_apiKey')?.value||'').trim(),
+    projectId:(document.getElementById('setup_projectId')?.value||'').trim(),
+    appId:(document.getElementById('setup_appId')?.value||'').trim(),
+    authDomain:(document.getElementById('setup_authDomain')?.value||'').trim(),
+  };
+  const errEl=document.getElementById('fbConfigErr');
+  if(!config.apiKey||!config.projectId||!config.appId){if(errEl){errEl.textContent='Renseignez API Key, Project ID et App ID';errEl.style.display='block';}return;}
+  if(errEl)errEl.style.display='none';
+  const btn=document.querySelector('#fbConfigPanel button');
+  if(btn){btn.disabled=true;btn.innerHTML='<i data-lucide="loader-circle" class="ic-sm spin-ico"></i> Connexion…';refreshIcons();}
+  let t=0;while(!window.FB&&t++<40)await new Promise(r=>setTimeout(r,100));
+  if(!window.FB){if(errEl){errEl.textContent='SDK Firebase non chargé';errEl.style.display='block';}if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="flame" class="ic-sm"></i> Connecter Firebase';refreshIcons();}return;}
+  const res=await window.FB.init(config);
+  if(btn){btn.disabled=false;btn.innerHTML='<i data-lucide="flame" class="ic-sm"></i> Connecter Firebase';refreshIcons();}
+  if(res.ok){
+    S.fbConfig=config;localStorage.setItem('edurecu_fbconfig',JSON.stringify(config));
+    window.FB.listenAuth(onAuthChange);
+    document.getElementById('fbConfigPanel').style.display='none';
+    document.getElementById('loginFormPanel').style.display='block';
+    document.getElementById('loginUser').focus();
+    setSyncStatus('synced','Connecté');toast('🔥','Firebase connecté !','');
+    // Embarquer la config dans le HTML pour que tous les navigateurs fonctionnent sans reconfiguration
+    embedConfigInHTML(config).then(ok=>{
+      if(ok) toast('💾','Fichier HTML mis à jour téléchargé','Remplacez l\'ancien fichier par ce nouveau pour garder la config permanente');
+    });
+  }else{if(errEl){errEl.textContent='Erreur : '+res.err;errEl.style.display='block';}}
+}
+
+function showFbConfig(){
+  document.getElementById('fbConfigPanel').style.display='block';
+  document.getElementById('loginFormPanel').style.display='none';
+  if(S.fbConfig){['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('setup_'+k);if(el)el.value=S.fbConfig[k]||'';});}
+}
+
+async function getRoleFromFirebase(uid){
+  if(!window.FB||!window.FB.isReady())return'user';
+  try{const snap=await window.FB.getRole(uid);return snap||'user';}catch(e){return'user';}
+}
+
+function onAuthChange(fbUser){
+  document.getElementById('loadingOverlay').style.display='none';
+  if(fbUser){
+    getRoleFromFirebase(fbUser.uid).then(role=>{
+      currentUser={email:fbUser.email,uid:fbUser.uid,role};
+      document.getElementById('loginScreen').style.display='none';
+      resetSession();applyUI();setTimeout(startFirebaseSync,100);
+    }).catch(()=>{
+      currentUser={email:fbUser.email,uid:fbUser.uid,role:'user'};
+      document.getElementById('loginScreen').style.display='none';
+      resetSession();applyUI();setTimeout(startFirebaseSync,100);
+    });
+  }else{
+    currentUser=null;
+    document.getElementById('sessionBar').style.display='none';
+    document.getElementById('loginScreen').style.display='flex';
+    setSyncStatus('','');
+    try{document.getElementById('loginUser').focus();}catch(e){}
+    if(window.FB)window.FB.stopListeners();
+  }
+}
+
+function applyUI(){
+  if(!currentUser)return;
+  const isAdmin=currentUser.role==='admin';
+  document.getElementById('sessionBar').style.display='block';
+  try{
+    document.getElementById('userBadge').style.display='flex';
+    document.getElementById('userBadgeName').textContent=currentUser.email.split('@')[0];
+    const re=document.getElementById('userBadgeRole');re.textContent=isAdmin?'Admin':'Utilisateur';
+    re.className='login-role '+(isAdmin?'role-admin':'role-user');
+    document.getElementById('userMenuInfo').textContent=currentUser.email;
+    const pwdBtn=document.getElementById('btnChangePwd');if(pwdBtn)pwdBtn.style.display=isAdmin?'flex':'none';
+  }catch(e){}
+  try{
+    const ni=document.querySelectorAll('.nav-i');const bp=document.getElementById('bn-parametres');
+    if(isAdmin){if(ni[4])ni[4].style.display='';if(bp)bp.style.display='';}
+    else{if(ni[4])ni[4].style.display='none';if(bp)bp.style.display='none';}
+  }catch(e){}
+  try{nav('dashboard');}catch(e){}
+}
+
+async function doLogin(){
+  const email=(document.getElementById('loginUser').value||'').trim();
+  const pass=document.getElementById('loginPass').value||'';
+  const errEl=document.getElementById('loginErr');const btnEl=document.getElementById('loginBtn');
+  errEl.style.display='none';if(!email||!pass)return;
+  btnEl.disabled=true;btnEl.innerHTML='<i data-lucide="loader-circle" class="ic-sm spin-ico"></i> Connexion…';refreshIcons();
+  let t=0;while((!window.FB||!window.FB.isReady())&&t++<60)await new Promise(r=>setTimeout(r,100));
+  if(!window.FB||!window.FB.isReady()){
+    btnEl.disabled=false;btnEl.innerHTML='<i data-lucide="log-in" class="ic-sm"></i> Se connecter';refreshIcons();
+    errEl.textContent='Firebase non disponible — vérifiez votre connexion';errEl.style.display='block';return;
+  }
+  const res=await window.FB.signIn(email,pass);
+  btnEl.disabled=false;btnEl.innerHTML='<i data-lucide="log-in" class="ic-sm"></i> Se connecter';refreshIcons();
+  if(!res.ok){
+    const msg={'auth/invalid-credential':'Email ou mot de passe incorrect','auth/wrong-password':'Mot de passe incorrect','auth/user-not-found':'Aucun compte avec cet email','auth/invalid-email':'Format d\'email invalide','auth/user-disabled':'Ce compte a été désactivé','auth/too-many-requests':'Trop de tentatives — réessayez dans quelques minutes','auth/network-request-failed':'Erreur réseau'}[res.err]||('Erreur : '+res.err);
+    errEl.textContent=msg;errEl.style.display='block';document.getElementById('loginPass').value='';
+  }
+}
+
+function doLogout(){if(window.FB)window.FB.signOut();document.getElementById('userBadge').style.display='none';document.getElementById('userMenu').style.display='none';clearTimeout(_sessionTimer);_sessionStart=null;_sessionExpiring=false;}
+function toggleUserMenu(){const m=document.getElementById('userMenu');if(!m)return;m.style.display=m.style.display==='none'?'block':'none';}
+document.addEventListener('click',e=>{const menu=document.getElementById('userMenu');const badge=document.getElementById('userBadge');if(menu&&badge&&!menu.contains(e.target)&&!badge.contains(e.target))menu.style.display='none';});
+function changePassword(){document.getElementById('userMenu').style.display='none';document.getElementById('newPass1').value='';document.getElementById('newPass2').value='';document.getElementById('mdpErr').style.display='none';document.getElementById('modalMdp').classList.add('open');}
+async function saveMdp(){const p1=document.getElementById('newPass1').value;const p2=document.getElementById('newPass2').value;const err=document.getElementById('mdpErr');if(p1.length<6){err.textContent='Minimum 6 caractères';err.style.display='block';return;}if(p1!==p2){err.textContent='Les mots de passe ne correspondent pas';err.style.display='block';return;}if(!window.FB){err.textContent='Firebase non connecté';err.style.display='block';return;}const res=await window.FB.updatePassword(p1);if(res.ok){closeM('modalMdp');toast('✅','Mot de passe modifié','');}else{err.textContent='Erreur : '+res.err;err.style.display='block';}}
+
+async function startFirebaseSync(){
+  if(!window.FB||!window.FB.isReady())return;
+  setSyncStatus('syncing','Synchronisation…');
+  try{const data=await window.FB.getEleves();if(data&&data.length>0){eleves=data;renderE(eleves);fillSel();}}catch(e){}
+  try{const data=await window.FB.getPaiements();if(data&&data.length>0){paiements=data;renderHist();updStats();}}catch(e){}
+  renderDashboard();setSyncStatus('synced','Synchronisé');
+  await window.FB.startListeners({
+    onEleves:null,onPaiements:null,
+    onSettings:(data)=>{if(data){const l={appLogo:S.appLogo,schoolLogo:S.schoolLogo,fbConfig:S.fbConfig};Object.assign(S,data,l);applyS();const sc=document.getElementById('schoolChip');if(sc)sc.textContent=S.ecole||'';}},
+    onRecuN:(n)=>{if(n&&n>recuN)recuN=n;}
+  });
+}
+
+async function changeMyPassword(){
+  const p1=document.getElementById('adm_pass1').value;
+  const p2=document.getElementById('adm_pass2').value;
+  if(p1.length<6){toast('⚠️','Minimum 6 caractères','');return;}
+  if(p1!==p2){toast('⚠️','Mots de passe différents','');return;}
+  const targetEmail=(document.getElementById('adm_target_email')?.value||'').trim();
+  if(targetEmail && targetEmail!==currentUser?.email){
+    toast('ℹ️','Utilisez la console Firebase',"Pour changer le mot de passe d'un autre compte, allez dans Firebase → Authentication → Users → Reset password");
+    return;
+  }
+  const res=await window.FB.updatePassword(p1);
+  if(res.ok){document.getElementById('adm_pass1').value='';document.getElementById('adm_pass2').value='';if(document.getElementById('adm_target_email'))document.getElementById('adm_target_email').value='';toast('✅','Mot de passe modifié','');}
+  else{toast('❌','Erreur',res.err||'');}
+}
+
+// ─── INIT ───
+window.onload=()=>{
+  refreshIcons();
+  try{
+    const fbCfg=localStorage.getItem('edurecu_fbconfig');
+    if(fbCfg)try{S.fbConfig=JSON.parse(fbCfg);}catch(e){}
+    const logos=localStorage.getItem('edurecu_logos');
+    if(logos)try{const l=JSON.parse(logos);S.appLogo=l.appLogo||'';S.schoolLogo=l.schoolLogo||'';}catch(e){}
+    applyS();
+    setMoisPay(new Date().toISOString().slice(0,7));
+    if(S.appLogo){const lp=document.getElementById('loginLogoPill');if(lp)lp.innerHTML=`<img src="${S.appLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;const lp2=document.getElementById('loadPill');if(lp2)lp2.innerHTML=`<img src="${S.appLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;}
+  }catch(e){}
+  const checkOffline=()=>{const msg=document.getElementById('offlineMsg');if(msg)msg.style.display=navigator.onLine?'none':'block';};
+  checkOffline();window.addEventListener('online',checkOffline);window.addEventListener('offline',checkOffline);
+  setTimeout(async()=>{
+    const loadMsg=document.getElementById('loadMsg');
+    try{
+      let t=0;while(!window.FB&&t++<50)await new Promise(r=>setTimeout(r,100));
+      if(!window.FB){document.getElementById('loadingOverlay').style.display='none';document.getElementById('loginScreen').style.display='flex';if(!S.fbConfig||!S.fbConfig.apiKey){document.getElementById('fbConfigPanel').style.display='block';document.getElementById('loginFormPanel').style.display='none';}else{document.getElementById('loginUser').focus();}return;}
+      if(!S.fbConfig||!S.fbConfig.apiKey){document.getElementById('loadingOverlay').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('fbConfigPanel').style.display='block';document.getElementById('loginFormPanel').style.display='none';return;}
+      if(loadMsg)loadMsg.textContent='Connexion à '+S.fbConfig.projectId+'…';
+      const res=await window.FB.init(S.fbConfig);
+      if(res.ok){
+        setSyncStatus('synced','Connecté');window.FB.listenAuth(onAuthChange);
+        const fc=S.fbConfig;['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('fb_'+k);if(el)el.value=fc[k]||'';});
+        fbStatus('✅ Firebase connecté — '+S.fbConfig.projectId,true);
+      }else{
+        document.getElementById('loadingOverlay').style.display='none';document.getElementById('loginScreen').style.display='flex';
+        document.getElementById('fbConfigPanel').style.display='block';document.getElementById('loginFormPanel').style.display='none';
+        const err=document.getElementById('fbConfigErr');if(err){err.textContent='Config invalide : '+res.err;err.style.display='block';}
+      }
+    }catch(e){document.getElementById('loadingOverlay').style.display='none';document.getElementById('loginScreen').style.display='flex';document.getElementById('loginUser').focus();}
+  },200);
+};
+
+function applyS(){
+  try{
+    ['ecole','adresse','tel','email'].forEach(k=>{const el=document.getElementById('c_'+k);if(el)el.value=S[k]||'';});
+    const dv=document.getElementById('c_devise');if(dv)dv.value=S.devise||'MAD';
+    const tgt=document.getElementById('c_tgToken');if(tgt)tgt.value=S.tgToken||'';
+    const tgc=document.getElementById('c_tgChat');if(tgc)tgc.value=S.tgChat||'';
+    const wa=document.getElementById('c_waNum');if(wa)wa.value=S.waNum||'';
+    const am=document.getElementById('c_alertMsg');if(am)am.value=S.alertMsg||'';
+    const sc=document.getElementById('schoolChip');if(sc)sc.textContent=S.ecole||'';
+    switchNotifTab(S.notifMode||'tg',false);
+    applyAppLogo(S.appLogo);applySchoolLogo(S.schoolLogo);
+    const rc=document.getElementById('r_color');if(rc){rc.value=S.rColor||'#3b7dff';const rh=document.getElementById('r_colorHex');if(rh)rh.value=S.rColor||'#3b7dff';}
+    const rs=document.getElementById('r_stamp');if(rs){rs.value=S.rStampColor||'#16a34a';const rsh=document.getElementById('r_stampHex');if(rsh)rsh.value=S.rStampColor||'#16a34a';}
+    const rb=document.getElementById('r_bg');if(rb){rb.value=S.rBg||'#ffffff';const rbh=document.getElementById('r_bgHex');if(rbh)rbh.value=S.rBg||'#ffffff';}
+    const rf=document.getElementById('r_font');if(rf)rf.value=S.rFont||'DM Sans';
+    const rft=document.getElementById('r_footer');if(rft)rft.value=S.rFooter||'Merci pour votre confiance !';
+    if(S.rFormat==='A4'){const el=document.getElementById('r_fmtA4');if(el)el.checked=true;}else{const el=document.getElementById('r_fmtA5');if(el)el.checked=true;}
+    const sig=document.getElementById('r_showSig');if(sig)sig.checked=S.rShowSignature!==false;
+    const stp=document.getElementById('r_showStamp');if(stp)stp.checked=S.rShowStamp!==false;
+    const gen=document.getElementById('r_showGen');if(gen)gen.checked=S.rShowGenerated!==false;
+    const ef=S.rExtraFields||{};
+    const rm=document.getElementById('r_matricule');if(rm)rm.value=ef.matricule||'';
+    const rn=document.getElementById('r_niveau');if(rn)rn.value=ef.niveau||'';
+    const rsc=document.getElementById('r_section');if(rsc)rsc.value=ef.section||'';
+    setTimeout(livePreview,100);
+  }catch(e){}
+}
+
+function livePreview(){const box=document.getElementById('recuLivePreview');if(!box)return;const secP=document.getElementById('sec-parametres');if(!secP||!secP.classList.contains('on'))return;const elv={id:-1,nom:'EXEMPLE',prenom:'Élève',classe:'3ème A',tel:'',frais:850,statut:'payé'};const date=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});const html=buildRecuHTML(elv,'R1001',date,'Mars 2025',850,'Espèces','');const previewScale=0.38;box.innerHTML=`<div style="transform:scale(${previewScale});transform-origin:top left;display:inline-block;line-height:normal">${html}</div>`;box.style.overflow='hidden';box.style.display='inline-block';requestAnimationFrame(()=>{const recu=box.querySelector('.recu');if(recu){const rect=recu.getBoundingClientRect();box.style.width=(rect.width+8)+'px';box.style.height=(rect.height+8)+'px';}});}
+function applyAppLogo(b64){const pill=document.getElementById('appLogoPill');const prev=document.getElementById('appLogoPreview');const ph=document.getElementById('appLogoPlaceholder');const img=document.getElementById('appLogoImg');if(b64){img.src=b64;pill.innerHTML=`<img src="${b64}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`;prev.style.display='block';ph.style.display='none';}else{pill.innerHTML='<i data-lucide="graduation-cap"></i>';refreshIcons();prev.style.display='none';ph.style.display='block';}}
+function applySchoolLogo(b64){const prev=document.getElementById('schoolLogoPreview');const ph=document.getElementById('schoolLogoPlaceholder');const img=document.getElementById('schoolLogoImg');if(b64){img.src=b64;prev.style.display='block';ph.style.display='none';}else{prev.style.display='none';ph.style.display='block';}}
+function loadLogo(type,input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=e=>{const b64=e.target.result;if(type==='app'){S.appLogo=b64;applyAppLogo(b64);}else{S.schoolLogo=b64;applySchoolLogo(b64);}toast('🖼️','Logo chargé','Cliquez sur Enregistrer pour sauvegarder');};r.readAsDataURL(file);}
+function removeLogo(type){if(type==='app'){S.appLogo='';applyAppLogo('');}else{S.schoolLogo='';applySchoolLogo('');}toast('🗑️','Logo supprimé','');}
+
+function saveSettings(){
+  ['ecole','adresse','tel','email'].forEach(k=>S[k]=document.getElementById('c_'+k).value);
+  S.devise=document.getElementById('c_devise').value;S.tgToken=document.getElementById('c_tgToken').value.trim();S.tgChat=document.getElementById('c_tgChat').value.trim();S.waNum=document.getElementById('c_waNum').value.trim();S.alertMsg=document.getElementById('c_alertMsg').value;
+  S.rColor=document.getElementById('r_colorHex').value||S.rColor;S.rStampColor=document.getElementById('r_stampHex').value||S.rStampColor;S.rBg=document.getElementById('r_bgHex').value||S.rBg;S.rFont=document.getElementById('r_font').value;S.rFooter=document.getElementById('r_footer').value;
+  S.rFormat=document.querySelector('input[name="r_format"]:checked')?.value||'A5';S.rShowSignature=document.getElementById('r_showSig').checked;S.rShowStamp=document.getElementById('r_showStamp').checked;S.rShowGenerated=document.getElementById('r_showGen').checked;
+  S.rExtraFields={matricule:document.getElementById('r_matricule').value,niveau:document.getElementById('r_niveau').value,section:document.getElementById('r_section').value};
+  if(S.fbConfig)localStorage.setItem('edurecu_fbconfig',JSON.stringify(S.fbConfig));
+  localStorage.setItem('edurecu_logos',JSON.stringify({appLogo:S.appLogo||'',schoolLogo:S.schoolLogo||''}));
+  document.getElementById('schoolChip').textContent=S.ecole;
+  if(window.FB&&window.FB.isReady()){setSyncStatus('syncing','Sauvegarde…');window.FB.saveSettings(S).then(()=>setSyncStatus('synced','Synchronisé')).catch(()=>setSyncStatus('error','Erreur sync'));}
+  toast('💾','Paramètres enregistrés','');
+}
+
+// ─── NAV ───
+function nav(id){
+  if(id==='parametres'&&currentUser&&currentUser.role!=='admin'){toast('🔒','Accès refusé','Réservé à l\'administrateur');return;}
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('on'));
+  document.getElementById('sec-'+id).classList.add('on');
+  const m={dashboard:0,eleves:1,paiement:2,historique:3,parametres:4};
+  if(m[id]!==undefined)document.querySelectorAll('.nav-i')[m[id]]?.classList.add('on');
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('on'));
+  const bn=document.getElementById('bn-'+id);if(bn)bn.classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='dashboard')setTimeout(renderDashboard,50);
+  if(id==='parametres')setTimeout(()=>{applyS();if(S.fbConfig){['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('fb_'+k);if(el)el.value=S.fbConfig[k]||'';});}livePreview();updateLastBackupInfo();},50);
+}
+function switchTab(t){document.getElementById('pane-form').style.display=t==='form'?'block':'none';document.getElementById('pane-prev').style.display=t==='prev'?'block':'none';document.getElementById('tab-form').className='tab'+(t==='form'?' on':'');document.getElementById('tab-prev').className='tab'+(t==='prev'?' on':'');if(t==='prev')buildPrev();}
+function switchNotifTab(mode,save=true){S.notifMode=mode;document.getElementById('notif-tg').style.display=mode==='tg'?'block':'none';document.getElementById('notif-wa').style.display=mode==='wa'?'block':'none';document.getElementById('ntab-tg').className='ntab'+(mode==='tg'?' on-tg':'');document.getElementById('ntab-wa').className='ntab'+(mode==='wa'?' on-wa':'');}
+
+// ─── IMPORT EXCEL ───
+function onDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readFile(f,'replace');}
+function onFileChange(e){if(e.target.files[0])readFile(e.target.files[0],'replace');}
+function onFileChangeParam(e){if(e.target.files[0])readFile(e.target.files[0],'replace');}
+function onFileChangeAddEleves(e){if(e.target.files[0])readFile(e.target.files[0],'add');e.target.value='';}
+function readFile(file,mode){
+  mode=mode||'replace';
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary',codepage:65001});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const allRows=XLSX.utils.sheet_to_json(ws,{defval:'',header:1});
+      let headerRow=0,idxIndice=-1;
+      // Chercher la classe dans l'en-tête Massar (ligne contenant "القسم")
+      let classeFromHeader='';
+      for(let i=0;i<Math.min(allRows.length,15);i++){
+        const r=allRows[i];if(!r)continue;
+        const rStr=r.map(c=>c?c.toString():'').join('|');
+        if(rStr.includes('القسم')){
+          // La valeur de la classe est généralement 2 colonnes après "القسم"
+          const idxQ=r.findIndex(c=>c&&c.toString().includes('القسم'));
+          if(idxQ>=0&&r[idxQ+2]) classeFromHeader=r[idxQ+2].toString().trim();
+          break;
+        }
+      }
+      for(let i=0;i<allRows.length;i++){
+        const r=allRows[i];if(!r||!r.some)continue;
+        const idx=r.findIndex(c=>c&&c.toString().includes('الرمز'));
+        if(idx>=0){headerRow=i;idxIndice=idx;break;}
+        if(r.some(c=>c&&(c.toString().includes('النسب')||c.toString().includes('الإسم')))){headerRow=i;break;}
+      }
+      // Exports Massar : la mise en page des colonnes est toujours ر.ت | الرمز | النسب | الإسم | النوع | تاريخ الإزدياد | مكان الازدياد
+      // On repère les colonnes nom/prénom/etc. par leur POSITION par rapport à "الرمز" (au lieu de leur libellé,
+      // qui peut varier ou être incorrect dans certains fichiers exportés/modifiés).
+      let dynKeys=null;
+      if(idxIndice>=0){
+        const labels=allRows[headerRow]||[];
+        dynKeys={nom:labels[idxIndice+1],prenom:labels[idxIndice+2],sexe:labels[idxIndice+3],dateNaissance:labels[idxIndice+4],lieuNaissance:labels[idxIndice+5],classeDefault:classeFromHeader||''};
+      } else if(classeFromHeader){
+        dynKeys={classeDefault:classeFromHeader};
+      }
+      const rows=headerRow>0?XLSX.utils.sheet_to_json(ws,{defval:'',range:headerRow}):XLSX.utils.sheet_to_json(ws,{defval:''});
+      if(mode==='add') addEleveRows(rows,file.name,dynKeys);
+      else{ importE(rows,dynKeys); toast('✅',eleves.length+' élèves importés',file.name); }
+    }catch(err){toast('❌','Erreur de lecture','Vérifiez le format du fichier');}
+  };
+  r.readAsBinaryString(file);
+}
+function parseEleveRows(rows,dynKeys){
+  dynKeys=dynKeys||{};
+  const dyn=(row,key,fallback)=>{
+    const k=dynKeys[key];
+    if(k!=null&&k!==''&&row[k]!=null&&row[k]!=='')return row[k].toString().trim();
+    return fallback;
+  };
+  return rows.map(row=>{
+    // Nom / Prénom : priorité à la position détectée dans l'en-tête Massar, puis colonnes arabes connues, puis colonnes françaises/latines
+    const nomAr=dyn(row,'nom',(row['النسب ']||row['النسب']||row['الاسم العائلي']||'').toString().trim());
+    const prenomAr=dyn(row,'prenom',(row['الإسم']||row['الاسم']||row['الإسم الشخصي']||'').toString().trim());
+    const nomFr=(row.nom||row.NOM||row.Nom||'').toString().trim();
+    const prenomFr=(row.prenom||row.PRENOM||row['Prénom']||row.Prenom||'').toString().trim();
+    const nom=nomAr||nomFr.toUpperCase();
+    const prenom=prenomAr||prenomFr;
+
+    const sexeAr=dyn(row,'sexe',(row['النوع']||'').toString().trim());
+    const sexeFr=(row.sexe||row.SEXE||row.genre||'').toString().trim();
+    const dateNaissanceAr=dyn(row,'dateNaissance',(row['تاريخ الإزدياد']||row['تاريخ الازدياد']||'').toString().trim());
+    const dateNaissanceFr=(row.date_naissance||row.dateNaissance||row['date naissance']||'').toString().trim();
+    const lieuNaissanceAr=dyn(row,'lieuNaissance',(row['مكان الازدياد']||row['مكان الإزدياد']||'').toString().trim());
+    const lieuNaissanceFr=(row.lieu_naissance||row.lieuNaissance||row['lieu naissance']||'').toString().trim();
+    const indiceAr=(row['الرمز']||row['رمز']||'').toString().trim();
+    const indiceFr=(row.indice||row.INDICE||row.Indice||row.matricule||row.MATRICULE||'').toString().trim();
+
+    return{
+      indice:indiceFr||indiceAr,
+      nom,prenom,
+      sexe:sexeAr||sexeFr,
+      dateNaissance:dateNaissanceAr||dateNaissanceFr,
+      lieuNaissance:lieuNaissanceAr||lieuNaissanceFr,
+      classe:(row.classe||row.CLASSE||row.Classe||dynKeys.classeDefault||'').toString().trim(),
+      tel:(row.telephone||row.TELEPHONE||row.tel||row.TEL||'').toString().trim(),
+      frais:parseFloat(row.frais_mensuel||row.FRAIS||row.frais||0)||0,
+      fraisInscription:parseFloat(row.frais_inscription||row.FRAIS_INSCRIPTION||row['frais inscription']||row.fraisInscription||0)||0,
+      statut:(row.statut||row.STATUT||row.Statut||'en attente').toString().toLowerCase()
+    };
+  }).filter(e=>e.nom||e.prenom||e.indice);
+}
+function importE(rows,dynKeys){
+  eleves=parseEleveRows(rows,dynKeys).map((e,i)=>({...e,id:i}));
+  saveElevesToFirebase();renderE(eleves);fillSel();nav('eleves');
+}
+function addEleveRows(rows,filename,dynKeys){
+  const parsed=parseEleveRows(rows,dynKeys);
+  if(!parsed.length){toast('⚠️','Aucun élève valide trouvé',filename||'');return;}
+  let nextId=eleves.length?Math.max(...eleves.map(e=>e.id))+1:0;
+  let added=0,skipped=0;
+  parsed.forEach(e=>{
+    const isDup=e.indice&&eleves.some(ex=>ex.indice&&ex.indice===e.indice);
+    if(isDup){skipped++;return;}
+    eleves.push({...e,id:nextId++});added++;
+  });
+  saveElevesToFirebase();renderE(eleves);fillSel();renderDashboard();
+  if(skipped>0)toast('✅',added+' élève(s) ajouté(s)',skipped+' doublon(s) ignoré(s) (code déjà existant)');
+  else toast('✅',added+' élève(s) ajouté(s)',filename||'');
+}
+function exportElevesExcel(){if(!eleves.length){toast('⚠️','Aucun élève à exporter','');return;}const rows=eleves.map(e=>({'indice':e.indice||'','nom':e.nom||'','prenom':e.prenom||'','sexe':e.sexe||'','date_naissance':e.dateNaissance||'','lieu_naissance':e.lieuNaissance||'','classe':e.classe||'','telephone':e.tel||'','frais_mensuel':e.frais||0,'frais_inscription':e.fraisInscription||0,'statut':e.statut||''}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Élèves');XLSX.writeFile(wb,`Eleves_${S.ecole.replace(/\s/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);toast('⬇️','Liste exportée','');}
+async function saveElevesToFirebase(){if(window.FB&&window.FB.isReady()){setSyncStatus('syncing','Sauvegarde…');await window.FB.saveEleves(eleves);setSyncStatus('synced','Synchronisé');}}
+function loadDemo(){importE([{nom:'ALAMI',prenom:'Youssef',classe:'3ème A',telephone:'+212661234567',frais_mensuel:850,statut:'payé'},{nom:'BENALI',prenom:'Fatima Zahra',classe:'2ème B',telephone:'+212677654321',frais_mensuel:750,statut:'en attente'},{nom:'CHRAIBI',prenom:'Ahmed',classe:'1ère C',telephone:'+212655112233',frais_mensuel:900,statut:'retard'},{nom:'DRISSI',prenom:'Meryem',classe:'3ème A',telephone:'+212666998877',frais_mensuel:850,statut:'payé'},{nom:'ELKADI',prenom:'Omar',classe:'2ème B',telephone:'+212699112244',frais_mensuel:750,statut:'en attente'},{nom:'FASSI',prenom:'Imane',classe:'1ère A',telephone:'+212654321098',frais_mensuel:800,statut:'payé'},{nom:'GUESSOUS',prenom:'Karim',classe:'3ème B',telephone:'+212670123456',frais_mensuel:900,statut:'retard'},{nom:'HAMDOUNE',prenom:'Nadia',classe:'2ème A',telephone:'+212661009988',frais_mensuel:750,statut:'payé'}]);toast('⚡','Données démo chargées','8 élèves exemples');}
+
+// ─── ÉLÈVES ───
+function renderE(data){
+  document.getElementById('eleveCnt').textContent=data.length+' élèves';
+  const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();
+  const s=document.getElementById('filtCls');const prevCls=s.value;s.innerHTML='<option value="">Toutes classes</option>';cls.forEach(c=>s.innerHTML+=`<option${c===prevCls?' selected':''}>${c}</option>`);
+  const fa=document.getElementById('filtAnnee');const prevAnnee=fa?fa.value:'';const anneesDispo=[...new Set(paiements.map(p=>{const m=p.mois.match(/\d{4}/);return m?m[0]:'';}).filter(Boolean))].sort((a,b)=>b-a);if(fa){fa.innerHTML='<option value="">Toutes années</option>';anneesDispo.forEach(a=>fa.innerHTML+=`<option${a===prevAnnee?' selected':''}>${a}</option>`);}
+  const fm=document.getElementById('filtMois');const prevMois=fm?fm.value:'';let pF=paiements;if(prevAnnee)pF=pF.filter(p=>p.mois.includes(prevAnnee));const moisDispo=[...new Set(pF.map(p=>p.mois))].sort((a,b)=>b.localeCompare(a));if(fm){fm.innerHTML='<option value="">Tous les mois</option>';moisDispo.forEach(m=>fm.innerHTML+=`<option${m===prevMois?' selected':''}>${m}</option>`);}
+  const col=sortState.col,dir=sortState.dir;
+  const sorted=[...data].sort((a,b)=>{let va,vb;if(col==='indice'){va=a.indice||'';vb=b.indice||'';const na=parseFloat(va),nb=parseFloat(vb);if(!isNaN(na)&&!isNaN(nb))return dir==='asc'?na-nb:nb-na;}else if(col==='classe'){va=(a.classe||'').toLowerCase();vb=(b.classe||'').toLowerCase();}else{va=(col==='prenom'?a.prenom:a.nom).toLowerCase();vb=(col==='prenom'?b.prenom:b.nom).toLowerCase();}return dir==='asc'?va.localeCompare(vb,'fr'):vb.localeCompare(va,'fr');});
+  ['indice','nom','prenom','classe'].forEach(c=>{const th=document.getElementById('th-'+c);if(th)th.className='th-sort'+(col===c?' '+dir:'');});
+  const tb=document.getElementById('eleveTb');
+  if(!sorted.length){tb.innerHTML='<tr><td colspan="13"><div class="empty"><div class="e-ico"><i data-lucide="users" class="ic-xl"></i></div><div class="e-t">Aucun résultat</div></div></td></tr>';return;}
+  tb.innerHTML=sorted.map((e,i)=>`<tr>
+    <td style="text-align:center;color:var(--di);font-size:11px;font-weight:600">${i+1}</td>
+    <td style="color:var(--ac);font-size:12px;font-weight:600" dir="ltr">${e.indice||'—'}</td>
+    <td ${rtlAttr(e.prenom)}>${e.prenom||'—'}</td>
+    <td class="p" ${rtlAttr(e.nom)}>${e.nom||'—'}</td>
+    <td><span style="background:rgba(59,125,255,.1);color:#7aaaff;border-radius:6px;padding:2px 8px;font-size:11.5px;font-weight:500;white-space:nowrap">${e.classe||'—'}</span></td>
+    <td style="text-align:center;font-size:12px">${e.sexe==='أنثى'?'♀️':e.sexe==='ذكر'?'♂️':(e.sexe||'—')}</td>
+    <td style="font-size:12px;color:var(--mu);white-space:nowrap">${e.dateNaissance||'—'}</td>
+    <td style="font-size:12px;color:var(--mu)" ${rtlAttr(e.lieuNaissance||'')}>${e.lieuNaissance||'—'}</td>
+    <td><div style="line-height:1.6"><div style="font-weight:600;color:var(--tx);font-size:13px">${e.frais?e.frais.toFixed(0)+' '+S.devise:'—'}</div><select class="statut-sel" onchange="changeStatut(${e.id},this.value)" style="background:transparent;border:none;border-radius:5px;color:${e.statut==='payé'?'var(--g2)':e.statut==='retard'?'var(--re)':'var(--am)'};padding:0;font-size:11.5px;font-family:'DM Sans',sans-serif;cursor:pointer;outline:none;margin-top:1px"><option value="payé" ${e.statut==='payé'?'selected':''}>✅ Payé</option><option value="en attente" ${e.statut==='en attente'?'selected':''}>⏳ En attente</option><option value="retard" ${e.statut==='retard'?'selected':''}>🔴 Retard</option></select></div></td>
+    <td>${e.tel||'—'}</td>
+    <td style="white-space:nowrap">${(()=>{const fi=parseFloat(e.fraisInscription)||0;const paye=!!e.inscriptionPayee;const hasFi=fi>0||('inscriptionPayee' in (e||{}));if(!hasFi)return'—';const col=paye?'var(--g2)':'var(--re)';const svgOk='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';const svgNo='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';return'<div style="line-height:1.5"><div style="font-weight:600;color:var(--tx)">'+(fi>0?fi.toFixed(0)+' '+S.devise:'—')+'</div><span style="font-size:11px;color:'+col+';display:flex;align-items:center;gap:2px">'+(paye?svgOk:svgNo)+' '+(paye?'Payé':'Non payé')+'</span></div>';})()}</td>
+    <td style="white-space:nowrap">${(()=>{const ass=e.assurance||{};const total=parseFloat(ass.montantTotal)||0;const paye=parseFloat(ass.montantPaye)||0;const pct=total>0?Math.round((paye/total)*100):0;const col=!total?'var(--di)':pct>=100?'var(--g2)':pct>0?'var(--am)':'var(--re)';const svgP='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';const svgO='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';const svgC='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';const svgW='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';const label=!total?svgP+' Assurance':pct>=100?svgO+' Payé':pct>0?svgC+` ${paye}/${total}`:(svgW+' '+total+' dû');return '<button class="btn bsm" style="font-size:11px;background:transparent;border:1px solid '+col+';color:'+col+';padding:2px 7px;border-radius:6px;white-space:nowrap" onclick="openAssurance('+e.id+')">'+label+'</button>';})()}</td>
+    <td><div style="display:flex;gap:5px"><button class="btn bgr bsm" onclick="quickPay(${e.id})" title="Paiement mensualité"><i data-lucide="credit-card" class="ic-sm"></i></button><button class="btn bsm" onclick="quickPayInscription(${e.id})" title="Frais d'inscription" style="background:rgba(104,48,224,.1);border:1px solid rgba(104,48,224,.25);color:#a78bfa"><i data-lucide="graduation-cap" class="ic-sm"></i></button><button class="btn bg bsm" onclick="editEleve(${e.id})" title="Modifier"><i data-lucide="pencil" class="ic-sm"></i></button><button class="btn bre bsm" onclick="deleteEleve(${e.id})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button></div></td>
+  </tr>`).join('');
+refreshIcons();
+}
+function sortBy(col){if(sortState.col===col)sortState.dir=sortState.dir==='asc'?'desc':'asc';else{sortState.col=col;sortState.dir='asc';}filterE();}
+function openAssurance(id){const elv=eleves.find(e=>e.id==id);if(!elv)return;const ass=elv.assurance||{};document.getElementById('assuranceEleveId').value=id;document.getElementById('assuranceSubtitle').textContent=`${elv.prenom} ${elv.nom} — ${elv.classe||''}`;document.getElementById('ass_total').value=ass.montantTotal||'';document.getElementById('ass_paye').value=ass.montantPaye||'';document.getElementById('ass_date').value=ass.datePaiement||'';document.getElementById('ass_statut').value=ass.statut||'en attente';document.getElementById('ass_remarque').value=ass.remarque||'';document.getElementById('ass_genRecu').checked=true;updateAssuranceCalc();document.getElementById('modalAssurance').classList.add('open');}
+function updateAssuranceCalc(){const total=parseFloat(document.getElementById('ass_total').value)||0;const paye=parseFloat(document.getElementById('ass_paye').value)||0;const reste=Math.max(0,total-paye);const pct=total>0?Math.round((paye/total)*100):0;document.getElementById('ass_r_total').textContent=total>0?total+' '+S.devise:'—';document.getElementById('ass_r_paye').textContent=paye>0?paye+' '+S.devise:'—';document.getElementById('ass_r_reste').textContent=reste>0?reste+' '+S.devise:'✅ 0';document.getElementById('ass_r_pct').textContent=total>0?pct+'%':'—';document.getElementById('ass_r_pct').style.color=pct>=100?'var(--g2)':pct>0?'var(--am)':'var(--re)';document.getElementById('ass_r_reste').style.color=reste===0?'var(--g2)':'var(--re)';if(total>0){const sel=document.getElementById('ass_statut');if(paye>=total)sel.value='payé';else if(paye>0)sel.value='partiel';else sel.value='en attente';}}
+async function saveAssurance(){
+  const id=parseInt(document.getElementById('assuranceEleveId').value);
+  const elv=eleves.find(e=>e.id==id);if(!elv)return;
+  const total=parseFloat(document.getElementById('ass_total').value)||0;
+  const paye=parseFloat(document.getElementById('ass_paye').value)||0;
+  const rem=document.getElementById('ass_remarque').value.trim();
+  const statut=document.getElementById('ass_statut').value;
+  const datePaiement=document.getElementById('ass_date').value;
+  const genRecu=document.getElementById('ass_genRecu').checked;
+
+  elv.assurance={montantTotal:total,montantPaye:paye,reste:Math.max(0,total-paye),datePaiement,statut,remarque:rem};
+  closeM('modalAssurance');
+  renderE(eleves);
+  saveElevesToFirebase();
+  toast('🛡️','Assurance mise à jour',`${elv.prenom} ${elv.nom}`);
+
+  if(genRecu&&paye>0){
+    recuN++;
+    if(window.FB&&window.FB.isReady())window.FB.saveRecuN(recuN);
+    const num='RA'+recuN; // préfixe RA = Reçu Assurance
+    const date=datePaiement
+      ? new Date(datePaiement).toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'})
+      : new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});
+    const annee=datePaiement?datePaiement.slice(0,4):new Date().getFullYear();
+    const moisLabel=`Assurance ${annee}`;
+    const html=buildAssuranceRecuHTML(elv,num,date,moisLabel,paye,total,rem,statut);
+    document.getElementById('PRINT_FRAME').innerHTML=html;
+    doPrint(`Reçu_Assurance_${elv.nom}_${elv.prenom}_${annee}`);
+    // Ajouter à l'historique
+    paiements.unshift({recu:num,date,mois:moisLabel,eleve:elv.nom+' '+elv.prenom,classe:elv.classe,montant:paye,devise:S.devise,mode:'Assurance scolaire',tel:elv.tel||'',rem,html});
+    renderHist();savePaiementsToFirebase();updStats();
+    const assAnneeMois=datePaiement||new Date().toISOString().slice(0,7);
+    const msg=buildAlertMsg(elv,assAnneeMois,paye,num,rem,'assurance');
+    if(S.notifMode==='tg'&&S.tgToken&&S.tgChat)sendTelegram(msg);
+    else if(S.notifMode==='wa'&&S.waNum)setTimeout(()=>openWaLink(msg,S.waNum),800);
+  }
+}
+
+function buildAssuranceRecuHTML(elv,num,date,moisFr,paye,total,rem,statut){
+  const w='148mm';const fmtScale=S.rFormat==='A4'?Math.SQRT2:1;
+  const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';
+  const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
+  const colInt=parseInt(col.replace('#',''),16);
+  const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;
+  const lum=(r2*299+g2*587+b2*114)/1000;
+  const txtOnCol=lum>128?'#1e293b':'#ffffff';
+  const amtBg=col+'18';const amtBorder=col+'44';
+  const reste=Math.max(0,total-paye);
+  const pct=total>0?Math.round((paye/total)*100):100;
+  const stampLabel=pct>=100?'✓ PAYÉ':'⏳ PARTIEL';
+  const stampCol=pct>=100?sc:'#f59e0b';
+  return `<div class="recu" style="width:${w};background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;transform:scale(${fmtScale});transform-origin:top left;">
+    <div class="r-top" style="background:${col}">
+      <div style="display:flex;align-items:center;gap:4mm">
+        ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:14mm;max-width:20mm;object-fit:contain;border-radius:3pt;flex-shrink:0">`:'' }
+        <div>
+          <div class="r-sname" style="color:${txtOnCol}">${S.ecole}</div>
+          <div class="r-ssub" style="color:${txtOnCol}">${S.adresse}<br>${S.tel} · ${S.email}</div>
+        </div>
+      </div>
+      <div class="r-num">
+        <div class="r-nlbl" style="color:${txtOnCol};opacity:.75">Reçu — Assurance scolaire</div>
+        <div class="r-nval" style="color:${txtOnCol}">${num}</div>
+        <div class="r-ndate" style="color:${txtOnCol};opacity:.8">${date}</div>
+      </div>
+    </div>
+    <div class="r-body">
+      <div class="r-grid">
+        <div><div class="r-flbl">Élève</div><div class="r-fval" ${isRTL(elv.nom+elv.prenom)?'dir="rtl" style="text-align:right"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</div></div>
+        <div><div class="r-flbl">Classe</div><div class="r-fval" ${isRTL(elv.classe)?'dir="rtl" style="text-align:right"':''}>${elv.classe||'—'}</div></div>
+        <div><div class="r-flbl">Type</div><div class="r-fval">🛡️ Assurance scolaire</div></div>
+        <div><div class="r-flbl">Année</div><div class="r-fval">${moisFr}</div></div>
+      </div>
+      <div class="r-amt" style="background:${amtBg};border:1px solid ${amtBorder}">
+        <div>
+          <div class="r-albl" style="color:${col}">🛡️ Montant encaissé</div>
+          <div class="r-asub">${total>0?`Total : ${total} ${S.devise} · Reste : ${reste} ${S.devise}`:'Assurance intégrale'}</div>
+        </div>
+        <div><span class="r-aval">${paye.toFixed(2)}</span><span class="r-acur">${S.devise}</span></div>
+      </div>
+      ${rem?`<div class="r-note">📝 ${rem}</div>`:''}
+      ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#64748b;margin-top:4mm;font-style:italic">${S.rFooter}</div>`:''}
+    </div>
+    <div style="height:8mm"></div>
+    <div class="r-foot">
+      ${S.rShowSignature!==false?`<div class="r-sig">Signature &amp; Cachet</div>`:'<div></div>'}
+      ${S.rShowStamp!==false?`<div class="r-stamp" style="background:${stampCol}22;border:1.5pt solid ${stampCol};color:${stampCol}">${stampLabel}</div>`:'<div></div>'}
+      ${S.rShowGenerated!==false?`<div class="r-gen">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
+    </div>
+    <div style="height:5mm"></div>
+  </div>`;
+}
+function openAddEleve(){document.getElementById('eleveEditId').value='-1';document.getElementById('modalEleveTitle').innerHTML='<i data-lucide="plus"></i> Ajouter un élève';refreshIcons();['indice','nom','prenom','lieuNaissance','classe','tel'].forEach(f=>{const el=document.getElementById('el_'+f);if(el)el.value='';});document.getElementById('el_sexe').value='';document.getElementById('el_dateNaissance').value='';document.getElementById('el_frais').value='';document.getElementById('el_fraisInscription').value='';document.getElementById('el_inscriptionPayee').checked=false;document.getElementById('el_statut').value='en attente';document.getElementById('modalEleve').classList.add('open');setTimeout(()=>document.getElementById('el_nom').focus(),100);}
+function editEleve(id){const e=eleves.find(e=>e.id==id);if(!e)return;document.getElementById('eleveEditId').value=id;document.getElementById('modalEleveTitle').innerHTML='<i data-lucide="pencil"></i> Modifier l\'élève';refreshIcons();document.getElementById('el_indice').value=e.indice||'';document.getElementById('el_nom').value=e.nom||'';document.getElementById('el_prenom').value=e.prenom||'';document.getElementById('el_sexe').value=e.sexe||'';document.getElementById('el_dateNaissance').value=e.dateNaissance||'';document.getElementById('el_lieuNaissance').value=e.lieuNaissance||'';document.getElementById('el_classe').value=e.classe||'';document.getElementById('el_tel').value=e.tel||'';document.getElementById('el_frais').value=e.frais||'';document.getElementById('el_fraisInscription').value=e.fraisInscription||'';document.getElementById('el_inscriptionPayee').checked=!!e.inscriptionPayee;document.getElementById('el_statut').value=e.statut||'en attente';document.getElementById('modalEleve').classList.add('open');}
+async function saveEleve(){const nom=document.getElementById('el_nom').value.trim();const prenom=document.getElementById('el_prenom').value.trim();if(!nom&&!prenom){toast('⚠️','Renseignez au moins le nom ou le prénom','');return;}const editId=parseInt(document.getElementById('eleveEditId').value);const data={indice:document.getElementById('el_indice').value.trim(),nom:nom.toUpperCase(),prenom,sexe:document.getElementById('el_sexe').value,dateNaissance:document.getElementById('el_dateNaissance').value,lieuNaissance:document.getElementById('el_lieuNaissance').value.trim(),classe:document.getElementById('el_classe').value.trim(),tel:document.getElementById('el_tel').value.trim(),frais:parseFloat(document.getElementById('el_frais').value)||0,fraisInscription:parseFloat(document.getElementById('el_fraisInscription').value)||0,inscriptionPayee:document.getElementById('el_inscriptionPayee').checked,statut:document.getElementById('el_statut').value};if(editId>=0){const idx=eleves.findIndex(e=>e.id==editId);if(idx>=0)eleves[idx]={...eleves[idx],...data};toast('✅','Élève modifié',`${data.nom} ${data.prenom}`);}else{const newId=eleves.length>0?Math.max(...eleves.map(e=>e.id))+1:0;eleves.push({id:newId,...data});toast('✅','Élève ajouté',`${data.nom} ${data.prenom}`);}closeM('modalEleve');renderE(eleves);fillSel();renderDashboard();saveElevesToFirebase();}
+async function deleteEleve(id){const elv=eleves.find(e=>e.id==id);if(!elv)return;if(!confirm(`Supprimer ${elv.nom} ${elv.prenom} ?\n\nCette action est irréversible.`))return;eleves=eleves.filter(e=>e.id!=id);renderE(eleves);fillSel();saveElevesToFirebase();toast('🗑️','Élève supprimé','');}
+function onAnneeChange(){const fm=document.getElementById('filtMois');if(fm)fm.value='';filterE();}
+function filterE(){const q=document.getElementById('search').value.toLowerCase();const c=document.getElementById('filtCls').value;const fa=document.getElementById('filtAnnee');const fm=document.getElementById('filtMois');const annee=fa?fa.value:'';const mois=fm?fm.value:'';let filtered=eleves.filter(e=>(e.nom+' '+e.prenom+' '+e.tel).toLowerCase().includes(q)&&(!c||e.classe===c));if(annee||mois){let pF=paiements;if(annee)pF=pF.filter(p=>p.mois.includes(annee));if(mois)pF=pF.filter(p=>p.mois===mois);const elevesAvec=new Set(pF.map(p=>p.eleve));filtered=filtered.filter(e=>elevesAvec.has(e.nom+' '+e.prenom));}renderE(filtered);}
+function fillSel(){const s=document.getElementById('selEleve');s.innerHTML='<option value="">— Sélectionner —</option>';eleves.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.indice?'['+e.indice+'] ':''} ${e.nom} ${e.prenom} — ${e.classe}</option>`);const sc=document.getElementById('selClasse');if(sc){const prev=sc.value;const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();sc.innerHTML='<option value="">— Sélectionner —</option>';cls.forEach(c=>sc.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);}}
+function quickPay(id){nav('paiement');switchPayMode('eleve');document.getElementById('selEleve').value=id;document.getElementById('typePay').value='mensualite';onEleveChange();}
+function quickPayInscription(id){nav('paiement');switchPayMode('eleve');document.getElementById('selEleve').value=id;document.getElementById('typePay').value='inscription';onEleveChange();}
+
+function buildInscriptionRecuHTML(elv,num,date,anneeLabel,mt,mode,rem){
+  const w='148mm';const fmtScale=S.rFormat==='A4'?Math.SQRT2:1;
+  const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';
+  const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
+  const colInt=parseInt(col.replace('#',''),16);
+  const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;
+  const lum=(r2*299+g2*587+b2*114)/1000;const txtOnCol=lum>128?'#1e293b':'#ffffff';
+  const amtBg=col+'18';const amtBorder=col+'44';
+  const ef=S.rExtraFields||{};
+  const extraFields=[ef.matricule?`<div><div class="r-flbl">Matricule</div><div class="r-fval">${ef.matricule}</div></div>`:'',ef.niveau?`<div><div class="r-flbl">Niveau</div><div class="r-fval">${ef.niveau}</div></div>`:'',ef.section?`<div><div class="r-flbl">Section</div><div class="r-fval">${ef.section}</div></div>`:''].join('');
+  return `<div class="recu" style="width:${w};background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;transform:scale(${fmtScale});transform-origin:top left;">
+    <div class="r-top" style="background:${col}">
+      <div style="display:flex;align-items:center;gap:4mm">${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:14mm;max-width:20mm;object-fit:contain;border-radius:3pt;flex-shrink:0">`:''}<div><div class="r-sname" style="color:${txtOnCol}">${S.ecole}</div><div class="r-ssub" style="color:${txtOnCol}">${S.adresse}<br>${S.tel} · ${S.email}</div></div></div>
+      <div class="r-num"><div class="r-nlbl" style="color:${txtOnCol};opacity:.75">Reçu — Frais d'inscription</div><div class="r-nval" style="color:${txtOnCol}">${num}</div><div class="r-ndate" style="color:${txtOnCol};opacity:.8">${date}</div></div>
+    </div>
+    <div class="r-body">
+      <div class="r-grid">
+        <div><div class="r-flbl">Élève</div><div class="r-fval" ${isRTL(elv.nom+elv.prenom)?'dir="rtl" style="text-align:right"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</div></div>
+        <div><div class="r-flbl">Classe</div><div class="r-fval" ${isRTL(elv.classe)?'dir="rtl" style="text-align:right"':''}>${elv.classe||'—'}</div></div>
+        <div><div class="r-flbl">Type</div><div class="r-fval">🎓 Frais d'inscription</div></div>
+        <div><div class="r-flbl">Année scolaire</div><div class="r-fval">${anneeLabel}</div></div>
+        <div><div class="r-flbl">Mode de paiement</div><div class="r-fval">${mode}</div></div>
+        ${extraFields}
+      </div>
+      <div class="r-amt" style="background:${amtBg};border:1px solid ${amtBorder}">
+        <div><div class="r-albl" style="color:${col}">🎓 Frais d'inscription encaissés</div><div class="r-asub">${anneeLabel}</div></div>
+        <div><span class="r-aval">${parseFloat(mt).toFixed(2)}</span><span class="r-acur">${S.devise}</span></div>
+      </div>
+      ${rem?`<div class="r-note">📝 ${rem}</div>`:''}
+      ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#64748b;margin-top:4mm;font-style:italic">${S.rFooter}</div>`:''}
+    </div>
+    <div style="height:8mm"></div>
+    <div class="r-foot">
+      ${S.rShowSignature!==false?`<div class="r-sig">Signature &amp; Cachet</div>`:'<div></div>'}
+      ${S.rShowStamp!==false?`<div class="r-stamp" style="background:${sc}22;border:1.5pt solid ${sc};color:${sc}">✓ PAYÉ</div>`:'<div></div>'}
+      ${S.rShowGenerated!==false?`<div class="r-gen">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
+    </div>
+    <div style="height:5mm"></div>
+  </div>`;
+}
+function changeStatut(id,newStatut){const elv=eleves.find(e=>e.id==id);if(!elv)return;elv.statut=newStatut;saveElevesToFirebase();toast('✅','Statut mis à jour',`${elv.nom} ${elv.prenom} → ${newStatut}`);}
+function isRTL(text){return/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(text);}
+function rtlAttr(text){return isRTL(text)?'dir="rtl" style="text-align:right"':'';}
+function bst(s){if(s.includes('pay'))return`<span class="bdg bpd"><i data-lucide="check-circle-2" class="ic-sm"></i> ${s}</span>`;if(s.includes('retard')||s.includes('tard'))return`<span class="bdg blt"><i data-lucide="circle-alert" class="ic-sm"></i> ${s}</span>`;return`<span class="bdg bpe"><i data-lucide="clock" class="ic-sm"></i> ${s}</span>`;}
+
+function annulerPaiement(){
+  document.getElementById('selEleve').value='';
+  const sc=document.getElementById('selClasse');if(sc)sc.value='';
+  const cel=document.getElementById('classeElevesList');if(cel)cel.style.display='none';
+  const grid=document.getElementById('classeElevesGrid');if(grid)grid.innerHTML='';
+  document.getElementById('moisPay').value='';
+  document.getElementById('mtPay').value='';
+  document.getElementById('remPay').value='';
+  document.getElementById('modePay').selectedIndex=0;
+  document.getElementById('typePay').value='mensualite';
+  document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
+  document.getElementById('prevBox').innerHTML='<div style="color:var(--di);padding:40px;text-align:center">Sélectionnez un élève</div>';
+  setMoisPay(new Date().toISOString().slice(0,7));
+  switchPayMode('eleve');
+  switchTab('form');
+  toast('ℹ️','Paiement annulé','Formulaire réinitialisé');
+}
+
+// ─── SÉLECTEUR MOIS/ANNÉE (agenda) ───
+const MOIS_NOMS_FR=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MOIS_ABBR_FR=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+let _mpYear=new Date().getFullYear();
+function setMoisPay(val){
+  const inp=document.getElementById('moisPay');const lbl=document.getElementById('moisPayLabel');
+  if(!inp)return;
+  inp.value=val||'';
+  if(val){
+    const[y,m]=val.split('-').map(Number);
+    if(lbl)lbl.textContent=`${MOIS_NOMS_FR[m-1]} ${y}`;
+    _mpYear=y;
+  }else if(lbl)lbl.textContent='Sélectionner…';
+}
+function toggleMonthPicker(ev){
+  if(ev)ev.stopPropagation();
+  const pop=document.getElementById('moisPayPop');if(!pop)return;
+  if(pop.classList.contains('open')){pop.classList.remove('open');return;}
+  const val=document.getElementById('moisPay').value;
+  if(val)_mpYear=parseInt(val.split('-')[0]);
+  renderMonthPicker();
+  pop.classList.add('open');
+}
+function changeMPYear(delta){_mpYear+=delta;renderMonthPicker();}
+function renderMonthPicker(){
+  const yEl=document.getElementById('moisPayYear');if(yEl)yEl.textContent=_mpYear;
+  const grid=document.getElementById('moisPayGrid');if(!grid)return;
+  const val=document.getElementById('moisPay').value;
+  let selY=null,selM=null;
+  if(val){const p=val.split('-').map(Number);selY=p[0];selM=p[1];}
+  const today=new Date();
+  grid.innerHTML=MOIS_ABBR_FR.map((m,i)=>{
+    const isSel=selY===_mpYear&&selM===i+1;
+    const isNow=today.getFullYear()===_mpYear&&today.getMonth()===i;
+    return `<div class="month-cell${isSel?' on':''}${isNow?' now':''}" onclick="selectMonth(${i})">${m}</div>`;
+  }).join('');
+}
+function selectMonth(monthIdx0){
+  const mm=String(monthIdx0+1).padStart(2,'0');
+  setMoisPay(`${_mpYear}-${mm}`);
+  document.getElementById('moisPayPop').classList.remove('open');
+}
+function selectToday(){
+  setMoisPay(new Date().toISOString().slice(0,7));
+  document.getElementById('moisPayPop').classList.remove('open');
+}
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('moisPayWrap');
+  if(wrap&&!wrap.contains(e.target)){const pop=document.getElementById('moisPayPop');if(pop)pop.classList.remove('open');}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){const pop=document.getElementById('moisPayPop');if(pop)pop.classList.remove('open');}
+});
+
+// ─── PAIEMENT ───
+// ─── MODE PAIEMENT (par élève / par classe) ───
+let _payMode='eleve';
+function switchPayMode(mode){
+  _payMode=mode;
+  document.getElementById('mode-eleve').className='tab'+(mode==='eleve'?' on':'');
+  document.getElementById('mode-classe').className='tab'+(mode==='classe'?' on':'');
+  document.getElementById('payByEleve').style.display=mode==='eleve'?'block':'none';
+  document.getElementById('payByClasse').style.display=mode==='classe'?'block':'none';
+  document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
+  document.getElementById('mtPay').value='';
+  // Remplir le select classe si besoin
+  if(mode==='classe'){
+    const s=document.getElementById('selClasse');
+    const prev=s.value;
+    const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();
+    s.innerHTML='<option value="">— Sélectionner —</option>';
+    cls.forEach(c=>s.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);
+  }
+}
+function onClasseChange(){
+  const cls=document.getElementById('selClasse').value;
+  const listDiv=document.getElementById('classeElevesList');
+  const grid=document.getElementById('classeElevesGrid');
+  const cnt=document.getElementById('classeElevesCount');
+  if(!cls){
+    listDiv.style.display='none';
+    document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez une classe</span>';
+    document.getElementById('mtPay').value='';
+    return;
+  }
+  const elevesClasse=eleves.filter(e=>e.classe===cls);
+  const type=document.getElementById('typePay').value;
+  const mtRef=type==='inscription'?elevesClasse.map(e=>e.fraisInscription||0)[0]||0
+               :type==='assurance'?elevesClasse.map(e=>(e.assurance&&e.assurance.montantTotal)||0)[0]||0
+               :elevesClasse.map(e=>e.frais||0)[0]||0;
+  document.getElementById('mtPay').value=mtRef;
+  // Afficher la grille de sélection
+  cnt.textContent=`(${elevesClasse.length})`;
+  grid.innerHTML=elevesClasse.map(e=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--tx);transition:background .1s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
+      <input type="checkbox" class="classe-eleve-chk" value="${e.id}" checked style="accent-color:var(--ac);width:15px;height:15px;flex-shrink:0" onchange="refreshClasseRecap()">
+      <span ${isRTL(e.nom+e.prenom)?'dir="rtl"':''}>${e.nom} ${e.prenom}</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--mu);white-space:nowrap">${e.frais||0} ${S.devise}</span>
+    </label>`).join('');
+  listDiv.style.display='block';
+  updateClasseRecap(cls, elevesClasse);
+}
+function refreshClasseRecap(){
+  const cls=document.getElementById('selClasse').value;
+  updateClasseRecap(cls,eleves.filter(e=>e.classe===cls));
+}
+function selectAllElevesClasse(checked){
+  document.querySelectorAll('.classe-eleve-chk').forEach(chk=>chk.checked=checked);
+  refreshClasseRecap();
+}
+function getSelectedElevesClasse(){
+  return [...document.querySelectorAll('.classe-eleve-chk:checked')]
+    .map(chk=>{
+      const id=chk.value;
+      return eleves.find(e=>String(e.id)===String(id)||e.id==id);
+    }).filter(Boolean);
+}
+function updateClasseRecap(cls,elevesClasse){
+  const selected=getSelectedElevesClasse();
+  document.getElementById('eleveRecap').innerHTML=`<div style="display:grid;gap:8px">
+    <div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Classe</div><div style="font-weight:700;color:var(--tx);font-size:15px">${cls}</div></div>
+    <div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Sélectionnés</div><div style="font-weight:600;color:var(--ac)">${selected.length} / ${elevesClasse.length} élève(s)</div></div>
+    ${selected.length>0?`<div style="font-size:11.5px;color:var(--mu)">Reçus à générer :<br>${selected.map(e=>`${e.nom} ${e.prenom}`).join(', ')}</div>`:'<div style="color:var(--re);font-size:12px">⚠️ Aucun élève sélectionné</div>'}
+  </div>`;
+}
+
+function onTypePayChange(){
+  const type=document.getElementById('typePay').value;
+  if(_payMode==='eleve'){
+    const id=document.getElementById('selEleve').value;
+    const elv=eleves.find(e=>e.id==id);if(!elv)return;
+    if(type==='inscription') document.getElementById('mtPay').value=elv.fraisInscription||0;
+    else if(type==='assurance') document.getElementById('mtPay').value=(elv.assurance&&elv.assurance.montantTotal)||0;
+    else document.getElementById('mtPay').value=elv.frais||0;
+  } else {
+    const cls=document.getElementById('selClasse').value;
+    if(cls) onClasseChange();
+  }
+}
+function onEleveChange(){const id=document.getElementById('selEleve').value;const elv=eleves.find(e=>e.id==id);if(!elv){document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève</span>';return;}const type=document.getElementById('typePay').value;if(type==='inscription')document.getElementById('mtPay').value=elv.fraisInscription||0;else if(type==='assurance')document.getElementById('mtPay').value=(elv.assurance&&elv.assurance.montantTotal)||0;else document.getElementById('mtPay').value=elv.frais||0;document.getElementById('eleveRecap').innerHTML=`<div style="display:grid;gap:8px"><div><div style="font-size:10px;color:var(--di);text-transform:uppercase;letter-spacing:.06em">Nom</div><div style="font-weight:600;color:var(--tx)">${elv.nom} ${elv.prenom}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Classe</div><div style="color:var(--tx)">${elv.classe}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Téléphone</div><div style="color:var(--tx)">${elv.tel}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Frais mensuel</div><div style="font-weight:700;color:var(--g2)">${elv.frais} ${S.devise}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Frais inscription</div><div style="font-weight:700;color:#7aaaff">${elv.fraisInscription||0} ${S.devise}</div></div>${bst(elv.statut)}</div>`;refreshIcons();}
+function buildAlertMsg(elv,mois,mt,num,rem,type){const date=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});const moisFr=mois?new Date(mois+'-01').toLocaleDateString('fr-MA',{month:'long',year:'numeric'}):'—';const typeLbl=type==='inscription'?'🎓 Frais d\'inscription':type==='assurance'?'🛡️ Assurance scolaire':'📅 Mensualité';return S.alertMsg.replace(/{ecole}/g,S.ecole).replace(/{eleve}/g,elv.nom+' '+elv.prenom).replace(/{classe}/g,elv.classe).replace(/{mois}/g,type==='inscription'?`Frais d'inscription ${mois?mois.slice(0,4):''}`:moisFr).replace(/{montant}/g,parseFloat(mt).toFixed(2)).replace(/{devise}/g,S.devise).replace(/{recu}/g,num).replace(/{date}/g,date).replace(/{remarque}/g,rem||'—')+'\n🏷️ '+typeLbl;}
+function buildRecuHTML(elv,num,date,moisFr,mt,mode,rem){const w='148mm';const fmtScale=S.rFormat==='A4'?Math.SQRT2:1;const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';const colInt=parseInt(col.replace('#',''),16);const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;const lum=(r2*299+g2*587+b2*114)/1000;const txtOnCol=lum>128?'#1e293b':'#ffffff';const amtBg=col+'18';const amtBorder=col+'44';const ef=S.rExtraFields||{};const extraFields=[ef.matricule?`<div><div class="r-flbl">Matricule</div><div class="r-fval">${ef.matricule}</div></div>`:'',ef.niveau?`<div><div class="r-flbl">Niveau</div><div class="r-fval">${ef.niveau}</div></div>`:'',ef.section?`<div><div class="r-flbl">Section</div><div class="r-fval">${ef.section}</div></div>`:''].join('');return `<div class="recu" style="width:${w};background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;transform:scale(${fmtScale});transform-origin:top left;"><div class="r-top" style="background:${col}"><div style="display:flex;align-items:center;gap:4mm">${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:14mm;max-width:20mm;object-fit:contain;border-radius:3pt;flex-shrink:0">`:''}<div><div class="r-sname" style="color:${txtOnCol}">${S.ecole}</div><div class="r-ssub" style="color:${txtOnCol}">${S.adresse}<br>${S.tel} · ${S.email}</div></div></div><div class="r-num"><div class="r-nlbl" style="color:${txtOnCol};opacity:.75">Reçu de paiement</div><div class="r-nval" style="color:${txtOnCol}">${num}</div><div class="r-ndate" style="color:${txtOnCol};opacity:.8">${date}</div></div></div><div class="r-body"><div class="r-grid"><div><div class="r-flbl">Élève</div><div class="r-fval" ${isRTL(elv.nom+elv.prenom)?'dir="rtl" style="text-align:right"':''}>${elv.nom} ${elv.prenom}</div></div><div><div class="r-flbl">Classe</div><div class="r-fval" ${isRTL(elv.classe)?'dir="rtl" style="text-align:right"':''}>${elv.classe||'—'}</div></div><div><div class="r-flbl">Mois concerné</div><div class="r-fval">${moisFr}</div></div><div><div class="r-flbl">Mode de paiement</div><div class="r-fval">${mode}</div></div>${extraFields}</div><div class="r-amt" style="background:${amtBg};border:1px solid ${amtBorder}"><div><div class="r-albl" style="color:${col}">💰 Montant encaissé</div><div class="r-asub">Mois de ${moisFr}</div></div><div><span class="r-aval">${parseFloat(mt).toFixed(2)}</span><span class="r-acur">${S.devise}</span></div></div>${rem?`<div class="r-note">📝 ${rem}</div>`:''}${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#64748b;margin-top:4mm;font-style:italic">${S.rFooter}</div>`:''}</div><div style="height:8mm"></div><div class="r-foot">${S.rShowSignature!==false?`<div class="r-sig">Signature &amp; Cachet</div>`:'<div></div>'}${S.rShowStamp!==false?`<div class="r-stamp" style="background:${sc}22;border:1.5pt solid ${sc};color:${sc}">✓ PAYÉ</div>`:'<div></div>'}${S.rShowGenerated!==false?`<div class="r-gen">Généré par EduReçu<br>${date}</div>`:'<div></div>'}</div><div style="height:5mm"></div></div>`;}
+function buildPrev(){
+  const id=document.getElementById('selEleve').value;
+  const elv=eleves.find(e=>e.id==id);
+  if(!elv){document.getElementById('prevBox').innerHTML='<div style="color:var(--di);padding:40px;text-align:center">Sélectionnez un élève</div>';return;}
+  const mois=document.getElementById('moisPay').value;
+  const type=document.getElementById('typePay').value;
+  const mt=parseFloat(document.getElementById('mtPay').value)||(type==='inscription'?elv.fraisInscription:type==='assurance'?(elv.assurance&&elv.assurance.montantTotal)||0:elv.frais)||0;
+  const date=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});
+  const moisFr=mois?new Date(mois+'-01').toLocaleDateString('fr-MA',{month:'long',year:'numeric'}):'—';
+  const moisLabel=mois?(type==='inscription'?`Inscription ${mois.slice(0,4)}`:type==='assurance'?`Assurance ${mois.slice(0,4)}`:moisFr):'—';
+  const html=type==='inscription'?buildInscriptionRecuHTML(elv,'RI'+(recuN+1),date,moisLabel,mt,document.getElementById('modePay').value,document.getElementById('remPay').value)
+    :type==='assurance'?buildAssuranceRecuHTML(elv,'RA'+(recuN+1),date,moisLabel,mt,0,document.getElementById('remPay').value,'payé')
+    :buildRecuHTML(elv,'R'+(recuN+1),date,moisFr,mt,document.getElementById('modePay').value,document.getElementById('remPay').value);
+  document.getElementById('prevBox').innerHTML=html;
+}
+async function genererRecu(){
+  const type=document.getElementById('typePay').value;
+  const mois=document.getElementById('moisPay').value;
+  if(!mois){toast('⚠️','Sélectionnez le mois','');return;}
+  const mode=document.getElementById('modePay').value;
+  const rem=document.getElementById('remPay').value;
+
+  // Déterminer la liste des élèves à traiter
+  let cibles=[];
+  if(_payMode==='classe'){
+    const cls=document.getElementById('selClasse').value;
+    if(!cls){toast('⚠️','Sélectionnez une classe','');return;}
+    cibles=getSelectedElevesClasse();
+    if(!cibles.length){toast('⚠️','Sélectionnez au moins un élève','');return;}
+  } else {
+    const id=document.getElementById('selEleve').value;
+    const elv=eleves.find(e=>e.id==id);
+    if(!elv){toast('⚠️','Sélectionnez un élève','');return;}
+    cibles=[elv];
+  }
+
+  const mt=parseFloat(document.getElementById('mtPay').value);
+  if(!mt||mt<=0){toast('⚠️','Montant invalide','');return;}
+
+  const isInscription=type==='inscription';
+  const isAssurance=type==='assurance';
+  const date=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});
+  const moisDate=mois?new Date(mois+'-01'):new Date();
+  const moisFr=moisDate.toLocaleDateString('fr-MA',{month:'long',year:'numeric'});
+  const moisLabel=isInscription?`Inscription ${mois?mois.slice(0,4):new Date().getFullYear()}`:isAssurance?`Assurance ${mois?mois.slice(0,4):new Date().getFullYear()}`:moisFr;
+
+  const htmlFrames=[];
+  for(const elv of cibles){
+    recuN++;
+    const prefix=isInscription?'RI':isAssurance?'RA':'R';
+    const num=prefix+recuN;
+    const mtElv=_payMode==='classe'
+      ?(isInscription?elv.fraisInscription||mt:isAssurance?(elv.assurance&&elv.assurance.montantTotal)||mt:elv.frais||mt)
+      :mt;
+    const html=isInscription
+      ?buildInscriptionRecuHTML(elv,num,date,moisLabel,mtElv,mode,rem)
+      :isAssurance?buildAssuranceRecuHTML(elv,num,date,moisLabel,mtElv,0,rem,'payé')
+      :buildRecuHTML(elv,num,date,moisFr,mtElv,mode,rem);
+    htmlFrames.push(html);
+    paiements.unshift({recu:num,date,mois:moisLabel,eleve:elv.nom+' '+elv.prenom,classe:elv.classe,montant:mtElv,devise:S.devise,mode:isInscription?"Frais d'inscription":isAssurance?"Assurance scolaire":mode,tel:elv.tel,rem,html});
+    // Mise à jour statut élève
+    const idx=eleves.findIndex(e=>e.id==elv.id);
+    if(idx>=0){
+      if(isInscription){eleves[idx].inscriptionPayee=true;eleves[idx].fraisInscription=eleves[idx].fraisInscription||mtElv;}
+      else if(isAssurance){eleves[idx].assurance=eleves[idx].assurance||{};eleves[idx].assurance.montantPaye=mtElv;eleves[idx].assurance.statut='payé';}
+      else{eleves[idx].statut='payé';}
+    }
+    const msg=buildAlertMsg(elv,mois,mtElv,num,rem,type);
+    if(S.notifMode==='tg'&&S.tgToken&&S.tgChat)sendTelegram(msg);
+    else if(S.notifMode==='wa'&&S.waNum&&cibles.length===1)setTimeout(()=>openWaLink(msg,S.waNum),800);
+  }
+  if(window.FB&&window.FB.isReady())window.FB.saveRecuN(recuN);
+  renderHist();savePaiementsToFirebase();saveElevesToFirebase();updStats();renderE(eleves);
+
+  // Impression : un reçu par page avec saut de page
+  const pageHtml=htmlFrames.map((h,i)=>`<div style="page-break-after:${i<htmlFrames.length-1?'always':'avoid'};display:flex;justify-content:flex-start;align-items:flex-start">${h}</div>`).join('');
+  document.getElementById('PRINT_FRAME').innerHTML=pageHtml;
+  doPrint(`Reçus_${moisLabel.replace(/ /g,'_')}`,cibles.length>1);
+
+  const nb=cibles.length;
+  document.getElementById('mOkMsg').textContent=nb===1
+    ?`Reçu ${paiements[0].recu} · ${cibles[0].nom} ${cibles[0].prenom} · ${mt.toFixed(2)} ${S.devise}`
+    :`${nb} reçus générés pour la classe ${document.getElementById('selClasse')?.value||''} · ${mt.toFixed(2)} ${S.devise}/élève`;
+  document.getElementById('mOkAlerte').innerHTML='';
+  document.getElementById('modalOk').classList.add('open');
+  document.getElementById('selEleve').value='';
+  const sc=document.getElementById('selClasse');if(sc)sc.value='';
+  document.getElementById('mtPay').value='';document.getElementById('remPay').value='';
+  document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
+}
+function doPrint(nomFichier,multiPage){
+  let styleEl=document.getElementById('print-page-style');
+  if(!styleEl){styleEl=document.createElement('style');styleEl.id='print-page-style';document.head.appendChild(styleEl);}
+  const titreOriginal=document.title;
+  if(nomFichier)document.title=nomFichier;
+  const frame=document.getElementById('PRINT_FRAME');
+  frame.style.position='fixed';frame.style.left='-9999px';frame.style.top='0';
+  frame.style.display='block';frame.style.visibility='hidden';
+  const measure=()=>requestAnimationFrame(()=>{
+    let pageSize=S.rFormat==='A4'?'210mm 297mm':'148mm 210mm';
+    if(!multiPage){
+      const recu=frame.querySelector('.recu');
+      if(recu){
+        const PX_TO_MM=25.4/96;
+        const rect=recu.getBoundingClientRect();
+        const wMM=(rect.width*PX_TO_MM).toFixed(2);
+        const hMM=(rect.height*PX_TO_MM).toFixed(2);
+        pageSize=`${wMM}mm ${hMM}mm`;
+      }
+    }
+    styleEl.textContent=`@media print { @page { size:${pageSize}; margin:0; } }`;
+    frame.style.position='';frame.style.left='';frame.style.top='';
+    frame.style.display='';frame.style.visibility='';
+    setTimeout(()=>{window.print();setTimeout(()=>{document.title=titreOriginal;},500);},100);
+  });
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure).catch(measure);
+  else measure();
+}
+
+// ─── TELEGRAM / WHATSAPP ───
+async function sendTelegram(text){try{const res=await fetch(`https://api.telegram.org/bot${S.tgToken}/sendMessage`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({chat_id:S.tgChat,text,parse_mode:'Markdown'})});const data=await res.json();return data.ok===true;}catch(e){return false;}}
+async function testTg(){const token=document.getElementById('c_tgToken').value.trim();const chat=document.getElementById('c_tgChat').value.trim();if(!token||!chat){toast('⚠️','Renseignez Token et Chat ID','');return;}S.tgToken=token;S.tgChat=chat;toast('✈️','Envoi en cours…','');const ok=await sendTelegram(`🎓 Test EduReçu\n✅ Configuration Telegram opérationnelle !\n📅 ${new Date().toLocaleString('fr-MA')}`);toast(ok?'✅':'❌',ok?'Message test reçu !':'Erreur — vérifiez Token et Chat ID','');}
+function openWaLink(msg,num){const phone=num.replace(/[\s+\-()]/g,'');const url=`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;document.getElementById('waMsgBox').textContent=msg;document.getElementById('waLinkBtn').href=url;document.getElementById('modalWa').classList.add('open');}
+
+// ─── VIEWER ───
+function getRecuHTML(p){
+  if(p.html)return p.html;
+  const found=eleves.find(e=>(e.nom+' '+e.prenom)===p.eleve||(e.prenom+' '+e.nom)===p.eleve);
+  let elvData;
+  if(found){
+    elvData={nom:found.nom,prenom:found.prenom,classe:p.classe||found.classe,tel:found.tel||''};
+  } else {
+    // Reconstruire depuis "NOM Prénom" — le premier mot en majuscules = nom
+    const parts=(p.eleve||'').split(' ');
+    const nomParts=[], prenomParts=[];
+    let nomDone=false;
+    parts.forEach(w=>{if(!nomDone&&w===w.toUpperCase()&&w.length>0)nomParts.push(w);else{nomDone=true;prenomParts.push(w);}});
+    elvData={nom:nomParts.join(' ')||p.eleve||'',prenom:prenomParts.join(' ')||'',classe:p.classe||'',tel:''};
+  }
+  const isInscription=(p.recu||'').startsWith('RI')||(p.mode||'').includes('inscription');
+  if(isInscription)return buildInscriptionRecuHTML(elvData,p.recu,p.date,p.mois,p.montant,p.mode||'—',p.rem||'');
+  const isAssurance=(p.recu||'').startsWith('RA')||(p.mode||'').includes('Assurance');
+  if(isAssurance){return buildAssuranceRecuHTML(elvData,p.recu,p.date,p.mois,p.montant,0,p.rem||'','payé');}
+  return buildRecuHTML(elvData,p.recu,p.date,p.mois,p.montant,p.mode||'—',p.rem||'');
+}
+function viewRecu(idx){const p=paiements[idx];const html=getRecuHTML(p);currentViewerHTML=html;document.getElementById('rvTitle').textContent=`Reçu ${p.recu} — ${p.eleve}`;document.getElementById('rvContent').innerHTML=html;document.getElementById('modalViewer').classList.add('open');}
+function printViewer(){document.getElementById('PRINT_FRAME').innerHTML=currentViewerHTML||'';const t=document.getElementById('rvTitle').textContent;doPrint(t.replace(/^Reçu /,'Reçu_').replace(' — ','_'));}
+function reimprimer(idx){const p=paiements[idx];const html=getRecuHTML(p);document.getElementById('PRINT_FRAME').innerHTML=html;doPrint(`Reçu_${(p.eleve||'').replace(/ /g,'_')}_${(p.mois||'').replace(/ /g,'_')}`);}
+
+// ─── HISTORIQUE ───
+async function savePaiementsToFirebase(){if(window.FB&&window.FB.isReady()){setSyncStatus('syncing','Sauvegarde…');await window.FB.savePaiements(paiements);setSyncStatus('synced','Synchronisé');}}
+function filterHist(){const q=(document.getElementById('histSearch').value||'').toLowerCase();const mois=(document.getElementById('histFiltMois').value||'');let filtered=paiements;if(q)filtered=filtered.filter(p=>(p.eleve+p.recu+p.classe+p.mois+p.mode).toLowerCase().includes(q));if(mois)filtered=filtered.filter(p=>p.mois===mois);renderHistData(filtered);}
+function renderHist(){const fm=document.getElementById('histFiltMois');if(fm){const prev=fm.value;const moisList=[...new Set(paiements.map(p=>p.mois))].sort((a,b)=>b.localeCompare(a));fm.innerHTML='<option value="">Tous les mois</option>';moisList.forEach(m=>fm.innerHTML+=`<option${m===prev?' selected':''}>${m}</option>`);}filterHist();}
+function renderHistData(data){document.getElementById('histCnt').textContent=data.length+' paiements';if(!data.length){document.getElementById('histBody').innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="clipboard-list" class="ic-xl"></i></div><div class="e-t">Aucun paiement trouvé</div></div>';refreshIcons();return;}document.getElementById('histBody').innerHTML=`<table><thead><tr><th>N° REÇU</th><th>ÉLÈVE</th><th>CLASSE</th><th>MOIS</th><th>MONTANT</th><th>MODE</th><th>DATE</th><th>ACTIONS</th></tr></thead><tbody>${data.map(p=>{const idx=paiements.indexOf(p);return`<tr><td style="color:var(--ac);font-weight:600">${p.recu}</td><td class="p">${p.eleve}</td><td>${p.classe}</td><td>${p.mois}</td><td style="color:var(--g2);font-weight:600">${p.montant.toFixed(2)} ${p.devise}</td><td>${p.mode}</td><td style="color:var(--di);font-size:12.5px">${p.date}</td><td><div style="display:flex;gap:6px"><button class="btn bg bsm" onclick="viewRecu(${idx})"><i data-lucide="eye" class="ic-sm"></i> Voir</button><button class="btn bp bsm" onclick="reimprimer(${idx})"><i data-lucide="printer" class="ic-sm"></i> PDF</button><button class="btn bre bsm" onclick="deletePaiement(${idx})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button></div></td></tr>`;}).join('')}</tbody></table>`;refreshIcons();}
+function deletePaiement(idx){const p=paiements[idx];if(!confirm(`Supprimer le reçu ${p.recu} pour ${p.eleve} ?\n\nCette action est irréversible.`))return;paiements.splice(idx,1);renderHist();updStats();savePaiementsToFirebase();toast('🗑️','Paiement supprimé','');}
+function updStats(){const total=paiements.reduce((s,p)=>s+p.montant,0);document.getElementById('statTotal').textContent=total.toFixed(2)+' '+S.devise;document.getElementById('statNb').textContent=paiements.length+' paiements';const ms=document.getElementById('mStatTotal');if(ms)ms.textContent=total.toFixed(0)+' '+S.devise;renderDashboard();}
+function exportHist(){if(!paiements.length){toast('⚠️','Aucun paiement','');return;}const rows=paiements.map(p=>({'N° Reçu':p.recu,'Élève':p.eleve,'Classe':p.classe,'Mois':p.mois,'Montant':p.montant,'Devise':p.devise,'Mode':p.mode,'Date':p.date}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Paiements');XLSX.writeFile(wb,`Historique_${new Date().toISOString().slice(0,10)}.xlsx`);toast('⬇️','Export Excel téléchargé','');}
+
+// ─── DASHBOARD ───
+let chartMois=null,chartStatuts=null,chartClasses=null;
+function renderDashboard(){
+  const total=paiements.reduce((s,p)=>s+p.montant,0);const payes=eleves.filter(e=>e.statut==='payé').length;const attente=eleves.filter(e=>e.statut==='en attente').length;const retard=eleves.filter(e=>e.statut.includes('retard')).length;const totalEleves=eleves.length;const taux=totalEleves>0?Math.round((payes/totalEleves)*100):0;
+  document.getElementById('kpi-total').textContent=total.toFixed(2)+' '+S.devise;document.getElementById('kpi-recus').textContent=paiements.length;document.getElementById('kpi-payes').textContent=payes;document.getElementById('kpi-attente').textContent=attente;document.getElementById('kpi-retard').textContent=retard;document.getElementById('kpi-taux').textContent=taux+'%';
+  const dashInfo=document.getElementById('dashBackupInfo');if(dashInfo)dashInfo.textContent=`${eleves.length} élèves · ${paiements.length} paiements`;
+  const parMois={};paiements.forEach(p=>{if(!parMois[p.mois])parMois[p.mois]=0;parMois[p.mois]+=p.montant;});const moisKeys=Object.keys(parMois).sort((a,b)=>a.localeCompare(b)).slice(-6);
+  const ctxM=document.getElementById('chartMois');if(ctxM){if(chartMois)chartMois.destroy();chartMois=new Chart(ctxM,{type:'bar',data:{labels:moisKeys.length?moisKeys:['Aucun paiement'],datasets:[{label:'Encaissé',data:moisKeys.map(m=>parMois[m]||0),backgroundColor:'rgba(59,125,255,.7)',borderColor:'#3b7dff',borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{color:'#8898b4',callback:v=>v.toLocaleString()+' '+S.devise},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#8898b4'},grid:{display:false}}}}});}
+  const ctxS=document.getElementById('chartStatuts');if(ctxS){if(chartStatuts)chartStatuts.destroy();chartStatuts=new Chart(ctxS,{type:'doughnut',data:{labels:['Payé','En attente','Retard'],datasets:[{data:[payes,attente,retard],backgroundColor:['rgba(34,197,94,.8)','rgba(245,158,11,.8)','rgba(239,68,68,.8)'],borderColor:['#22c55e','#f59e0b','#ef4444'],borderWidth:2}]},options:{responsive:true,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#8898b4',padding:12,font:{size:12}}}}}});}
+  const parClasse={};paiements.forEach(p=>{const elvActuel=eleves.find(e=>(e.nom+' '+e.prenom)===p.eleve);const classe=(elvActuel&&elvActuel.classe)?elvActuel.classe:(p.classe||'Non définie');if(!parClasse[classe])parClasse[classe]=0;parClasse[classe]+=p.montant;});const classeKeys=Object.keys(parClasse).sort();const colors=['rgba(59,125,255,.7)','rgba(34,197,94,.7)','rgba(245,158,11,.7)','rgba(239,68,68,.7)','rgba(168,85,247,.7)','rgba(236,72,153,.7)'];
+  const ctxC=document.getElementById('chartClasses');if(ctxC){if(chartClasses)chartClasses.destroy();chartClasses=new Chart(ctxC,{type:'bar',data:{labels:classeKeys.length?classeKeys:['Aucune donnée'],datasets:[{label:'Encaissé',data:classeKeys.map(c=>parClasse[c]||0),backgroundColor:classeKeys.map((_,i)=>colors[i%colors.length]),borderWidth:0,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{color:'#8898b4',callback:v=>v.toLocaleString()},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#8898b4'},grid:{display:false}}}}});}
+  const lastPay=document.getElementById('dashLastPay');if(lastPay){if(!paiements.length){lastPay.innerHTML='<div style="color:var(--di);text-align:center;padding:20px">Aucun paiement enregistré</div>';}else{lastPay.innerHTML=paiements.slice(0,5).map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1)"><div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:50%;background:rgba(59,125,255,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#7aaaff;font-weight:700;flex-shrink:0">${p.eleve.split(' ').map(w=>w[0]).join('').slice(0,2)}</div><div><div style="font-weight:500;font-size:13.5px;color:var(--tx)">${p.eleve}</div><div style="font-size:12px;color:var(--mu)">${p.classe} · ${p.mois} · ${p.recu}</div></div></div><div style="text-align:right"><div style="font-weight:700;color:var(--g2);font-size:14px">${p.montant.toFixed(2)} ${p.devise}</div><div style="font-size:11px;color:var(--di)">${p.date}</div></div></div>`).join('')+(paiements.length>5?`<div style="text-align:center;padding:10px;font-size:12px;color:var(--mu);cursor:pointer" onclick="nav('historique')">Voir tout l'historique →</div>`:'');}}
+}
+
+async function downloadConfiguredHTML(){
+  if(!S.fbConfig||!S.fbConfig.apiKey){toast('⚠️','Aucune config Firebase à embarquer','Connectez d\'abord Firebase');return;}
+  toast('⏳','Génération du fichier…','');
+  const ok=await embedConfigInHTML(S.fbConfig);
+  if(ok)toast('💾','Fichier téléchargé !','Utilisez ce fichier sur tous vos appareils — plus besoin de reconfigurer Firebase');
+  else toast('❌','Erreur de génération','Essayez depuis un serveur local ou Netlify');
+}
+// ─── FIREBASE PARAMÈTRES ───
+function fbStatus(msg,ok=null){const box=document.getElementById('fbStatusBox');if(!box)return;if(ok===true)box.className='ib ib-ok';else if(ok===false)box.className='ib ib-err';else box.className='ib';box.innerHTML=msg;refreshIcons();}
+async function initFirebase(){const config={apiKey:document.getElementById('fb_apiKey').value.trim(),projectId:document.getElementById('fb_projectId').value.trim(),appId:document.getElementById('fb_appId').value.trim(),authDomain:document.getElementById('fb_authDomain').value.trim()};if(!config.apiKey||!config.projectId){toast('⚠️','Renseignez API Key et Project ID','');return;}fbStatus('⏳ Connexion en cours…');S.fbConfig=config;localStorage.setItem('edurecu_fbconfig',JSON.stringify(config));let tries=0;while(!window.FB&&tries++<20)await new Promise(r=>setTimeout(r,100));if(!window.FB){fbStatus('❌ SDK Firebase non chargé',false);return;}const res=await window.FB.init(config);if(res.ok){fbStatus('✅ Firebase connecté — '+config.projectId,true);setSyncStatus('synced','Connecté');toast('🔥','Firebase connecté !','');await syncFromFirebase(true);embedConfigInHTML(config).then(ok=>{if(ok)toast('💾','Fichier HTML mis à jour téléchargé','Remplacez l\'ancien fichier pour garder la config permanente');});}else{fbStatus(`❌ Erreur : ${res.err}`,false);toast('❌','Connexion Firebase échouée','Vérifiez vos identifiants');}}
+async function syncToFirebase(){if(!window.FB||!window.FB.isReady()){toast('⚠️','Connectez d\'abord Firebase','');return;}fbStatus('⏳ Envoi vers Firebase…');setSyncStatus('syncing','Synchronisation…');const ok=await window.FB.pushAll(eleves,paiements,S,recuN);if(ok){fbStatus('✅ Données envoyées',true);setSyncStatus('synced','Synchronisé');toast('⬆️','Synchronisation réussie','');}else{fbStatus('❌ Erreur lors de l\'envoi',false);setSyncStatus('error','Erreur');}}
+async function syncFromFirebase(silent=false){if(!window.FB||!window.FB.isReady()){if(!silent)toast('⚠️','Connectez d\'abord Firebase','');return;}if(!silent)fbStatus('⏳ Chargement depuis Firebase…');setSyncStatus('syncing','Chargement…');const data=await window.FB.pullAll();let changed=false;if(data.eleves&&data.eleves.length>0){eleves=data.eleves;renderE(eleves);fillSel();changed=true;}if(data.paiements&&data.paiements.length>0){paiements=data.paiements;renderHist();updStats();changed=true;}if(data.settings){const logos={appLogo:S.appLogo,schoolLogo:S.schoolLogo};Object.assign(S,data.settings,logos);applyS();changed=true;}if(data.recuN&&data.recuN>recuN){recuN=data.recuN;changed=true;}setSyncStatus('synced','Synchronisé');if(!silent){if(changed){fbStatus('✅ Données chargées',true);toast('⬇️','Synchronisation réussie','');}else{fbStatus('ℹ️ Aucune nouvelle donnée',null);}}}
+
+// ─── SAUVEGARDE / RESTAURATION ───
+function updateLastBackupInfo(){const key='edurecu_last_backup';const info=localStorage.getItem(key);const el=document.getElementById('lastBackupInfo');if(el&&info)el.textContent='Dernière sauvegarde : '+info;}
+function exportBackup(){const backup={version:2,date:new Date().toISOString(),ecole:S.ecole,eleves,paiements:paiements.map(p=>{const{html:_,...light}=p;return light;}),settings:(()=>{const{appLogo:_,schoolLogo:__,fbConfig:___,...light}=S;return light;})(),recuN};const json=JSON.stringify(backup,null,2);const blob=new Blob([json],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;const date=new Date().toISOString().slice(0,10);a.download=`EduRecu_backup_${S.ecole.replace(/\s/g,'_')}_${date}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);const ts=new Date().toLocaleDateString('fr-MA')+' à '+new Date().toLocaleTimeString('fr-MA',{hour:'2-digit',minute:'2-digit'});localStorage.setItem('edurecu_last_backup',ts);updateLastBackupInfo();toast('💾','Sauvegarde téléchargée',`${eleves.length} élèves · ${paiements.length} paiements`);}
+async function importBackup(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=async e=>{try{const backup=JSON.parse(e.target.result);if(!backup.version||!backup.eleves){toast('❌','Fichier invalide','Ce fichier ne semble pas être une sauvegarde EduReçu');return;}const dateStr=backup.date?backup.date.slice(0,10):'?';if(!confirm(`Restaurer la sauvegarde du ${dateStr} ?\n${backup.eleves.length} élèves · ${backup.paiements?.length||0} paiements\n\n⚠️ Toutes les données actuelles seront remplacées.`))return;eleves=backup.eleves||[];paiements=backup.paiements||[];recuN=backup.recuN||recuN;if(backup.settings){const logos={appLogo:S.appLogo,schoolLogo:S.schoolLogo,fbConfig:S.fbConfig};Object.assign(S,backup.settings,logos);applyS();}renderE(eleves);fillSel();renderHist();updStats();if(window.FB&&window.FB.isReady()){setSyncStatus('syncing','Restauration…');toast('⏳','Restauration en cours…','Envoi vers Firebase');const ok=await window.FB.pushAll(eleves,paiements,S,recuN);setSyncStatus(ok?'synced':'error',ok?'Synchronisé':'Erreur');toast(ok?'✅':'⚠️',ok?'Restauration réussie':'Erreur partielle',`${eleves.length} élèves · ${paiements.length} paiements`);}else{toast('✅','Restauré en mémoire',`${eleves.length} élèves · ${paiements.length} paiements`);}}catch(err){toast('❌','Erreur de lecture',err.message);}input.value='';};r.readAsText(file);}
+
+function closeM(id){document.getElementById(id).classList.remove('open');}
+let _tt;
+const TOAST_ICONS={'ℹ️':'info','⏱️':'timer','⏳':'clock','⚠️':'triangle-alert','⚡':'zap','✅':'check-circle-2','✈️':'send','❌':'circle-x','⬆️':'upload','⬇️':'download','💾':'save','🔒':'lock','🔥':'flame','🖼️':'image','🗑️':'trash-2','🛡️':'shield-check'};
+function refreshIcons(){if(window.lucide)lucide.createIcons();}
+function toast(ico,msg,sub){const tIco=document.getElementById('tIco');const name=TOAST_ICONS[ico];tIco.innerHTML=name?'<i data-lucide="'+name+'"></i>':ico;document.getElementById('tMsg').textContent=msg;document.getElementById('tSub').textContent=sub;const t=document.getElementById('toast');t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),3800);refreshIcons();}
+</script>
+<script type="module">
+import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+import { getFirestore, doc, setDoc, getDoc, collection, getDocs, onSnapshot, writeBatch } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword as fbUpdatePassword, browserSessionPersistence, setPersistence } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+
+let fbApp=null, fbDb=null, fbAuth=null, fbListeners=[];
+
+window.FB = {
+  async init(config){
+    try{
+      const existing=getApps();
+      for(const app of existing)await deleteApp(app);
+      fbApp=initializeApp(config);
+      fbDb=getFirestore(fbApp);
+      fbAuth=getAuth(fbApp);
+      await setPersistence(fbAuth,browserSessionPersistence);
+      return{ok:true};
+    }catch(e){return{ok:false,err:e.message};}
+  },
+  isReady(){return!!fbDb&&!!fbAuth;},
+  listenAuth(callback){if(!fbAuth)return;onAuthStateChanged(fbAuth,callback);},
+  async signIn(email,password){try{await signInWithEmailAndPassword(fbAuth,email,password);return{ok:true};}catch(e){return{ok:false,err:e.code||e.message};}},
+  async signOut(){try{await signOut(fbAuth);return{ok:true};}catch(e){return{ok:false,err:e.message};}},
+  async updatePassword(newPass){try{if(!fbAuth.currentUser)return{ok:false,err:'Non connecté'};await fbUpdatePassword(fbAuth.currentUser,newPass);return{ok:true};}catch(e){return{ok:false,err:e.message};}},
+  async getRole(uid){if(!fbDb)return'user';try{const snap=await getDoc(doc(fbDb,'roles',uid));return snap.exists()?snap.data().role:'user';}catch(e){return'user';}},
+  async setRole(uid,role){if(!fbDb)return false;try{await setDoc(doc(fbDb,'roles',uid),{role});return true;}catch(e){return false;}},
+  async saveEleves(eleves){
+    if(!fbDb)return false;
+    try{
+      const CHUNK=200;
+      const snap=await getDocs(collection(fbDb,'eleves'));
+      const toDel=snap.docs;
+      for(let i=0;i<toDel.length;i+=CHUNK){const b=writeBatch(fbDb);toDel.slice(i,i+CHUNK).forEach(d=>b.delete(d.ref));await b.commit();}
+      for(let i=0;i<eleves.length;i+=CHUNK){const b=writeBatch(fbDb);eleves.slice(i,i+CHUNK).forEach(e=>b.set(doc(fbDb,'eleves',String(e.id)),e));await b.commit();}
+      return true;
+    }catch(e){console.error('saveEleves',e);return false;}
+  },
+  async getEleves(){if(!fbDb)return[];try{const snap=await getDocs(collection(fbDb,'eleves'));return snap.docs.map(d=>d.data()).sort((a,b)=>a.id-b.id);}catch(e){return[];}},
+  async savePaiements(paiements){
+    if(!fbDb)return false;
+    try{
+      const CHUNK=200;
+      const snap=await getDocs(collection(fbDb,'paiements'));
+      const toDel=snap.docs;
+      for(let i=0;i<toDel.length;i+=CHUNK){const b=writeBatch(fbDb);toDel.slice(i,i+CHUNK).forEach(d=>b.delete(d.ref));await b.commit();}
+      for(let i=0;i<paiements.length;i+=CHUNK){const b=writeBatch(fbDb);paiements.slice(i,i+CHUNK).forEach((p,j)=>{const{html:_,...light}=p;b.set(doc(fbDb,'paiements',String(i+j)),light);});await b.commit();}
+      return true;
+    }catch(e){return false;}
+  },
+  async getPaiements(){if(!fbDb)return[];try{const snap=await getDocs(collection(fbDb,'paiements'));return snap.docs.map(d=>d.data()).sort((a,b)=>(b.recu||'').localeCompare(a.recu||''));}catch(e){return[];}},
+  async saveSettings(S){if(!fbDb)return false;try{const{appLogo:_,schoolLogo:__,...light}=S;await setDoc(doc(fbDb,'config','settings'),light);return true;}catch(e){return false;}},
+  async getSettings(){if(!fbDb)return null;try{const snap=await getDoc(doc(fbDb,'config','settings'));return snap.exists()?snap.data():null;}catch(e){return null;}},
+  async saveRecuN(n){if(!fbDb)return false;try{await setDoc(doc(fbDb,'config','recuN'),{n});return true;}catch(e){return false;}},
+  async getRecuN(){if(!fbDb)return null;try{const snap=await getDoc(doc(fbDb,'config','recuN'));return snap.exists()?snap.data().n:null;}catch(e){return null;}},
+  async pushAll(eleves,paiements,S,recuN){const res=await Promise.all([window.FB.saveEleves(eleves),window.FB.savePaiements(paiements),window.FB.saveSettings(S),window.FB.saveRecuN(recuN)]);return res.every(Boolean);},
+  async pullAll(){const[eleves,paiements,settings,recuNData]=await Promise.allSettled([window.FB.getEleves(),window.FB.getPaiements(),window.FB.getSettings(),window.FB.getRecuN()]);return{eleves:eleves.value||[],paiements:paiements.value||[],settings:settings.value||null,recuN:recuNData.value||null};},
+  async startListeners({onEleves,onPaiements,onSettings,onRecuN}){
+    if(!fbDb)return;
+    fbListeners.forEach(u=>u());fbListeners=[];
+    if(onEleves)fbListeners.push(onSnapshot(collection(fbDb,'eleves'),snap=>{const data=snap.docs.map(d=>d.data()).sort((a,b)=>a.id-b.id);onEleves(data);}));
+    if(onPaiements)fbListeners.push(onSnapshot(collection(fbDb,'paiements'),snap=>{const data=snap.docs.map(d=>d.data()).sort((a,b)=>(b.recu||'').localeCompare(a.recu||''));onPaiements(data);}));
+    if(onSettings)fbListeners.push(onSnapshot(doc(fbDb,'config','settings'),snap=>{if(snap.exists())onSettings(snap.data());}));
+    if(onRecuN)fbListeners.push(onSnapshot(doc(fbDb,'config','recuN'),snap=>{if(snap.exists())onRecuN(snap.data().n);}));
+  },
+  stopListeners(){fbListeners.forEach(u=>u());fbListeners=[];}
+};
+</script>
+</body>
+</html>
