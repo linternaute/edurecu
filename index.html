@@ -381,7 +381,10 @@ textarea.inp{resize:vertical;}
             <button class="btn bp bsm" onclick="openAddEleve()" style="white-space:nowrap"><i data-lucide="plus" class="ic-sm"></i> Ajouter</button>
             <button class="btn bg bsm" onclick="document.getElementById('fileInpAddEleves').click()" style="white-space:nowrap" title="Ajoute les élèves du fichier à la liste actuelle, sans rien supprimer"><i data-lucide="file-up" class="ic-sm"></i> Importer Excel</button>
             <input type="file" id="fileInpAddEleves" accept=".xlsx,.xls,.csv" style="display:none" onchange="onFileChangeAddEleves(event)">
-            <input class="inp" style="width:140px" placeholder="🔍 Rechercher…" id="search" oninput="filterE()">
+            <div style="position:relative;display:flex;align-items:center">
+              <input class="inp" style="width:140px;padding-right:28px" placeholder="🔍 Rechercher…" id="search" oninput="filterE();updateClearBtn()">
+              <button id="clearSearchBtn" onclick="clearSearch()" title="Effacer la recherche" style="display:none;position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--mu);padding:0;line-height:1;font-size:14px">✕</button>
+            </div>
             <select class="inp" style="width:110px" id="filtCls" onchange="filterE()"><option value="">Toutes classes</option></select>
             <select class="inp" style="width:110px" id="filtAnnee" onchange="onAnneeChange()"><option value="">Toutes années</option></select>
             <select class="inp" style="width:130px" id="filtMois" onchange="filterE()"><option value="">Tous les mois</option></select>
@@ -1354,6 +1357,8 @@ async function saveEleve(){const nom=document.getElementById('el_nom').value.tri
 async function deleteEleve(id){const elv=eleves.find(e=>e.id==id);if(!elv)return;if(!confirm(`Supprimer ${elv.nom} ${elv.prenom} ?\n\nCette action est irréversible.`))return;eleves=eleves.filter(e=>e.id!=id);renderE(eleves);fillSel();saveElevesToFirebase();toast('🗑️','Élève supprimé','');}
 function onAnneeChange(){const fm=document.getElementById('filtMois');if(fm)fm.value='';filterE();}
 function filterE(){const q=document.getElementById('search').value.toLowerCase();const c=document.getElementById('filtCls').value;const fa=document.getElementById('filtAnnee');const fm=document.getElementById('filtMois');const annee=fa?fa.value:'';const mois=fm?fm.value:'';let filtered=eleves.filter(e=>(e.nom+' '+e.prenom+' '+e.tel).toLowerCase().includes(q)&&(!c||e.classe===c));if(annee||mois){let pF=paiements;if(annee)pF=pF.filter(p=>p.mois.includes(annee));if(mois)pF=pF.filter(p=>p.mois===mois);const elevesAvec=new Set(pF.map(p=>p.eleve));filtered=filtered.filter(e=>elevesAvec.has(e.nom+' '+e.prenom));}renderE(filtered);}
+function updateClearBtn(){const btn=document.getElementById('clearSearchBtn');if(btn)btn.style.display=document.getElementById('search').value?'block':'none';}
+function clearSearch(){const s=document.getElementById('search');if(s){s.value='';updateClearBtn();filterE();}}
 function fillSel(){const s=document.getElementById('selEleve');s.innerHTML='<option value="">— Sélectionner —</option>';eleves.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.indice?'['+e.indice+'] ':''} ${e.nom} ${e.prenom} — ${e.classe}</option>`);const sc=document.getElementById('selClasse');if(sc){const prev=sc.value;const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();sc.innerHTML='<option value="">— Sélectionner —</option>';cls.forEach(c=>sc.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);}}
 function quickPay(id){nav('paiement');switchPayMode('eleve');document.getElementById('selEleve').value=id;document.getElementById('typePay').value='mensualite';onEleveChange();}
 function quickPayInscription(id){nav('paiement');switchPayMode('eleve');document.getElementById('selEleve').value=id;document.getElementById('typePay').value='inscription';onEleveChange();}
