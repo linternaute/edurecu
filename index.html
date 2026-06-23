@@ -401,6 +401,20 @@ textarea.inp{resize:vertical;}
           </tr></thead>
           <tbody id="eleveTb"><tr><td colspan="13"><div class="empty"><div class="e-ico"><i data-lucide="table" class="ic-xl"></i></div><div class="e-t">Importez un fichier Excel</div></div></td></tr></tbody>
         </table>
+        <!-- PAGINATION -->
+        <div id="paginationBar" style="display:none;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--b1);flex-wrap:wrap;gap:8px">
+          <div style="font-size:12.5px;color:var(--mu)" id="pageInfo"></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button class="btn bg bsm" id="btnPrevPage" onclick="changePage(-1)"><i data-lucide="chevron-left" class="ic-sm"></i></button>
+            <div id="pageNums" style="display:flex;gap:4px"></div>
+            <button class="btn bg bsm" id="btnNextPage" onclick="changePage(1)"><i data-lucide="chevron-right" class="ic-sm"></i></button>
+            <select class="inp" id="pageSizeSelect" onchange="changePageSize(this.value)" style="width:80px;font-size:12px;padding:4px 8px">
+              <option value="25">25 / page</option>
+              <option value="50" selected>50 / page</option>
+              <option value="100">100 / page</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
     <!-- PAIEMENT -->
@@ -1189,8 +1203,13 @@ async function saveElevesToFirebase(){if(window.FB&&window.FB.isReady()){setSync
 function loadDemo(){importE([{nom:'ALAMI',prenom:'Youssef',classe:'3ème A',telephone:'+212661234567',frais_mensuel:850,statut:'payé'},{nom:'BENALI',prenom:'Fatima Zahra',classe:'2ème B',telephone:'+212677654321',frais_mensuel:750,statut:'en attente'},{nom:'CHRAIBI',prenom:'Ahmed',classe:'1ère C',telephone:'+212655112233',frais_mensuel:900,statut:'retard'},{nom:'DRISSI',prenom:'Meryem',classe:'3ème A',telephone:'+212666998877',frais_mensuel:850,statut:'payé'},{nom:'ELKADI',prenom:'Omar',classe:'2ème B',telephone:'+212699112244',frais_mensuel:750,statut:'en attente'},{nom:'FASSI',prenom:'Imane',classe:'1ère A',telephone:'+212654321098',frais_mensuel:800,statut:'payé'},{nom:'GUESSOUS',prenom:'Karim',classe:'3ème B',telephone:'+212670123456',frais_mensuel:900,statut:'retard'},{nom:'HAMDOUNE',prenom:'Nadia',classe:'2ème A',telephone:'+212661009988',frais_mensuel:750,statut:'payé'}]);toast('⚡','Données démo chargées','8 élèves exemples');}
 
 // ─── ÉLÈVES ───
-function renderE(data){
-  document.getElementById('eleveCnt').textContent=data.length+' élèves';
+let _currentPage=1,_pageSize=50,_filteredData=[];
+function renderE(data){_filteredData=data;_currentPage=1;renderPage();}
+function renderPage(){
+  const data=_filteredData;const total=data.length;
+  const totalPages=Math.max(1,Math.ceil(total/_pageSize));
+  _currentPage=Math.min(_currentPage,totalPages);
+  document.getElementById('eleveCnt').textContent=total+' élève'+(total>1?'s':'');
   const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();
   const s=document.getElementById('filtCls');const prevCls=s.value;s.innerHTML='<option value="">Toutes classes</option>';cls.forEach(c=>s.innerHTML+=`<option${c===prevCls?' selected':''}>${c}</option>`);
   const fa=document.getElementById('filtAnnee');const prevAnnee=fa?fa.value:'';const anneesDispo=[...new Set(paiements.map(p=>{const m=p.mois.match(/\d{4}/);return m?m[0]:'';}).filter(Boolean))].sort((a,b)=>b-a);if(fa){fa.innerHTML='<option value="">Toutes années</option>';anneesDispo.forEach(a=>fa.innerHTML+=`<option${a===prevAnnee?' selected':''}>${a}</option>`);}
@@ -1199,9 +1218,10 @@ function renderE(data){
   const sorted=[...data].sort((a,b)=>{let va,vb;if(col==='indice'){va=a.indice||'';vb=b.indice||'';const na=parseFloat(va),nb=parseFloat(vb);if(!isNaN(na)&&!isNaN(nb))return dir==='asc'?na-nb:nb-na;}else if(col==='classe'){va=(a.classe||'').toLowerCase();vb=(b.classe||'').toLowerCase();}else{va=(col==='prenom'?a.prenom:a.nom).toLowerCase();vb=(col==='prenom'?b.prenom:b.nom).toLowerCase();}return dir==='asc'?va.localeCompare(vb,'fr'):vb.localeCompare(va,'fr');});
   ['indice','nom','prenom','classe'].forEach(c=>{const th=document.getElementById('th-'+c);if(th)th.className='th-sort'+(col===c?' '+dir:'');});
   const tb=document.getElementById('eleveTb');
-  if(!sorted.length){tb.innerHTML='<tr><td colspan="13"><div class="empty"><div class="e-ico"><i data-lucide="users" class="ic-xl"></i></div><div class="e-t">Aucun résultat</div></div></td></tr>';return;}
-  tb.innerHTML=sorted.map((e,i)=>`<tr>
-    <td style="text-align:center;color:var(--di);font-size:11px;font-weight:600">${i+1}</td>
+  if(!sorted.length){tb.innerHTML='<tr><td colspan="13"><div class="empty"><div class="e-ico"><i data-lucide="users" class="ic-xl"></i></div><div class="e-t">Aucun résultat</div></div></td></tr>';renderPagBar(0,0,0);refreshIcons();return;}
+  const start=(_currentPage-1)*_pageSize;const end=Math.min(start+_pageSize,total);const pageData=sorted.slice(start,end);const globalOffset=start;
+  tb.innerHTML=pageData.map((e,i)=>`<tr>
+    <td style="text-align:center;color:var(--di);font-size:11px;font-weight:600">${globalOffset+i+1}</td>
     <td style="color:var(--ac);font-size:12px;font-weight:600" dir="ltr">${e.indice||'—'}</td>
     <td ${rtlAttr(e.prenom)}>${e.prenom||'—'}</td>
     <td class="p" ${rtlAttr(e.nom)}>${e.nom||'—'}</td>
@@ -1215,8 +1235,24 @@ function renderE(data){
     <td style="white-space:nowrap">${(()=>{const ass=e.assurance||{};const total=parseFloat(ass.montantTotal)||0;const paye=parseFloat(ass.montantPaye)||0;const pct=total>0?Math.round((paye/total)*100):0;const col=!total?'var(--di)':pct>=100?'var(--g2)':pct>0?'var(--am)':'var(--re)';const svgP='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';const svgO='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>';const svgC='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';const svgW='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.1" style="vertical-align:-1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';const label=!total?svgP+' Assurance':pct>=100?svgO+' Payé':pct>0?svgC+` ${paye}/${total}`:(svgW+' '+total+' dû');return '<button class="btn bsm" style="font-size:11px;background:transparent;border:1px solid '+col+';color:'+col+';padding:2px 7px;border-radius:6px;white-space:nowrap" onclick="openAssurance('+e.id+')">'+label+'</button>';})()}</td>
     <td><div style="display:flex;gap:5px"><button class="btn bgr bsm" onclick="quickPay(${e.id})" title="Paiement mensualité"><i data-lucide="credit-card" class="ic-sm"></i></button><button class="btn bsm" onclick="quickPayInscription(${e.id})" title="Frais d'inscription" style="background:rgba(104,48,224,.1);border:1px solid rgba(104,48,224,.25);color:#a78bfa"><i data-lucide="graduation-cap" class="ic-sm"></i></button><button class="btn bg bsm" onclick="editEleve(${e.id})" title="Modifier"><i data-lucide="pencil" class="ic-sm"></i></button><button class="btn bre bsm" onclick="deleteEleve(${e.id})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button></div></td>
   </tr>`).join('');
-refreshIcons();
+  renderPagBar(total,_currentPage,totalPages);
+  refreshIcons();
 }
+function renderPagBar(total,page,totalPages){
+  const bar=document.getElementById('paginationBar');const info=document.getElementById('pageInfo');const nums=document.getElementById('pageNums');const prev=document.getElementById('btnPrevPage');const next=document.getElementById('btnNextPage');
+  if(!bar)return;if(total<=_pageSize){bar.style.display='none';return;}
+  bar.style.display='flex';const start=(page-1)*_pageSize+1;const end=Math.min(page*_pageSize,total);
+  if(info)info.textContent=`${start}–${end} sur ${total} élèves`;
+  if(prev)prev.disabled=page<=1;if(next)next.disabled=page>=totalPages;
+  if(nums){
+    nums.innerHTML='';
+    const pages=[];if(totalPages<=7){for(let i=1;i<=totalPages;i++)pages.push(i);}else{pages.push(1);if(page>3)pages.push('…');const lo=Math.max(2,page-1),hi=Math.min(totalPages-1,page+1);for(let i=lo;i<=hi;i++)pages.push(i);if(page<totalPages-2)pages.push('…');pages.push(totalPages);}
+    pages.forEach(p=>{if(p==='…'){const sp=document.createElement('span');sp.textContent='…';sp.style.cssText='color:var(--di);padding:0 4px;font-size:13px;align-self:center';nums.appendChild(sp);return;}const btn=document.createElement('button');btn.className='btn bsm '+(p===page?'bp':'bg');btn.style.minWidth='32px';btn.textContent=p;btn.onclick=()=>goToPage(p);nums.appendChild(btn);});
+  }
+}
+function changePage(delta){goToPage(_currentPage+delta);}
+function goToPage(p){const total=_filteredData.length;const totalPages=Math.max(1,Math.ceil(total/_pageSize));_currentPage=Math.max(1,Math.min(p,totalPages));renderPage();document.getElementById('eleveTb')?.closest('.tw')?.scrollIntoView({behavior:'smooth',block:'start'});}
+function changePageSize(val){_pageSize=parseInt(val)||50;_currentPage=1;renderPage();}
 function sortBy(col){if(sortState.col===col)sortState.dir=sortState.dir==='asc'?'desc':'asc';else{sortState.col=col;sortState.dir='asc';}filterE();}
 function openAssurance(id){const elv=eleves.find(e=>e.id==id);if(!elv)return;const ass=elv.assurance||{};document.getElementById('assuranceEleveId').value=id;document.getElementById('assuranceSubtitle').textContent=`${elv.prenom} ${elv.nom} — ${elv.classe||''}`;document.getElementById('ass_total').value=ass.montantTotal||'';document.getElementById('ass_paye').value=ass.montantPaye||'';document.getElementById('ass_date').value=ass.datePaiement||'';document.getElementById('ass_statut').value=ass.statut||'en attente';document.getElementById('ass_remarque').value=ass.remarque||'';document.getElementById('ass_genRecu').checked=true;updateAssuranceCalc();document.getElementById('modalAssurance').classList.add('open');}
 function updateAssuranceCalc(){const total=parseFloat(document.getElementById('ass_total').value)||0;const paye=parseFloat(document.getElementById('ass_paye').value)||0;const reste=Math.max(0,total-paye);const pct=total>0?Math.round((paye/total)*100):0;document.getElementById('ass_r_total').textContent=total>0?total+' '+S.devise:'—';document.getElementById('ass_r_paye').textContent=paye>0?paye+' '+S.devise:'—';document.getElementById('ass_r_reste').textContent=reste>0?reste+' '+S.devise:'✅ 0';document.getElementById('ass_r_pct').textContent=total>0?pct+'%':'—';document.getElementById('ass_r_pct').style.color=pct>=100?'var(--g2)':pct>0?'var(--am)':'var(--re)';document.getElementById('ass_r_reste').style.color=reste===0?'var(--g2)':'var(--re)';if(total>0){const sel=document.getElementById('ass_statut');if(paye>=total)sel.value='payé';else if(paye>0)sel.value='partiel';else sel.value='en attente';}}
