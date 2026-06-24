@@ -317,7 +317,7 @@ textarea.inp{resize:vertical;}
     <div class="nav-i" onclick="nav('parametres')"><span class="nav-ico"><i data-lucide="settings"></i></span>Paramètres</div>
     <div class="sdiv"></div>
     <div class="stat-box">
-      <div class="s-lbl">Encaissé ce mois</div>
+      <div class="s-lbl">Total par jour</div>
       <div class="s-val" id="statTotal">0 MAD</div>
       <div class="s-sub" id="statNb">0 paiements</div>
     </div>
@@ -328,7 +328,7 @@ textarea.inp{resize:vertical;}
       <div class="ph">Tableau de bord</div>
       <div class="ps">Vue d'ensemble des paiements et statistiques</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">
-        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="wallet"></i></div><div class="kpi-val" id="kpi-total">0 MAD</div><div class="kpi-lbl">Total encaissé</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="wallet"></i></div><div class="kpi-val" id="kpi-total">0 MAD</div><div class="kpi-lbl">Total par jour</div></div>
         <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clipboard-list"></i></div><div class="kpi-val" id="kpi-recus">0</div><div class="kpi-lbl">Reçus générés</div></div>
         <div class="kpi-card"><div class="kpi-ico"><i data-lucide="check-circle-2"></i></div><div class="kpi-val" id="kpi-payes">0</div><div class="kpi-lbl">Élèves à jour</div></div>
         <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clock"></i></div><div class="kpi-val" id="kpi-attente">0</div><div class="kpi-lbl">En attente</div></div>
@@ -1759,14 +1759,22 @@ function filterHist(){const q=(document.getElementById('histSearch').value||'').
 function renderHist(){const fm=document.getElementById('histFiltMois');if(fm){const prev=fm.value;const moisList=[...new Set(paiements.map(p=>p.mois))].sort((a,b)=>b.localeCompare(a));fm.innerHTML='<option value="">Tous les mois</option>';moisList.forEach(m=>fm.innerHTML+=`<option${m===prev?' selected':''}>${m}</option>`);}filterHist();}
 function renderHistData(data){document.getElementById('histCnt').textContent=data.length+' paiements';if(!data.length){document.getElementById('histBody').innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="clipboard-list" class="ic-xl"></i></div><div class="e-t">Aucun paiement trouvé</div></div>';refreshIcons();return;}document.getElementById('histBody').innerHTML=`<table><thead><tr><th>N° REÇU</th><th>ÉLÈVE</th><th>CLASSE</th><th>MOIS</th><th>MONTANT</th><th>MODE</th><th>DATE</th><th>ACTIONS</th></tr></thead><tbody>${data.map(p=>{const idx=paiements.indexOf(p);return`<tr><td style="color:var(--ac);font-weight:600">${p.recu}</td><td class="p">${p.eleve}</td><td>${p.classe}</td><td>${p.mois}</td><td style="color:var(--g2);font-weight:600">${p.montant.toFixed(2)} ${p.devise}</td><td>${p.mode}</td><td style="color:var(--di);font-size:12.5px">${p.date}</td><td><div style="display:flex;gap:6px"><button class="btn bg bsm" onclick="viewRecu(${idx})"><i data-lucide="eye" class="ic-sm"></i> Voir</button><button class="btn bp bsm" onclick="reimprimer(${idx})"><i data-lucide="printer" class="ic-sm"></i> PDF</button><button class="btn bre bsm" onclick="deletePaiement(${idx})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button></div></td></tr>`;}).join('')}</tbody></table>`;refreshIcons();}
 function deletePaiement(idx){const p=paiements[idx];if(!confirm(`Supprimer le reçu ${p.recu} pour ${p.eleve} ?\n\nCette action est irréversible.`))return;paiements.splice(idx,1);renderHist();updStats();savePaiementsToFirebase();toast('🗑️','Paiement supprimé','');}
-function updStats(){const totalMens=paiements.filter(p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance')).reduce((s,p)=>s+p.montant,0);document.getElementById('statTotal').textContent=totalMens.toFixed(2)+' '+S.devise;document.getElementById('statNb').textContent=paiements.length+' paiements';const ms=document.getElementById('mStatTotal');if(ms)ms.textContent=totalMens.toFixed(0)+' '+S.devise;renderDashboard();}
+function updStats(){
+  const today=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});
+  const isMensForStats=p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance');
+  const todayTotal=paiements.filter(p=>isMensForStats(p)&&p.date===today).reduce((s,p)=>s+p.montant,0);
+  document.getElementById('statTotal').textContent=todayTotal.toFixed(2)+' '+S.devise;
+  document.getElementById('statNb').textContent=paiements.length+' paiements';
+  const ms=document.getElementById('mStatTotal');if(ms)ms.textContent=todayTotal.toFixed(0)+' '+S.devise;
+  renderDashboard();
+}
 function exportHist(){if(!paiements.length){toast('⚠️','Aucun paiement','');return;}const rows=paiements.map(p=>({'N° Reçu':p.recu,'Élève':p.eleve,'Classe':p.classe,'Mois':p.mois,'Montant':p.montant,'Devise':p.devise,'Mode':p.mode,'Date':p.date}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Paiements');XLSX.writeFile(wb,`Historique_${new Date().toISOString().slice(0,10)}.xlsx`);toast('⬇️','Export Excel téléchargé','');}
 
 // ─── DASHBOARD ───
 let chartMois=null,chartStatuts=null,chartClasses=null;
 function renderDashboard(){
-  const isMens=p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance');const total=paiements.filter(isMens).reduce((s,p)=>s+p.montant,0);const payes=eleves.filter(e=>e.statut==='payé').length;const attente=eleves.filter(e=>e.statut==='en attente').length;const retard=eleves.filter(e=>e.statut.includes('retard')).length;const totalEleves=eleves.length;const taux=totalEleves>0?Math.round((payes/totalEleves)*100):0;
-  document.getElementById('kpi-total').textContent=total.toFixed(2)+' '+S.devise;document.getElementById('kpi-recus').textContent=paiements.length;document.getElementById('kpi-payes').textContent=payes;document.getElementById('kpi-attente').textContent=attente;document.getElementById('kpi-retard').textContent=retard;document.getElementById('kpi-taux').textContent=taux+'%';
+  const isMens=p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance');const today=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});const todayTotal=paiements.filter(p=>isMens(p)&&p.date===today).reduce((s,p)=>s+p.montant,0);const total=paiements.filter(isMens).reduce((s,p)=>s+p.montant,0);const payes=eleves.filter(e=>e.statut==='payé').length;const attente=eleves.filter(e=>e.statut==='en attente').length;const retard=eleves.filter(e=>e.statut.includes('retard')).length;const totalEleves=eleves.length;const taux=totalEleves>0?Math.round((payes/totalEleves)*100):0;
+  document.getElementById('kpi-total').textContent=todayTotal.toFixed(2)+' '+S.devise;document.getElementById('kpi-recus').textContent=paiements.length;document.getElementById('kpi-payes').textContent=payes;document.getElementById('kpi-attente').textContent=attente;document.getElementById('kpi-retard').textContent=retard;document.getElementById('kpi-taux').textContent=taux+'%';
   const dashInfo=document.getElementById('dashBackupInfo');if(dashInfo)dashInfo.textContent=`${eleves.length} élèves · ${paiements.length} paiements`;
   const parMois={};paiements.filter(isMens).forEach(p=>{if(!parMois[p.mois])parMois[p.mois]=0;parMois[p.mois]+=p.montant;});const moisKeys=Object.keys(parMois).sort((a,b)=>a.localeCompare(b)).slice(-6);
   const ctxM=document.getElementById('chartMois');if(ctxM){if(chartMois)chartMois.destroy();chartMois=new Chart(ctxM,{type:'bar',data:{labels:moisKeys.length?moisKeys:['Aucun paiement'],datasets:[{label:'Encaissé',data:moisKeys.map(m=>parMois[m]||0),backgroundColor:'rgba(59,125,255,.7)',borderColor:'#3b7dff',borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{color:'#8898b4',callback:v=>v.toLocaleString()+' '+S.devise},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#8898b4'},grid:{display:false}}}}});}
