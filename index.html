@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EduReçu — Gestion Scolaire</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233b7dff'/><text y='.9em' font-size='72' x='50%' text-anchor='middle' dominant-baseline='hanging'>🎓</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -495,11 +496,12 @@ textarea.inp{resize:vertical;}
           <button class="btn bp" onclick="genererRecu()"><i data-lucide="printer" class="ic-sm"></i> Générer &amp; Imprimer le PDF</button>
           <button class="btn bg" onclick="switchTab('prev')"><i data-lucide="eye" class="ic-sm"></i> Aperçu reçu</button>
           <button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><i data-lucide="x" class="ic-sm"></i> Annuler</button>
+          <button class="btn bg" onclick="annulerPaiement();nav('dashboard')"><i data-lucide="door-open" class="ic-sm"></i> Fermer</button>
         </div>
       </div>
       <div id="pane-prev" style="display:none">
         <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:14px;padding:22px;display:flex;justify-content:center;margin-bottom:16px;overflow:auto"><div id="prevBox"><div style="color:var(--di);padding:40px;text-align:center">Sélectionnez un élève</div></div></div>
-        <div class="brow"><button class="btn bp" onclick="genererRecu()"><i data-lucide="printer" class="ic-sm"></i> Générer &amp; Imprimer le PDF</button><button class="btn bg" onclick="switchTab('form')">← Retour</button><button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><i data-lucide="x" class="ic-sm"></i> Annuler</button></div>
+        <div class="brow"><button class="btn bp" onclick="genererRecu()"><i data-lucide="printer" class="ic-sm"></i> Générer &amp; Imprimer le PDF</button><button class="btn bg" onclick="switchTab('form')">← Retour</button><button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><i data-lucide="x" class="ic-sm"></i> Annuler</button><button class="btn bg" onclick="annulerPaiement();nav('dashboard')"><i data-lucide="door-open" class="ic-sm"></i> Fermer</button></div>
       </div>
     </div>
     <!-- HISTORIQUE -->
@@ -778,7 +780,7 @@ service cloud.firestore {
     <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);display:flex;align-items:center;gap:8px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tx);flex:1">
         <input type="checkbox" id="ass_genRecu" checked style="accent-color:var(--ac);width:16px;height:16px">
-        <i data-lucide="printer" class="ic-sm"></i> Générer et imprimer un reçu d'assurance
+        <i data-lucide="printer" class="ic-sm"></i> Générer un reçu (uniquement si intégralement payé)
       </label>
     </div>
     <div class="m-ft"><button class="btn bg" onclick="closeM('modalAssurance')">Annuler</button><button class="btn bp" onclick="saveAssurance()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
@@ -1248,7 +1250,7 @@ function renderPage(){
     if(typeof va==='string')return dir==='asc'?va.localeCompare(vb,'fr'):vb.localeCompare(va,'fr');
     return dir==='asc'?va-vb:vb-va;
   });
-  ['indice','nom','prenom','classe'].forEach(c=>{const th=document.getElementById('th-'+c);if(th)th.className='th-sort'+(col===c?' '+dir:'');});
+  ['indice','nom','prenom','classe','frais','inscription','assurance'].forEach(c=>{const th=document.getElementById('th-'+c);if(th)th.className='th-sort'+(col===c?' '+dir:'');});
   const tb=document.getElementById('eleveTb');
   if(!sorted.length){tb.innerHTML='<tr><td colspan="13"><div class="empty"><div class="e-ico"><i data-lucide="users" class="ic-xl"></i></div><div class="e-t">Aucun résultat</div></div></td></tr>';renderPagBar(0,0,0);refreshIcons();return;}
   const start=(_currentPage-1)*_pageSize;const end=Math.min(start+_pageSize,total);const pageData=sorted.slice(start,end);const globalOffset=start;
@@ -1304,7 +1306,7 @@ async function saveAssurance(){
   saveElevesToFirebase();
   toast('🛡️','Assurance mise à jour',`${elv.prenom} ${elv.nom}`);
 
-  if(genRecu&&paye>0){
+  if(genRecu&&paye>0&&total>0&&paye>=total){
     recuN++;
     if(window.FB&&window.FB.isReady())window.FB.saveRecuN(recuN);
     const num='RA'+recuN; // préfixe RA = Reçu Assurance
