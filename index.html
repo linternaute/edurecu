@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EduReçu — Gestion Scolaire</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%233b7dff'/><text y='.9em' font-size='72' x='50%' text-anchor='middle' dominant-baseline='hanging'>🎓</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='72' x='50%' text-anchor='middle' dominant-baseline='hanging'>🎓</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -268,8 +268,8 @@ textarea.inp{resize:vertical;}
     </div>
     <div id="loginFormPanel">
       <div class="login-err" id="loginErr"></div>
-      <div class="fg"><label class="lbl">Email</label><input class="inp" type="email" id="loginUser" placeholder="votre@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <div class="fg"><label class="lbl">Mot de passe</label><input class="inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="fg"><label class="lbl">Email</label><input class="inp" type="email" id="loginUser" placeholder="votre@email.com" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="fg"><label class="lbl">Mot de passe</label><input class="inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div id="loginStatus" style="text-align:center;font-size:12px;color:var(--di);margin-bottom:6px;min-height:18px"></div>
       <button class="btn bp" id="loginBtn" style="width:100%;justify-content:center;margin-top:8px;padding:11px" onclick="doLogin()"><i data-lucide="log-in" class="ic-sm"></i> Se connecter</button>
       <div style="text-align:center;margin-top:12px"><a href="#" style="font-size:11.5px;color:var(--di)" onclick="showFbConfig();return false"><i data-lucide="settings" class="ic-sm"></i> Reconfigurer Firebase</a></div>
@@ -289,8 +289,8 @@ textarea.inp{resize:vertical;}
   <div class="modal">
     <div class="m-t"><i data-lucide="key"></i> Changer le mot de passe</div>
     <div class="m-s">Modifiez votre mot de passe Firebase</div>
-    <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="newPass1" placeholder="Minimum 6 caractères" autocomplete="new-password"></div>
-    <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="newPass2" placeholder="Répéter" autocomplete="new-password"></div>
+    <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="newPass1" placeholder="Minimum 6 caractères" autocomplete="off"></div>
+    <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="newPass2" placeholder="Répéter" autocomplete="off"></div>
     <div id="mdpErr" style="color:var(--re);font-size:13px;margin-top:4px;display:none"></div>
     <div class="m-ft"><button class="btn bg" onclick="closeM('modalMdp')">Annuler</button><button class="btn bp" onclick="saveMdp()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
   </div>
@@ -686,8 +686,8 @@ service cloud.firestore {
         <div class="ct"><i data-lucide="users" class="ic-sm"></i> Gestion des Comptes</div><div class="cs">Comptes gérés via Firebase Authentication</div>
         <div style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px"><i data-lucide="key" class="ic-sm"></i> Modifier un mot de passe (Admin)</div>
         <div class="fg2">
-          <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="adm_pass1" placeholder="Minimum 6 caractères" autocomplete="new-password"></div>
-          <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="adm_pass2" placeholder="Répéter" autocomplete="new-password"></div>
+          <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="adm_pass1" placeholder="Minimum 6 caractères" autocomplete="off"></div>
+          <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="adm_pass2" placeholder="Répéter" autocomplete="off"></div>
         </div>
         <div class="fg"><label class="lbl">Email du compte cible</label><input class="inp" id="adm_target_email" placeholder="email@exemple.com — laisser vide pour votre propre compte" autocomplete="off"></div>
         <button class="btn bp bsm" onclick="changeMyPassword()"><i data-lucide="save" class="ic-sm"></i> Modifier le mot de passe</button>
