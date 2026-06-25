@@ -527,19 +527,32 @@ textarea.inp{resize:vertical;}
       <div class="ph">Dossier Élève</div>
       <div class="ps">Historique complet d'un élève — mensualités, inscription et assurance</div>
       <div class="card" style="margin-bottom:16px">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:200px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;flex-wrap:wrap">
+          <div>
+            <label class="lbl">Rechercher par nom</label>
+            <div style="position:relative;display:flex;align-items:center">
+              <input class="inp" id="dossierSearch" placeholder="🔍 Nom ou prénom…" oninput="filterDossierSel()" style="padding-right:28px">
+              <button id="dossierSearchClear" onclick="clearDossierSearch()" title="Effacer" style="display:none;position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px">✕</button>
+            </div>
+          </div>
+          <div>
+            <label class="lbl">Filtrer par classe</label>
+            <select class="inp" id="dossierFiltClasse" onchange="filterDossierSel()">
+              <option value="">Toutes les classes</option>
+            </select>
+          </div>
+          <div>
             <label class="lbl">Sélectionner un élève</label>
             <select class="inp" id="dossierSelEleve" onchange="renderDossier()">
-              <option value="">— Choisir un élève —</option>
+              <option value="">— Choisir —</option>
             </select>
           </div>
-          <div style="flex:1;min-width:150px">
-            <label class="lbl">Filtrer par année</label>
-            <select class="inp" id="dossierAnnee" onchange="renderDossier()">
-              <option value="">Toutes les années</option>
-            </select>
-          </div>
+        </div>
+        <div style="margin-top:12px">
+          <label class="lbl">Filtrer par année</label>
+          <select class="inp" id="dossierAnnee" onchange="renderDossier()" style="max-width:200px">
+            <option value="">Toutes les années</option>
+          </select>
         </div>
       </div>
       <!-- Fiche récapitulative élève -->
@@ -1156,12 +1169,40 @@ function switchNotifTab(mode,save=true){S.notifMode=mode;document.getElementById
 
 // ─── DOSSIER ÉLÈVE ───
 function fillDossierSel(){
+  // Remplir le filtre classe
+  const fc=document.getElementById('dossierFiltClasse');
+  if(fc){
+    const prev=fc.value;
+    const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();
+    fc.innerHTML='<option value="">Toutes les classes</option>';
+    cls.forEach(c=>fc.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);
+  }
+  filterDossierSel();
+}
+function filterDossierSel(){
+  const q=(document.getElementById('dossierSearch')?.value||'').toLowerCase().trim();
+  const cls=document.getElementById('dossierFiltClasse')?.value||'';
   const s=document.getElementById('dossierSelEleve');if(!s)return;
   const prev=s.value;
-  s.innerHTML='<option value="">— Choisir un élève —</option>';
-  const sorted=[...eleves].sort((a,b)=>(a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom,'fr'));
-  sorted.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.nom} ${e.prenom}${e.classe?' — '+e.classe:''}</option>`);
-  if(prev)s.value=prev;
+  // Bouton effacer recherche
+  const clrBtn=document.getElementById('dossierSearchClear');
+  if(clrBtn)clrBtn.style.display=q?'block':'none';
+  // Filtrer et trier
+  let filtered=eleves.filter(e=>{
+    const matchCls=!cls||e.classe===cls;
+    const matchQ=!q||(e.nom+' '+e.prenom).toLowerCase().includes(q)||(e.prenom+' '+e.nom).toLowerCase().includes(q);
+    return matchCls&&matchQ;
+  }).sort((a,b)=>(a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom,'fr'));
+  s.innerHTML='<option value="">— Choisir — ('+filtered.length+')</option>';
+  filtered.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.nom} ${e.prenom}${e.classe?' — '+e.classe:''}</option>`);
+  // Restaurer la sélection si toujours dans les résultats
+  if(prev&&filtered.find(e=>String(e.id)===String(prev)))s.value=prev;
+  else{s.value='';renderDossier();}
+}
+function clearDossierSearch(){
+  const s=document.getElementById('dossierSearch');if(s)s.value='';
+  const btn=document.getElementById('dossierSearchClear');if(btn)btn.style.display='none';
+  filterDossierSel();
 }
 
 function renderDossier(){
