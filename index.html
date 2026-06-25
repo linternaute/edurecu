@@ -314,6 +314,7 @@ textarea.inp{resize:vertical;}
     <div class="nav-i" onclick="nav('eleves')"><span class="nav-ico"><i data-lucide="users"></i></span>Élèves</div>
     <div class="nav-i" onclick="nav('paiement')"><span class="nav-ico"><i data-lucide="credit-card"></i></span>Nouveau Paiement</div>
     <div class="nav-i" onclick="nav('historique')"><span class="nav-ico"><i data-lucide="clipboard-list"></i></span>Historique</div>
+    <div class="nav-i" onclick="nav('dossier')"><span class="nav-ico"><i data-lucide="user-round-search"></i></span>Dossier Élève</div>
     <div class="nav-i" onclick="nav('parametres')"><span class="nav-ico"><i data-lucide="settings"></i></span>Paramètres</div>
     <div class="sdiv"></div>
     <div class="stat-box">
@@ -521,7 +522,59 @@ textarea.inp{resize:vertical;}
         <div id="histBody"><div class="empty"><div class="e-ico"><i data-lucide="clipboard-list" class="ic-xl"></i></div><div class="e-t">Aucun paiement enregistré</div></div></div>
       </div>
     </div>
-    <!-- PARAMÈTRES -->
+    <!-- DOSSIER ÉLÈVE -->
+    <div class="sec" id="sec-dossier">
+      <div class="ph">Dossier Élève</div>
+      <div class="ps">Historique complet d'un élève — mensualités, inscription et assurance</div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <label class="lbl">Sélectionner un élève</label>
+            <select class="inp" id="dossierSelEleve" onchange="renderDossier()">
+              <option value="">— Choisir un élève —</option>
+            </select>
+          </div>
+          <div style="flex:1;min-width:150px">
+            <label class="lbl">Filtrer par année</label>
+            <select class="inp" id="dossierAnnee" onchange="renderDossier()">
+              <option value="">Toutes les années</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- Fiche récapitulative élève -->
+      <div id="dossierFiche" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px" id="dossierKpis"></div>
+        <!-- Mensualités -->
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div><div class="ct">📅 Mensualités</div><div class="cs" id="dossierMensInfo"></div></div>
+            <div id="dossierMensTotalBadge"></div>
+          </div>
+          <div id="dossierMensList"></div>
+        </div>
+        <!-- Frais d'inscription -->
+        <div class="card" style="margin-bottom:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div><div class="ct">🎓 Frais d'inscription</div><div class="cs" id="dossierInscInfo"></div></div>
+            <div id="dossierInscTotalBadge"></div>
+          </div>
+          <div id="dossierInscList"></div>
+        </div>
+        <!-- Assurance -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div><div class="ct">🛡️ Assurance scolaire</div><div class="cs" id="dossierAssInfo"></div></div>
+            <div id="dossierAssTotalBadge"></div>
+          </div>
+          <div id="dossierAssList"></div>
+        </div>
+      </div>
+      <div id="dossierEmpty" style="text-align:center;padding:60px 20px;color:var(--di)">
+        <div style="font-size:48px;margin-bottom:12px"><i data-lucide="user-round-search" style="width:48px;height:48px;opacity:.3"></i></div>
+        <div style="font-size:15px;color:var(--mu)">Sélectionnez un élève pour afficher son dossier</div>
+      </div>
+    </div>
     <div class="sec" id="sec-parametres">
       <div class="ph">Paramètres</div>
       <div class="ps">Configuration de l'application et de l'école</div>
@@ -707,6 +760,7 @@ service cloud.firestore {
   <button class="bn-item" id="bn-eleves" onclick="nav('eleves')"><span class="bn-ico"><i data-lucide="users"></i></span>Élèves</button>
   <button class="bn-item" id="bn-paiement" onclick="nav('paiement')"><span class="bn-ico"><i data-lucide="credit-card"></i></span>Paiement</button>
   <button class="bn-item" id="bn-historique" onclick="nav('historique')"><span class="bn-ico"><i data-lucide="clipboard-list"></i></span>Historique</button>
+  <button class="bn-item" id="bn-dossier" onclick="nav('dossier')"><span class="bn-ico"><i data-lucide="user-round-search"></i></span>Dossier</button>
   <button class="bn-item" id="bn-parametres" onclick="nav('parametres')"><span class="bn-ico"><i data-lucide="settings"></i></span>Params</button>
 </nav>
 <!-- MODALS -->
@@ -941,8 +995,8 @@ function applyUI(){
   }catch(e){}
   try{
     const ni=document.querySelectorAll('.nav-i');const bp=document.getElementById('bn-parametres');
-    if(isAdmin){if(ni[4])ni[4].style.display='';if(bp)bp.style.display='';}
-    else{if(ni[4])ni[4].style.display='none';if(bp)bp.style.display='none';}
+    if(isAdmin){if(ni[5])ni[5].style.display='';if(bp)bp.style.display='';}
+    else{if(ni[5])ni[5].style.display='none';if(bp)bp.style.display='none';}
   }catch(e){}
   try{nav('dashboard');}catch(e){}
 }
@@ -1088,16 +1142,132 @@ function nav(id){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('on'));
   document.getElementById('sec-'+id).classList.add('on');
-  const m={dashboard:0,eleves:1,paiement:2,historique:3,parametres:4};
+  const m={dashboard:0,eleves:1,paiement:2,historique:3,dossier:4,parametres:5};
   if(m[id]!==undefined)document.querySelectorAll('.nav-i')[m[id]]?.classList.add('on');
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('on'));
   const bn=document.getElementById('bn-'+id);if(bn)bn.classList.add('on');
   window.scrollTo(0,0);
   if(id==='dashboard')setTimeout(renderDashboard,50);
+  if(id==='dossier')setTimeout(()=>{fillDossierSel();renderDossier();},50);
   if(id==='parametres')setTimeout(()=>{applyS();if(S.fbConfig){['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('fb_'+k);if(el)el.value=S.fbConfig[k]||'';});}livePreview();updateLastBackupInfo();},50);
 }
 function switchTab(t){document.getElementById('pane-form').style.display=t==='form'?'block':'none';document.getElementById('pane-prev').style.display=t==='prev'?'block':'none';document.getElementById('tab-form').className='tab'+(t==='form'?' on':'');document.getElementById('tab-prev').className='tab'+(t==='prev'?' on':'');if(t==='prev')buildPrev();}
 function switchNotifTab(mode,save=true){S.notifMode=mode;document.getElementById('notif-tg').style.display=mode==='tg'?'block':'none';document.getElementById('notif-wa').style.display=mode==='wa'?'block':'none';document.getElementById('ntab-tg').className='ntab'+(mode==='tg'?' on-tg':'');document.getElementById('ntab-wa').className='ntab'+(mode==='wa'?' on-wa':'');}
+
+// ─── DOSSIER ÉLÈVE ───
+function fillDossierSel(){
+  const s=document.getElementById('dossierSelEleve');if(!s)return;
+  const prev=s.value;
+  s.innerHTML='<option value="">— Choisir un élève —</option>';
+  const sorted=[...eleves].sort((a,b)=>(a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom,'fr'));
+  sorted.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.nom} ${e.prenom}${e.classe?' — '+e.classe:''}</option>`);
+  if(prev)s.value=prev;
+}
+
+function renderDossier(){
+  const id=document.getElementById('dossierSelEleve')?.value;
+  const filtAnnee=document.getElementById('dossierAnnee')?.value||'';
+  const fiche=document.getElementById('dossierFiche');
+  const empty=document.getElementById('dossierEmpty');
+  if(!id){if(fiche)fiche.style.display='none';if(empty)empty.style.display='block';return;}
+  const elv=eleves.find(e=>e.id==id);
+  if(!elv){if(fiche)fiche.style.display='none';if(empty)empty.style.display='block';return;}
+  if(fiche)fiche.style.display='block';
+  if(empty)empty.style.display='none';
+
+  // Tous les paiements de cet élève
+  const nomComplet=elv.nom+' '+elv.prenom;
+  let pays=paiements.filter(p=>p.eleve===nomComplet);
+
+  // Remplir le filtre années
+  const da=document.getElementById('dossierAnnee');
+  if(da){
+    const annees=[...new Set(pays.map(p=>{const m=p.mois.match(/\d{4}/);return m?m[0]:'';}).filter(Boolean))].sort((a,b)=>b-a);
+    const prevA=da.value;da.innerHTML='<option value="">Toutes les années</option>';
+    annees.forEach(a=>da.innerHTML+=`<option${a===prevA?' selected':''}>${a}</option>`);
+  }
+  if(filtAnnee) pays=pays.filter(p=>p.mois.includes(filtAnnee));
+
+  // Séparer par type
+  const isMensP=p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance');
+  const isInscP=p=>(p.recu||'').startsWith('RI')||(p.mode||'').includes('inscription');
+  const isAssP=p=>(p.recu||'').startsWith('RA')||(p.mode||'').includes('Assurance');
+  const mens=pays.filter(isMensP);
+  const insc=pays.filter(isInscP);
+  const ass=pays.filter(isAssP);
+
+  // KPIs
+  const totalMens=mens.reduce((s,p)=>s+p.montant,0);
+  const totalInsc=insc.reduce((s,p)=>s+p.montant,0);
+  const totalAss=ass.reduce((s,p)=>s+p.montant,0);
+  const totalGlobal=totalMens+totalInsc+totalAss;
+  document.getElementById('dossierKpis').innerHTML=`
+    <div class="kpi-card"><div class="kpi-ico"><i data-lucide="wallet" class="ic-xl"></i></div><div class="kpi-val">${totalGlobal.toFixed(2)} ${S.devise}</div><div class="kpi-lbl">Total encaissé</div></div>
+    <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clipboard-list" class="ic-xl"></i></div><div class="kpi-val">${pays.length}</div><div class="kpi-lbl">Reçus générés</div></div>
+    <div class="kpi-card kpi-accent"><div class="kpi-ico"><i data-lucide="school" class="ic-xl"></i></div><div class="kpi-val">${elv.classe||'—'}</div><div class="kpi-lbl">Classe actuelle</div></div>`;
+
+  // Helpers
+  const badge=(col,txt)=>`<span class="bdg" style="background:${col}18;color:${col};border:1px solid ${col}44">${txt}</span>`;
+  const actBtns=(p,idx)=>`<div style="display:flex;gap:6px"><button class="btn bg bsm" onclick="viewRecu(${paiements.indexOf(p)})"><i data-lucide="eye" class="ic-sm"></i> Voir</button><button class="btn bp bsm" onclick="reimprimer(${paiements.indexOf(p)})"><i data-lucide="printer" class="ic-sm"></i> PDF</button></div>`;
+  const emptyMsg=(icon,txt)=>`<div style="text-align:center;padding:20px;color:var(--di);font-size:13px"><i data-lucide="${icon}" style="width:28px;height:28px;opacity:.3;display:block;margin:0 auto 8px"></i>${txt}</div>`;
+  const rowStyle='display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1);gap:10px;flex-wrap:wrap';
+
+  // ── Mensualités ──
+  const mensInfo=document.getElementById('dossierMensInfo');
+  const mensBadge=document.getElementById('dossierMensTotalBadge');
+  const mensList=document.getElementById('dossierMensList');
+  if(mensInfo)mensInfo.textContent=`${mens.length} paiement(s)`;
+  if(mensBadge)mensBadge.innerHTML=mens.length?badge('var(--g2)',`${totalMens.toFixed(2)} ${S.devise}`):'';
+  if(mensList)mensList.innerHTML=mens.length?mens.map(p=>`
+    <div style="${rowStyle}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--g2);flex-shrink:0"></div>
+        <div><div style="font-weight:500;color:var(--tx)">${p.mois}</div><div style="font-size:12px;color:var(--mu)">${p.recu} · ${p.mode} · ${p.date}</div>${p.rem?`<div style="font-size:11px;color:var(--di)">📝 ${p.rem}</div>`:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-weight:700;color:var(--g2)">${p.montant.toFixed(2)} ${p.devise}</div>
+        ${actBtns(p)}
+      </div>
+    </div>`).join(''):emptyMsg('calendar','Aucune mensualité enregistrée');
+
+  // ── Inscription ──
+  const inscInfo=document.getElementById('dossierInscInfo');
+  const inscBadge=document.getElementById('dossierInscTotalBadge');
+  const inscList=document.getElementById('dossierInscList');
+  if(inscInfo)inscInfo.textContent=`${insc.length} paiement(s)`;
+  if(inscBadge)inscBadge.innerHTML=insc.length?badge('#a78bfa',`${totalInsc.toFixed(2)} ${S.devise}`):'';
+  if(inscList)inscList.innerHTML=insc.length?insc.map(p=>`
+    <div style="${rowStyle}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:#a78bfa;flex-shrink:0"></div>
+        <div><div style="font-weight:500;color:var(--tx)">Année ${p.mois}</div><div style="font-size:12px;color:var(--mu)">${p.recu} · ${p.mode} · ${p.date}</div>${p.rem?`<div style="font-size:11px;color:var(--di)">📝 ${p.rem}</div>`:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-weight:700;color:#a78bfa">${p.montant.toFixed(2)} ${p.devise}</div>
+        ${actBtns(p)}
+      </div>
+    </div>`).join(''):emptyMsg('graduation-cap','Aucun frais d\'inscription enregistré');
+
+  // ── Assurance ──
+  const assInfo=document.getElementById('dossierAssInfo');
+  const assBadge=document.getElementById('dossierAssTotalBadge');
+  const assList=document.getElementById('dossierAssList');
+  if(assInfo)assInfo.textContent=`${ass.length} paiement(s)`;
+  if(assBadge)assBadge.innerHTML=ass.length?badge('var(--tg)',`${totalAss.toFixed(2)} ${S.devise}`):'';
+  if(assList)assList.innerHTML=ass.length?ass.map(p=>`
+    <div style="${rowStyle}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--tg);flex-shrink:0"></div>
+        <div><div style="font-weight:500;color:var(--tx)">Assurance ${p.mois}</div><div style="font-size:12px;color:var(--mu)">${p.recu} · ${p.mode} · ${p.date}</div>${p.rem?`<div style="font-size:11px;color:var(--di)">📝 ${p.rem}</div>`:''}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-weight:700;color:var(--tg)">${p.montant.toFixed(2)} ${p.devise}</div>
+        ${actBtns(p)}
+      </div>
+    </div>`).join(''):emptyMsg('shield','Aucune assurance enregistrée');
+
+  refreshIcons();
+}
 
 // ─── IMPORT EXCEL ───
 function onDrop(e){e.preventDefault();document.getElementById('dropZone').classList.remove('drag');const f=e.dataTransfer.files[0];if(f)readFile(f,'replace');}
