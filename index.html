@@ -445,7 +445,24 @@ textarea.inp{resize:vertical;}
           <div>
             <!-- Sélection par élève -->
             <div id="payByEleve">
-              <div class="fg"><label class="lbl">Élève *</label><select class="inp" id="selEleve" onchange="onEleveChange()"><option value="">— Sélectionner —</option></select></div>
+              <div class="fg">
+                <label class="lbl">Élève *</label>
+                <div style="position:relative">
+                  <div style="position:relative;display:flex;align-items:center">
+                    <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"></i>
+                    <input class="inp" id="selEleveSearch" placeholder="Rechercher par nom, prénom ou code…" autocomplete="off" oninput="onEleveSearch()" onfocus="onEleveSearch()" style="padding-left:32px">
+                    <button id="clearEleveBtn" type="button" onclick="clearEleveSearch()" style="display:none;position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px;padding:0">✕</button>
+                  </div>
+                  <input type="hidden" id="selEleve">
+                  <!-- Résultats de recherche -->
+                  <div id="eleveSearchResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--b2);border-radius:10px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);max-height:220px;overflow-y:auto"></div>
+                </div>
+                <!-- Élève sélectionné -->
+                <div id="eleveSelected" style="display:none;margin-top:6px;background:rgba(59,125,255,.08);border:1px solid rgba(59,125,255,.2);border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between">
+                  <span id="eleveSelectedLabel" style="font-size:13px;font-weight:500;color:var(--tx)"></span>
+                  <button type="button" onclick="clearEleveSearch()" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:13px;padding:0 2px">✕</button>
+                </div>
+              </div>
             </div>
             <!-- Sélection par classe -->
             <div id="payByClasse" style="display:none">
@@ -527,7 +544,7 @@ textarea.inp{resize:vertical;}
       <div class="ph">Dossier Élève</div>
       <div class="ps">Historique complet d'un élève — mensualités, inscription et assurance</div>
       <div class="card" style="margin-bottom:16px">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;flex-wrap:wrap">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
           <div>
             <label class="lbl">Rechercher par nom</label>
             <div style="position:relative;display:flex;align-items:center">
@@ -541,12 +558,12 @@ textarea.inp{resize:vertical;}
               <option value="">Toutes les classes</option>
             </select>
           </div>
-          <div>
-            <label class="lbl">Sélectionner un élève</label>
-            <select class="inp" id="dossierSelEleve" onchange="renderDossier()">
-              <option value="">— Choisir —</option>
-            </select>
-          </div>
+        </div>
+        <!-- Liste visible des élèves -->
+        <div>
+          <label class="lbl" style="margin-bottom:6px">Élèves <span id="dossierEleveCount" style="color:var(--ac)"></span></label>
+          <input type="hidden" id="dossierSelEleve">
+          <div id="dossierEleveList" style="background:var(--bg3);border:1px solid var(--b2);border-radius:9px;max-height:220px;overflow-y:auto;"></div>
         </div>
         <div style="margin-top:12px">
           <label class="lbl">Filtrer par année</label>
@@ -1169,7 +1186,6 @@ function switchNotifTab(mode,save=true){S.notifMode=mode;document.getElementById
 
 // ─── DOSSIER ÉLÈVE ───
 function fillDossierSel(){
-  // Remplir le filtre classe
   const fc=document.getElementById('dossierFiltClasse');
   if(fc){
     const prev=fc.value;
@@ -1182,22 +1198,42 @@ function fillDossierSel(){
 function filterDossierSel(){
   const q=(document.getElementById('dossierSearch')?.value||'').toLowerCase().trim();
   const cls=document.getElementById('dossierFiltClasse')?.value||'';
-  const s=document.getElementById('dossierSelEleve');if(!s)return;
-  const prev=s.value;
-  // Bouton effacer recherche
   const clrBtn=document.getElementById('dossierSearchClear');
   if(clrBtn)clrBtn.style.display=q?'block':'none';
-  // Filtrer et trier
+  const currentId=document.getElementById('dossierSelEleve')?.value||'';
   let filtered=eleves.filter(e=>{
     const matchCls=!cls||e.classe===cls;
     const matchQ=!q||(e.nom+' '+e.prenom).toLowerCase().includes(q)||(e.prenom+' '+e.nom).toLowerCase().includes(q);
     return matchCls&&matchQ;
   }).sort((a,b)=>(a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom,'fr'));
-  s.innerHTML='<option value="">— Choisir — ('+filtered.length+')</option>';
-  filtered.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.nom} ${e.prenom}${e.classe?' — '+e.classe:''}</option>`);
-  // Restaurer la sélection si toujours dans les résultats
-  if(prev&&filtered.find(e=>String(e.id)===String(prev)))s.value=prev;
-  else{s.value='';renderDossier();}
+  const cnt=document.getElementById('dossierEleveCount');
+  if(cnt)cnt.textContent=`(${filtered.length})`;
+  const list=document.getElementById('dossierEleveList');
+  if(!list)return;
+  if(!filtered.length){
+    list.innerHTML='<div style="padding:14px;text-align:center;color:var(--di);font-size:13px">Aucun élève trouvé</div>';
+    return;
+  }
+  list.innerHTML=filtered.map(e=>{
+    const sel=String(e.id)===String(currentId);
+    return `<div onclick="selectDossierEleve('${e.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer;border-radius:7px;margin:2px;transition:background .1s;background:${sel?'rgba(59,125,255,.12)':'transparent'};border:1px solid ${sel?'rgba(59,125,255,.25)':'transparent'}"
+      onmouseover="this.style.background='${sel?'rgba(59,125,255,.15)':'var(--bg2)'}'" onmouseout="this.style.background='${sel?'rgba(59,125,255,.12)':'transparent'}'">
+      <div>
+        <div style="font-weight:${sel?'600':'400'};color:${sel?'var(--tx)':'var(--mu)'};font-size:13.5px" ${isRTL((e.nom||'')+(e.prenom||')'))? 'dir="rtl"':''}>${e.nom} ${e.prenom}</div>
+        ${e.classe?`<div style="font-size:11.5px;color:var(--di)">${e.classe}</div>`:''}
+      </div>
+      ${sel?`<div style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></div>`:''}
+    </div>`;
+  }).join('');
+}
+function selectDossierEleve(id){
+  const inp=document.getElementById('dossierSelEleve');
+  if(inp)inp.value=id;
+  filterDossierSel(); // re-render list to update selected state
+  renderDossier();
+  // Scroll vers le haut de la liste
+  const list=document.getElementById('dossierEleveList');
+  if(list){const sel=list.querySelector('[style*="rgba(59,125,255"]');if(sel)sel.scrollIntoView({block:'nearest'});}
 }
 function clearDossierSearch(){
   const s=document.getElementById('dossierSearch');if(s)s.value='';
@@ -1602,9 +1638,13 @@ function onAnneeChange(){const fm=document.getElementById('filtMois');if(fm)fm.v
 function filterE(){const q=document.getElementById('search').value.toLowerCase();const c=document.getElementById('filtCls').value;const fa=document.getElementById('filtAnnee');const fm=document.getElementById('filtMois');const annee=fa?fa.value:'';const mois=fm?fm.value:'';let filtered=eleves.filter(e=>(e.nom+' '+e.prenom+' '+e.tel).toLowerCase().includes(q)&&(!c||e.classe===c));if(annee||mois){let pF=paiements;if(annee)pF=pF.filter(p=>p.mois.includes(annee));if(mois)pF=pF.filter(p=>p.mois===mois);const elevesAvec=new Set(pF.map(p=>p.eleve));filtered=filtered.filter(e=>elevesAvec.has(e.nom+' '+e.prenom));}renderE(filtered);}
 function updateClearBtn(){const btn=document.getElementById('clearSearchBtn');if(btn)btn.style.display=document.getElementById('search').value?'block':'none';}
 function clearSearch(){const s=document.getElementById('search');if(s){s.value='';updateClearBtn();filterE();}}
-function fillSel(){const s=document.getElementById('selEleve');s.innerHTML='<option value="">— Sélectionner —</option>';eleves.forEach(e=>s.innerHTML+=`<option value="${e.id}">${e.indice?'['+e.indice+'] ':''} ${e.nom} ${e.prenom} — ${e.classe}</option>`);const sc=document.getElementById('selClasse');if(sc){const prev=sc.value;const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();sc.innerHTML='<option value="">— Sélectionner —</option>';cls.forEach(c=>sc.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);}}
-function quickPay(id){nav('paiement');switchPayMode('eleve');document.getElementById('selEleve').value=id;document.getElementById('typePay').value='mensualite';onEleveChange();}
-function quickPayInscription(id){nav('paiement');switchPayMode('eleve');document.getElementById('selEleve').value=id;document.getElementById('typePay').value='inscription';onEleveChange();}
+function fillSel(){
+  // selEleve est maintenant un hidden input — plus besoin de le peupler
+  const sc=document.getElementById('selClasse');
+  if(sc){const prev=sc.value;const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();sc.innerHTML='<option value="">— Sélectionner —</option>';cls.forEach(c=>sc.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);}
+}
+function quickPay(id){nav('paiement');switchPayMode('eleve');const elv=eleves.find(e=>e.id==id);if(elv){const label=elv.nom+' '+elv.prenom;const sub=(elv.classe||'')+(elv.indice?' · '+elv.indice:'');selectEleveFromSearch(id,label,sub);}document.getElementById('typePay').value='mensualite';onEleveChange();}
+function quickPayInscription(id){nav('paiement');switchPayMode('eleve');const elv=eleves.find(e=>e.id==id);if(elv){const label=elv.nom+' '+elv.prenom;const sub=(elv.classe||'')+(elv.indice?' · '+elv.indice:'');selectEleveFromSearch(id,label,sub);}document.getElementById('typePay').value='inscription';onEleveChange();}
 
 function buildInscriptionRecuHTML(elv,num,date,anneeLabel,mt,mode,rem){
   const w='148mm';const fmtScale=S.rFormat==='A4'?Math.SQRT2:1;
@@ -1652,7 +1692,7 @@ function rtlAttr(text){return isRTL(text)?'dir="rtl" style="text-align:right"':'
 function bst(s){if(s.includes('pay'))return`<span class="bdg bpd"><i data-lucide="check-circle-2" class="ic-sm"></i> ${s}</span>`;if(s.includes('retard')||s.includes('tard'))return`<span class="bdg blt"><i data-lucide="circle-alert" class="ic-sm"></i> ${s}</span>`;return`<span class="bdg bpe"><i data-lucide="clock" class="ic-sm"></i> ${s}</span>`;}
 
 function annulerPaiement(){
-  document.getElementById('selEleve').value='';
+  clearEleveSearch();
   const sc=document.getElementById('selClasse');if(sc)sc.value='';
   const cel=document.getElementById('classeElevesList');if(cel)cel.style.display='none';
   const grid=document.getElementById('classeElevesGrid');if(grid)grid.innerHTML='';
@@ -1724,7 +1764,66 @@ document.addEventListener('keydown',e=>{
 });
 
 // ─── PAIEMENT ───
-// ─── MODE PAIEMENT (par élève / par classe) ───
+// ─── RECHERCHE ÉLÈVE (autocomplete) ───
+function onEleveSearch(){
+  const q=(document.getElementById('selEleveSearch').value||'').toLowerCase().trim();
+  const results=document.getElementById('eleveSearchResults');
+  const clearBtn=document.getElementById('clearEleveBtn');
+  if(clearBtn)clearBtn.style.display=q?'block':'none';
+  if(!q){results.style.display='none';return;}
+  const matches=eleves.filter(e=>
+    (e.nom||'').toLowerCase().includes(q)||
+    (e.prenom||'').toLowerCase().includes(q)||
+    (e.indice||'').toLowerCase().includes(q)||
+    ((e.nom||'')+' '+(e.prenom||'')).toLowerCase().includes(q)
+  ).slice(0,15);
+  if(!matches.length){
+    results.innerHTML='<div style="padding:12px 14px;color:var(--di);font-size:13px">Aucun élève trouvé</div>';
+    results.style.display='block';return;
+  }
+  results.innerHTML=matches.map(e=>{
+    const label=`${e.nom} ${e.prenom}`;
+    const sub=`${e.classe||''}${e.indice?' · '+e.indice:''}`;
+    return `<div onclick="selectEleveFromSearch(${e.id},'${label.replace(/'/g,"\\'")}','${sub.replace(/'/g,"\\'")}')
+      " style="padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--b1);transition:background .1s"
+      onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"
+    >
+      <div style="font-weight:500;color:var(--tx);font-size:13.5px" ${isRTL(label)?'dir="rtl"':''}>${label}</div>
+      <div style="font-size:11.5px;color:var(--mu)">${sub}</div>
+    </div>`;
+  }).join('');
+  results.style.display='block';
+}
+function selectEleveFromSearch(id,label,sub){
+  document.getElementById('selEleve').value=id;
+  document.getElementById('selEleveSearch').value='';
+  document.getElementById('eleveSearchResults').style.display='none';
+  document.getElementById('clearEleveBtn').style.display='none';
+  const sel=document.getElementById('eleveSelected');
+  const lbl=document.getElementById('eleveSelectedLabel');
+  if(sel)sel.style.display='flex';
+  if(lbl)lbl.textContent=label+(sub?' — '+sub:'');
+  onEleveChange();
+}
+function clearEleveSearch(){
+  document.getElementById('selEleve').value='';
+  document.getElementById('selEleveSearch').value='';
+  document.getElementById('eleveSearchResults').style.display='none';
+  document.getElementById('clearEleveBtn').style.display='none';
+  const sel=document.getElementById('eleveSelected');if(sel)sel.style.display='none';
+  document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
+  document.getElementById('mtPay').value='';
+}
+// Fermer les résultats si on clique ailleurs
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('payByEleve');
+  if(wrap&&!wrap.contains(e.target)){
+    const r=document.getElementById('eleveSearchResults');
+    if(r)r.style.display='none';
+  }
+});
+
+// ─── RECHERCHE ÉLÈVE (autocomplete) ───
 let _payMode='eleve';
 function switchPayMode(mode){
   _payMode=mode;
