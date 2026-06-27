@@ -314,6 +314,7 @@ textarea.inp{resize:vertical;}
     <div class="nav-i" onclick="nav('eleves')"><span class="nav-ico"><i data-lucide="users"></i></span>Élèves</div>
     <div class="nav-i" onclick="nav('paiement')"><span class="nav-ico"><i data-lucide="credit-card"></i></span>Nouveau Paiement</div>
     <div class="nav-i" onclick="nav('historique')"><span class="nav-ico"><i data-lucide="clipboard-list"></i></span>Historique</div>
+    <div class="nav-i" onclick="nav('frais')"><span class="nav-ico"><i data-lucide="receipt"></i></span>Frais</div>
     <div class="nav-i" onclick="nav('dossier')"><span class="nav-ico"><i data-lucide="user-round-search"></i></span>Dossier Élève</div>
     <div class="nav-i" onclick="nav('parametres')"><span class="nav-ico"><i data-lucide="settings"></i></span>Paramètres</div>
     <div class="sdiv"></div>
@@ -328,14 +329,28 @@ textarea.inp{resize:vertical;}
     <div class="sec" id="sec-dashboard">
       <div class="ph">Tableau de bord</div>
       <div class="ps">Vue d'ensemble des paiements et statistiques</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px">
-        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="wallet"></i></div><div class="kpi-val" id="kpi-total">0 MAD</div><div class="kpi-lbl">Total par jour</div></div>
-        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="trending-up"></i></div><div class="kpi-val" id="kpi-mois">0 MAD</div><div class="kpi-lbl">Total ce mois</div></div>
+      <!-- KPI TOTAL JOUR + MOIS mis en évidence -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+        <div style="background:linear-gradient(135deg,rgba(59,125,255,.15),rgba(59,125,255,.05));border:2px solid rgba(59,125,255,.35);border-radius:18px;padding:22px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-10px;right:-10px;width:80px;height:80px;background:rgba(59,125,255,.1);border-radius:50%"></div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#7aaaff;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i data-lucide="calendar-days" class="ic-sm"></i> Total du jour</div>
+          <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#fff;line-height:1" id="kpi-total">0 MAD</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:6px" id="kpi-total-sub">Mensualités · Frais déduits</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(22,163,74,.15),rgba(22,163,74,.05));border:2px solid rgba(22,163,74,.35);border-radius:18px;padding:22px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-10px;right:-10px;width:80px;height:80px;background:rgba(22,163,74,.1);border-radius:50%"></div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--g2);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i data-lucide="trending-up" class="ic-sm"></i> Total ce mois</div>
+          <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--g2);line-height:1" id="kpi-mois">0 MAD</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:6px" id="kpi-mois-sub">Mensualités ce mois</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px">
         <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clipboard-list"></i></div><div class="kpi-val" id="kpi-recus">0</div><div class="kpi-lbl">Reçus générés</div></div>
         <div class="kpi-card"><div class="kpi-ico"><i data-lucide="check-circle-2"></i></div><div class="kpi-val" id="kpi-payes">0</div><div class="kpi-lbl">Élèves à jour</div></div>
         <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clock"></i></div><div class="kpi-val" id="kpi-attente">0</div><div class="kpi-lbl">En attente</div></div>
         <div class="kpi-card"><div class="kpi-ico"><i data-lucide="circle-alert"></i></div><div class="kpi-val" id="kpi-retard">0</div><div class="kpi-lbl">En retard</div></div>
-        <div class="kpi-card kpi-accent"><div class="kpi-ico"><i data-lucide="trending-up"></i></div><div class="kpi-val" id="kpi-taux">0%</div><div class="kpi-lbl">Taux de paiement</div></div>
+        <div class="kpi-card kpi-accent"><div class="kpi-ico"><i data-lucide="trending-up"></i></div><div class="kpi-val" id="kpi-taux">0%</div><div class="kpi-lbl">Taux paiement</div></div>
+        <div class="kpi-card" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2)"><div class="kpi-ico"><i data-lucide="trending-down"></i></div><div class="kpi-val" id="kpi-frais-jour" style="color:var(--re)">0 MAD</div><div class="kpi-lbl">Frais du jour</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
         <div class="card" style="min-height:260px"><div class="ct"><i data-lucide="wallet" class="ic-sm"></i> Encaissements par mois</div><div class="cs">6 derniers mois</div><canvas id="chartMois" height="180"></canvas></div>
@@ -354,6 +369,55 @@ textarea.inp{resize:vertical;}
       </div>
       <div class="card"><div class="ct" style="margin-bottom:14px"><i data-lucide="clock" class="ic-sm"></i> Derniers paiements</div><div id="dashLastPay" style="color:var(--di);font-size:13px;text-align:center;padding:20px">Aucun paiement enregistré</div></div>
     </div>
+    <!-- FRAIS -->
+    <div class="sec" id="sec-frais">
+      <div class="ph">Frais de l'École</div>
+      <div class="ps">Enregistrez les dépenses quotidiennes — papeterie, ménage, repas, avances…</div>
+
+      <!-- Encadré Frais du jour -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px">
+        <div style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.05));border:1.5px solid rgba(239,68,68,.3);border-radius:16px;padding:20px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--re);margin-bottom:6px;display:flex;align-items:center;gap:6px"><i data-lucide="trending-down" class="ic-sm"></i> Frais du jour</div>
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--re)" id="fraisJourTotal">0 MAD</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px" id="fraisJourNb">0 dépense(s)</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(34,197,94,.05));border:1.5px solid rgba(34,197,94,.3);border-radius:16px;padding:20px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--g2);margin-bottom:6px;display:flex;align-items:center;gap:6px"><i data-lucide="wallet" class="ic-sm"></i> Net du jour</div>
+          <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--g2)" id="fraisNetJour">0 MAD</div>
+          <div style="font-size:12px;color:var(--mu);margin-top:4px">Encaissements − Frais</div>
+        </div>
+      </div>
+
+      <!-- Formulaire ajout dépense -->
+      <div class="card" style="margin-bottom:18px">
+        <div class="ct"><i data-lucide="plus-circle" class="ic-sm"></i> Ajouter une dépense</div>
+        <div class="cs">Les dépenses du jour sont déduites du total encaissé</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;flex-wrap:wrap">
+          <div class="fg" style="margin:0">
+            <label class="lbl">Désignation *</label>
+            <input class="inp" id="fraisLib" placeholder="Ex: Papeterie, Ménage, Repas…" oninput="updateFraisLibSuggestions()" autocomplete="off">
+            <div id="fraisLibSugg" style="display:none;background:var(--card);border:1px solid var(--b2);border-radius:8px;margin-top:4px;overflow:hidden"></div>
+          </div>
+          <div class="fg" style="margin:0"><label class="lbl">Montant *</label><input class="inp" type="number" id="fraisMt" placeholder="0" min="0" step="1"></div>
+          <div class="fg" style="margin:0"><label class="lbl">Date</label><input class="inp" type="date" id="fraisDate"></div>
+          <button class="btn bp" onclick="ajouterFrais()" style="height:40px;white-space:nowrap"><i data-lucide="plus" class="ic-sm"></i> Ajouter</button>
+        </div>
+      </div>
+
+      <!-- Liste des dépenses -->
+      <div class="tw">
+        <div class="th2">
+          <div class="th2-t" id="fraisCnt">0 dépense(s)</div>
+          <div class="tc">
+            <input class="inp" style="width:150px" placeholder="🔍 Filtrer…" id="fraisSearch" oninput="renderFrais()">
+            <input class="inp" type="month" id="fraisFiltMois" onchange="renderFrais()" style="width:140px">
+            <button class="btn bg bsm" onclick="exportFraisExcel()"><i data-lucide="download" class="ic-sm"></i> Export</button>
+          </div>
+        </div>
+        <div id="fraisBody"><div class="empty"><div class="e-ico"><i data-lucide="receipt" class="ic-xl"></i></div><div class="e-t">Aucune dépense enregistrée</div></div></div>
+      </div>
+    </div>
+
     <!-- IMPORT -->
     <div class="sec" id="sec-import">
       <div class="ph">Import base de données</div>
@@ -790,6 +854,7 @@ service cloud.firestore {
   <button class="bn-item" id="bn-eleves" onclick="nav('eleves')"><span class="bn-ico"><i data-lucide="users"></i></span>Élèves</button>
   <button class="bn-item" id="bn-paiement" onclick="nav('paiement')"><span class="bn-ico"><i data-lucide="credit-card"></i></span>Paiement</button>
   <button class="bn-item" id="bn-historique" onclick="nav('historique')"><span class="bn-ico"><i data-lucide="clipboard-list"></i></span>Historique</button>
+  <button class="bn-item" id="bn-frais" onclick="nav('frais')"><span class="bn-ico"><i data-lucide="receipt"></i></span>Frais</button>
   <button class="bn-item" id="bn-dossier" onclick="nav('dossier')"><span class="bn-ico"><i data-lucide="user-round-search"></i></span>Dossier</button>
   <button class="bn-item" id="bn-parametres" onclick="nav('parametres')"><span class="bn-ico"><i data-lucide="settings"></i></span>Params</button>
 </nav>
@@ -876,7 +941,7 @@ service cloud.firestore {
 // ═══════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════
-let eleves=[], paiements=[], recuN=1000, sortState={col:'nom',dir:'asc'};
+let eleves=[], paiements=[], fraisDepenses=[], recuN=1000, sortState={col:'nom',dir:'asc'};
 let currentViewerHTML='', currentUser=null;
 let _sessionTimer=null, _sessionStart=null, _sessionExpiring=false;
 const SESSION_DURATION = 10*60*1000;
@@ -1025,8 +1090,8 @@ function applyUI(){
   }catch(e){}
   try{
     const ni=document.querySelectorAll('.nav-i');const bp=document.getElementById('bn-parametres');
-    if(isAdmin){if(ni[5])ni[5].style.display='';if(bp)bp.style.display='';}
-    else{if(ni[5])ni[5].style.display='none';if(bp)bp.style.display='none';}
+    if(isAdmin){if(ni[6])ni[6].style.display='';if(bp)bp.style.display='';}
+    else{if(ni[6])ni[6].style.display='none';if(bp)bp.style.display='none';}
   }catch(e){}
   try{nav('dashboard');}catch(e){}
 }
@@ -1059,6 +1124,7 @@ async function saveMdp(){const p1=document.getElementById('newPass1').value;cons
 async function startFirebaseSync(){
   if(!window.FB||!window.FB.isReady())return;
   setSyncStatus('syncing','Synchronisation…');
+  try{const data=await window.FB.getFrais();if(data&&data.length>0){fraisDepenses=data;renderFrais();updStatsFrais();}}catch(e){}
   try{const data=await window.FB.getEleves();if(data&&data.length>0){eleves=data;renderE(eleves);fillSel();}}catch(e){}
   try{const data=await window.FB.getPaiements();if(data&&data.length>0){paiements=data;renderHist();updStats();}}catch(e){}
   renderDashboard();setSyncStatus('synced','Synchronisé');
@@ -1172,13 +1238,14 @@ function nav(id){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('on'));
   document.getElementById('sec-'+id).classList.add('on');
-  const m={dashboard:0,eleves:1,paiement:2,historique:3,dossier:4,parametres:5};
+  const m={dashboard:0,eleves:1,paiement:2,historique:3,frais:4,dossier:5,parametres:6};
   if(m[id]!==undefined)document.querySelectorAll('.nav-i')[m[id]]?.classList.add('on');
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('on'));
   const bn=document.getElementById('bn-'+id);if(bn)bn.classList.add('on');
   window.scrollTo(0,0);
   if(id==='dashboard')setTimeout(renderDashboard,50);
   if(id==='dossier')setTimeout(()=>{fillDossierSel();renderDossier();},50);
+  if(id==='frais')setTimeout(()=>{const fd=document.getElementById('fraisDate');if(fd&&!fd.value)fd.value=todayStr();const fm=document.getElementById('fraisFiltMois');if(fm&&!fm.value)fm.value=new Date().toISOString().slice(0,7);renderFrais();updStatsFrais();refreshIcons();},50);
   if(id==='parametres')setTimeout(()=>{applyS();if(S.fbConfig){['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('fb_'+k);if(el)el.value=S.fbConfig[k]||'';});}livePreview();updateLastBackupInfo();},50);
 }
 function switchTab(t){document.getElementById('pane-form').style.display=t==='form'?'block':'none';document.getElementById('pane-prev').style.display=t==='prev'?'block':'none';document.getElementById('tab-form').className='tab'+(t==='form'?' on':'');document.getElementById('tab-prev').className='tab'+(t==='prev'?' on':'');if(t==='prev')buildPrev();}
@@ -2071,12 +2138,17 @@ function renderHist(){const fm=document.getElementById('histFiltMois');if(fm){co
 function renderHistData(data){document.getElementById('histCnt').textContent=data.length+' paiements';if(!data.length){document.getElementById('histBody').innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="clipboard-list" class="ic-xl"></i></div><div class="e-t">Aucun paiement trouvé</div></div>';refreshIcons();return;}document.getElementById('histBody').innerHTML=`<table><thead><tr><th>N° REÇU</th><th>ÉLÈVE</th><th>CLASSE</th><th>MOIS</th><th>MONTANT</th><th>MODE</th><th>DATE</th><th>ACTIONS</th></tr></thead><tbody>${data.map(p=>{const idx=paiements.indexOf(p);return`<tr><td style="color:var(--ac);font-weight:600">${p.recu}</td><td class="p">${p.eleve}</td><td>${p.classe}</td><td>${p.mois}</td><td style="color:var(--g2);font-weight:600">${p.montant.toFixed(2)} ${p.devise}</td><td>${p.mode}</td><td style="color:var(--di);font-size:12.5px">${p.date}</td><td><div style="display:flex;gap:6px"><button class="btn bg bsm" onclick="viewRecu(${idx})"><i data-lucide="eye" class="ic-sm"></i> Voir</button><button class="btn bp bsm" onclick="reimprimer(${idx})"><i data-lucide="printer" class="ic-sm"></i> PDF</button><button class="btn bre bsm" onclick="deletePaiement(${idx})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button></div></td></tr>`;}).join('')}</tbody></table>`;refreshIcons();}
 function deletePaiement(idx){const p=paiements[idx];if(!confirm(`Supprimer le reçu ${p.recu} pour ${p.eleve} ?\n\nCette action est irréversible.`))return;paiements.splice(idx,1);renderHist();updStats();savePaiementsToFirebase();toast('🗑️','Paiement supprimé','');}
 function updStats(){
-  const today=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});
+  const todayDisplay=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});
+  const today=todayStr();
   const isMensForStats=p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance');
-  const todayTotal=paiements.filter(p=>isMensForStats(p)&&p.date===today).reduce((s,p)=>s+p.montant,0);
-  document.getElementById('statTotal').textContent=todayTotal.toFixed(2)+' '+S.devise;
-  document.getElementById('statNb').textContent=paiements.length+' paiements';
-  const ms=document.getElementById('mStatTotal');if(ms)ms.textContent=todayTotal.toFixed(0)+' '+S.devise;
+  const paiementsJour=paiements.filter(p=>isMensForStats(p)&&p.date===todayDisplay);
+  const todayTotal=paiementsJour.reduce((s,p)=>s+p.montant,0);
+  const fraisJour=fraisDepenses.filter(d=>d.date===today).reduce((s,d)=>s+d.mt,0);
+  const netJour=todayTotal-fraisJour;
+  document.getElementById('statTotal').textContent=netJour.toFixed(2)+' '+S.devise;
+  document.getElementById('statNb').textContent=paiementsJour.length+' paiement(s) · -'+fraisJour.toFixed(0);
+  const ms=document.getElementById('mStatTotal');if(ms)ms.textContent=netJour.toFixed(0)+' '+S.devise;
+  updStatsFrais();
   renderDashboard();
 }
 function exportHist(){if(!paiements.length){toast('⚠️','Aucun paiement','');return;}const rows=paiements.map(p=>({'N° Reçu':p.recu,'Élève':p.eleve,'Classe':p.classe,'Mois':p.mois,'Montant':p.montant,'Devise':p.devise,'Mode':p.mode,'Date':p.date}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Paiements');XLSX.writeFile(wb,`Historique_${new Date().toISOString().slice(0,10)}.xlsx`);toast('⬇️','Export Excel téléchargé','');}
@@ -2084,8 +2156,10 @@ function exportHist(){if(!paiements.length){toast('⚠️','Aucun paiement','');
 // ─── DASHBOARD ───
 let chartMois=null,chartStatuts=null,chartClasses=null;
 function renderDashboard(){
-  const isMens=p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance');const today=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});const currentMonth=new Date().toLocaleDateString('fr-MA',{month:'long',year:'numeric'});const todayTotal=paiements.filter(p=>isMens(p)&&p.date===today).reduce((s,p)=>s+p.montant,0);const moisTotal=paiements.filter(p=>isMens(p)&&p.mois===currentMonth).reduce((s,p)=>s+p.montant,0);const total=paiements.filter(isMens).reduce((s,p)=>s+p.montant,0);const payes=eleves.filter(e=>e.statut==='payé').length;const attente=eleves.filter(e=>e.statut==='en attente').length;const retard=eleves.filter(e=>e.statut.includes('retard')).length;const totalEleves=eleves.length;const taux=totalEleves>0?Math.round((payes/totalEleves)*100):0;
-  document.getElementById('kpi-total').textContent=todayTotal.toFixed(2)+' '+S.devise;const kpiMois=document.getElementById('kpi-mois');if(kpiMois)kpiMois.textContent=moisTotal.toFixed(2)+' '+S.devise;document.getElementById('kpi-recus').textContent=paiements.length;document.getElementById('kpi-payes').textContent=payes;document.getElementById('kpi-attente').textContent=attente;document.getElementById('kpi-retard').textContent=retard;document.getElementById('kpi-taux').textContent=taux+'%';
+  const isMens=p=>!(p.recu||'').startsWith('RI')&&!(p.recu||'').startsWith('RA')&&!(p.mode||'').includes('inscription')&&!(p.mode||'').includes('Assurance');const todayDisplay=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});const today=todayStr();const currentMonth=new Date().toLocaleDateString('fr-MA',{month:'long',year:'numeric'});const todayTotalMens=paiements.filter(p=>isMens(p)&&p.date===todayDisplay).reduce((s,p)=>s+p.montant,0);const fraisJour=fraisDepenses.filter(d=>d.date===today).reduce((s,d)=>s+d.mt,0);const netJour=todayTotalMens-fraisJour;const moisTotal=paiements.filter(p=>isMens(p)&&p.mois===currentMonth).reduce((s,p)=>s+p.montant,0);const payes=eleves.filter(e=>e.statut==='payé').length;const attente=eleves.filter(e=>e.statut==='en attente').length;const retard=eleves.filter(e=>e.statut.includes('retard')).length;const totalEleves=eleves.length;const taux=totalEleves>0?Math.round((payes/totalEleves)*100):0;
+  document.getElementById('kpi-total').textContent=netJour.toFixed(2)+' '+S.devise;const kpiTotSub=document.getElementById('kpi-total-sub');if(kpiTotSub)kpiTotSub.textContent=todayTotalMens.toFixed(0)+' encaissé − '+fraisJour.toFixed(0)+' frais';const kpiMois=document.getElementById('kpi-mois');if(kpiMois)kpiMois.textContent=moisTotal.toFixed(2)+' '+S.devise;const kpiMoisSub=document.getElementById('kpi-mois-sub');if(kpiMoisSub)kpiMoisSub.textContent='Mensualités '+currentMonth;document.getElementById('kpi-recus').textContent=paiements.length;document.getElementById('kpi-payes').textContent=payes;document.getElementById('kpi-attente').textContent=attente;document.getElementById('kpi-retard').textContent=retard;document.getElementById('kpi-taux').textContent=taux+'%';const kpiFJ=document.getElementById('kpi-frais-jour');if(kpiFJ)kpiFJ.textContent=fraisJour.toFixed(2)+' '+S.devise;
+  // Frais section netJour
+  const fnj=document.getElementById('fraisNetJour');if(fnj)fnj.textContent=netJour.toFixed(2)+' '+S.devise;
   const dashInfo=document.getElementById('dashBackupInfo');if(dashInfo)dashInfo.textContent=`${eleves.length} élèves · ${paiements.length} paiements`;
   const parMois={};paiements.filter(isMens).forEach(p=>{if(!parMois[p.mois])parMois[p.mois]=0;parMois[p.mois]+=p.montant;});const moisKeys=Object.keys(parMois).sort((a,b)=>a.localeCompare(b)).slice(-6);
   const ctxM=document.getElementById('chartMois');if(ctxM){if(chartMois)chartMois.destroy();chartMois=new Chart(ctxM,{type:'bar',data:{labels:moisKeys.length?moisKeys:['Aucun paiement'],datasets:[{label:'Encaissé',data:moisKeys.map(m=>parMois[m]||0),backgroundColor:'rgba(59,125,255,.7)',borderColor:'#3b7dff',borderWidth:1,borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{ticks:{color:'#8898b4',callback:v=>v.toLocaleString()+' '+S.devise},grid:{color:'rgba(255,255,255,.05)'}},x:{ticks:{color:'#8898b4'},grid:{display:false}}}}});}
@@ -2109,10 +2183,111 @@ async function initFirebase(){const config={apiKey:document.getElementById('fb_a
 async function syncToFirebase(){if(!window.FB||!window.FB.isReady()){toast('⚠️','Connectez d\'abord Firebase','');return;}fbStatus('⏳ Envoi vers Firebase…');setSyncStatus('syncing','Synchronisation…');const ok=await window.FB.pushAll(eleves,paiements,S,recuN);if(ok){fbStatus('✅ Données envoyées',true);setSyncStatus('synced','Synchronisé');toast('⬆️','Synchronisation réussie','');}else{fbStatus('❌ Erreur lors de l\'envoi',false);setSyncStatus('error','Erreur');}}
 async function syncFromFirebase(silent=false){if(!window.FB||!window.FB.isReady()){if(!silent)toast('⚠️','Connectez d\'abord Firebase','');return;}if(!silent)fbStatus('⏳ Chargement depuis Firebase…');setSyncStatus('syncing','Chargement…');const data=await window.FB.pullAll();let changed=false;if(data.eleves&&data.eleves.length>0){eleves=data.eleves;renderE(eleves);fillSel();changed=true;}if(data.paiements&&data.paiements.length>0){paiements=data.paiements;renderHist();updStats();changed=true;}if(data.settings){const logos={appLogo:S.appLogo,schoolLogo:S.schoolLogo};Object.assign(S,data.settings,logos);applyS();changed=true;}if(data.recuN&&data.recuN>recuN){recuN=data.recuN;changed=true;}setSyncStatus('synced','Synchronisé');if(!silent){if(changed){fbStatus('✅ Données chargées',true);toast('⬇️','Synchronisation réussie','');}else{fbStatus('ℹ️ Aucune nouvelle donnée',null);}}}
 
+// ─── FRAIS DÉPENSES ───
+const FRAIS_SUGGESTIONS=['Papeterie','Stylos','Ménage','Repas','Avance','Photocopies','Fournitures','Transport','Électricité','Internet','Eau','Téléphone','Entretien','Divers'];
+
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function todayDisplayStr(){return new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  const fd=document.getElementById('fraisDate');if(fd)fd.value=todayStr();
+  const fm=document.getElementById('fraisFiltMois');if(fm)fm.value=new Date().toISOString().slice(0,7);
+});
+
+function updateFraisLibSuggestions(){
+  const q=(document.getElementById('fraisLib').value||'').toLowerCase();
+  const sugg=document.getElementById('fraisLibSugg');if(!sugg)return;
+  if(!q){sugg.style.display='none';return;}
+  const matches=FRAIS_SUGGESTIONS.filter(s=>s.toLowerCase().includes(q));
+  if(!matches.length){sugg.style.display='none';return;}
+  sugg.innerHTML=matches.map(s=>`<div onclick="document.getElementById('fraisLib').value='${s}';document.getElementById('fraisLibSugg').style.display='none';document.getElementById('fraisMt').focus()" style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--tx);border-bottom:1px solid var(--b1)" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">${s}</div>`).join('');
+  sugg.style.display='block';
+}
+document.addEventListener('click',e=>{const sugg=document.getElementById('fraisLibSugg');const inp=document.getElementById('fraisLib');if(sugg&&inp&&!inp.contains(e.target)&&!sugg.contains(e.target))sugg.style.display='none';});
+
+async function ajouterFrais(){
+  const lib=(document.getElementById('fraisLib').value||'').trim();
+  const mt=parseFloat(document.getElementById('fraisMt').value)||0;
+  const date=document.getElementById('fraisDate').value||todayStr();
+  if(!lib){toast('⚠️','Renseignez la désignation','');return;}
+  if(!mt||mt<=0){toast('⚠️','Montant invalide','');return;}
+  const dep={id:Date.now(),lib,mt,date,saisieA:new Date().toISOString()};
+  fraisDepenses.unshift(dep);
+  document.getElementById('fraisLib').value='';
+  document.getElementById('fraisMt').value='';
+  document.getElementById('fraisLibSugg').style.display='none';
+  await saveFraisToFirebase();
+  renderFrais();updStatsFrais();renderDashboard();
+  toast('✅','Dépense ajoutée',`${lib} — ${mt.toFixed(2)} ${S.devise}`);
+}
+
+async function deleteFrais(id){
+  if(!confirm('Supprimer cette dépense ?'))return;
+  fraisDepenses=fraisDepenses.filter(d=>d.id!=id);
+  await saveFraisToFirebase();
+  renderFrais();updStatsFrais();renderDashboard();
+  toast('🗑️','Dépense supprimée','');
+}
+
+function renderFrais(){
+  const q=(document.getElementById('fraisSearch')?.value||'').toLowerCase();
+  const moisFilt=document.getElementById('fraisFiltMois')?.value||'';
+  let data=fraisDepenses;
+  if(q)data=data.filter(d=>d.lib.toLowerCase().includes(q));
+  if(moisFilt)data=data.filter(d=>d.date&&d.date.startsWith(moisFilt));
+  document.getElementById('fraisCnt').textContent=data.length+' dépense(s)';
+  const body=document.getElementById('fraisBody');
+  if(!data.length){body.innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="receipt" class="ic-xl"></i></div><div class="e-t">Aucune dépense</div></div>';refreshIcons();return;}
+  // Grouper par date
+  const byDate={};data.forEach(d=>{if(!byDate[d.date])byDate[d.date]=[];byDate[d.date].push(d);});
+  const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+  body.innerHTML=dates.map(date=>{
+    const items=byDate[date];
+    const dayTotal=items.reduce((s,d)=>s+d.mt,0);
+    const dateLabel=new Date(date+'T12:00').toLocaleDateString('fr-MA',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    return `<div style="border-bottom:1px solid var(--b1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg3)">
+        <span style="font-size:12px;font-weight:600;color:var(--mu);text-transform:capitalize">${dateLabel}</span>
+        <span style="font-size:12.5px;font-weight:700;color:var(--re)">${dayTotal.toFixed(2)} ${S.devise}</span>
+      </div>
+      ${items.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--b1)">
+        <span style="font-size:13.5px;color:var(--tx)">${d.lib}</span>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-weight:600;color:var(--re);font-size:13.5px">${d.mt.toFixed(2)} ${S.devise}</span>
+          <button class="btn bre bsm" onclick="deleteFrais(${d.id})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+  refreshIcons();
+}
+
+function updStatsFrais(){
+  const today=todayStr();
+  const fraisJour=fraisDepenses.filter(d=>d.date===today).reduce((s,d)=>s+d.mt,0);
+  const el1=document.getElementById('fraisJourTotal');if(el1)el1.textContent=fraisJour.toFixed(2)+' '+S.devise;
+  const el2=document.getElementById('fraisJourNb');if(el2)el2.textContent=fraisDepenses.filter(d=>d.date===today).length+' dépense(s)';
+}
+
+function exportFraisExcel(){
+  if(!fraisDepenses.length){toast('⚠️','Aucune dépense à exporter','');return;}
+  const rows=fraisDepenses.map(d=>({'Date':d.date,'Désignation':d.lib,'Montant':d.mt,'Devise':S.devise}));
+  const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Frais');
+  XLSX.writeFile(wb,`Frais_${S.ecole.replace(/\s/g,'_')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('⬇️','Export téléchargé','');
+}
+
+async function saveFraisToFirebase(){
+  if(window.FB&&window.FB.isReady()){
+    try{await window.FB.saveFrais(fraisDepenses);}catch(e){console.warn('saveFrais:',e);}
+  }
+}
+
 // ─── SAUVEGARDE / RESTAURATION ───
 function updateLastBackupInfo(){const key='edurecu_last_backup';const info=localStorage.getItem(key);const el=document.getElementById('lastBackupInfo');if(el&&info)el.textContent='Dernière sauvegarde : '+info;}
-function exportBackup(){const backup={version:2,date:new Date().toISOString(),ecole:S.ecole,eleves,paiements:paiements.map(p=>{const{html:_,...light}=p;return light;}),settings:(()=>{const{appLogo:_,schoolLogo:__,fbConfig:___,...light}=S;return light;})(),recuN};const json=JSON.stringify(backup,null,2);const blob=new Blob([json],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;const date=new Date().toISOString().slice(0,10);a.download=`EduRecu_backup_${S.ecole.replace(/\s/g,'_')}_${date}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);const ts=new Date().toLocaleDateString('fr-MA')+' à '+new Date().toLocaleTimeString('fr-MA',{hour:'2-digit',minute:'2-digit'});localStorage.setItem('edurecu_last_backup',ts);updateLastBackupInfo();toast('💾','Sauvegarde téléchargée',`${eleves.length} élèves · ${paiements.length} paiements`);}
-async function importBackup(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=async e=>{try{const backup=JSON.parse(e.target.result);if(!backup.version||!backup.eleves){toast('❌','Fichier invalide','Ce fichier ne semble pas être une sauvegarde EduReçu');return;}const dateStr=backup.date?backup.date.slice(0,10):'?';if(!confirm(`Restaurer la sauvegarde du ${dateStr} ?\n${backup.eleves.length} élèves · ${backup.paiements?.length||0} paiements\n\n⚠️ Toutes les données actuelles seront remplacées.`))return;eleves=backup.eleves||[];paiements=backup.paiements||[];recuN=backup.recuN||recuN;if(backup.settings){const logos={appLogo:S.appLogo,schoolLogo:S.schoolLogo,fbConfig:S.fbConfig};Object.assign(S,backup.settings,logos);applyS();}renderE(eleves);fillSel();renderHist();updStats();if(window.FB&&window.FB.isReady()){setSyncStatus('syncing','Restauration…');toast('⏳','Restauration en cours…','Envoi vers Firebase');const ok=await window.FB.pushAll(eleves,paiements,S,recuN);setSyncStatus(ok?'synced':'error',ok?'Synchronisé':'Erreur');toast(ok?'✅':'⚠️',ok?'Restauration réussie':'Erreur partielle',`${eleves.length} élèves · ${paiements.length} paiements`);}else{toast('✅','Restauré en mémoire',`${eleves.length} élèves · ${paiements.length} paiements`);}}catch(err){toast('❌','Erreur de lecture',err.message);}input.value='';};r.readAsText(file);}
+function exportBackup(){const backup={version:2,date:new Date().toISOString(),ecole:S.ecole,eleves,paiements:paiements.map(p=>{const{html:_,...light}=p;return light;}),fraisDepenses,settings:(()=>{const{appLogo:_,schoolLogo:__,fbConfig:___,...light}=S;return light;})(),recuN};const json=JSON.stringify(backup,null,2);const blob=new Blob([json],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;const date=new Date().toISOString().slice(0,10);a.download=`EduRecu_backup_${S.ecole.replace(/\s/g,'_')}_${date}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);const ts=new Date().toLocaleDateString('fr-MA')+' à '+new Date().toLocaleTimeString('fr-MA',{hour:'2-digit',minute:'2-digit'});localStorage.setItem('edurecu_last_backup',ts);updateLastBackupInfo();toast('💾','Sauvegarde téléchargée',`${eleves.length} élèves · ${paiements.length} paiements`);}
+async function importBackup(input){const file=input.files[0];if(!file)return;const r=new FileReader();r.onload=async e=>{try{const backup=JSON.parse(e.target.result);if(!backup.version||!backup.eleves){toast('❌','Fichier invalide','Ce fichier ne semble pas être une sauvegarde EduReçu');return;}const dateStr=backup.date?backup.date.slice(0,10):'?';if(!confirm(`Restaurer la sauvegarde du ${dateStr} ?\n${backup.eleves.length} élèves · ${backup.paiements?.length||0} paiements\n\n⚠️ Toutes les données actuelles seront remplacées.`))return;eleves=backup.eleves||[];paiements=backup.paiements||[];fraisDepenses=backup.fraisDepenses||[];recuN=backup.recuN||recuN;renderFrais();updStatsFrais();if(backup.settings){const logos={appLogo:S.appLogo,schoolLogo:S.schoolLogo,fbConfig:S.fbConfig};Object.assign(S,backup.settings,logos);applyS();}renderE(eleves);fillSel();renderHist();updStats();if(window.FB&&window.FB.isReady()){setSyncStatus('syncing','Restauration…');toast('⏳','Restauration en cours…','Envoi vers Firebase');const ok=await window.FB.pushAll(eleves,paiements,S,recuN);setSyncStatus(ok?'synced':'error',ok?'Synchronisé':'Erreur');toast(ok?'✅':'⚠️',ok?'Restauration réussie':'Erreur partielle',`${eleves.length} élèves · ${paiements.length} paiements`);}else{toast('✅','Restauré en mémoire',`${eleves.length} élèves · ${paiements.length} paiements`);}}catch(err){toast('❌','Erreur de lecture',err.message);}input.value='';};r.readAsText(file);}
 
 function closeM(id){document.getElementById(id).classList.remove('open');}
 let _tt;
@@ -2185,6 +2360,23 @@ window.FB = {
     if(onRecuN)fbListeners.push(onSnapshot(doc(fbDb,'config','recuN'),snap=>{if(snap.exists())onRecuN(snap.data().n);}));
   },
   stopListeners(){fbListeners.forEach(u=>u());fbListeners=[];}
+  ,
+  async saveFrais(frais){
+    if(!fbDb)return false;
+    try{
+      const CHUNK=200;
+      const snap=await getDocs(collection(fbDb,'frais'));
+      const toDel=snap.docs;
+      for(let i=0;i<toDel.length;i+=CHUNK){const b=writeBatch(fbDb);toDel.slice(i,i+CHUNK).forEach(d=>b.delete(d.ref));await b.commit();}
+      for(let i=0;i<frais.length;i+=CHUNK){const b=writeBatch(fbDb);frais.slice(i,i+CHUNK).forEach((f,j)=>b.set(doc(fbDb,'frais',String(i+j)),f));await b.commit();}
+      return true;
+    }catch(e){return false;}
+  },
+  async getFrais(){
+    if(!fbDb)return[];
+    try{const snap=await getDocs(collection(fbDb,'frais'));return snap.docs.map(d=>d.data()).sort((a,b)=>b.id-a.id);}
+    catch(e){return[];}
+  }
 };
 </script>
 </body>
