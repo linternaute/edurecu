@@ -1660,57 +1660,64 @@ async function saveAssurance(){
 }
 
 function buildAssuranceRecuHTML(elv,num,date,moisFr,paye,total,rem,statut){
-  const w='148mm';const fmtScale=S.rFormat==='A4'?Math.SQRT2:1;
-  const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';
-  const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
-  const colInt=parseInt(col.replace('#',''),16);
-  const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;
-  const lum=(r2*299+g2*587+b2*114)/1000;
-  const txtOnCol=lum>128?'#1e293b':'#ffffff';
-  const amtBg=col+'18';const amtBorder=col+'44';
-  const reste=Math.max(0,total-paye);
-  const pct=total>0?Math.round((paye/total)*100):100;
-  const stampLabel=pct>=100?'✓ PAYÉ':'⏳ PARTIEL';
-  const stampCol=pct>=100?sc:'#f59e0b';
-  return `<div class="recu" style="width:${w};background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;transform:scale(${fmtScale});transform-origin:top left;">
-    <div class="r-top" style="background:${col}">
-      <div style="display:flex;align-items:center;gap:4mm">
-        ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:14mm;max-width:20mm;object-fit:contain;border-radius:3pt;flex-shrink:0">`:'' }
+  const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
+  const colInt=parseInt(col.replace('#',''),16);const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;
+  const lum=(r2*299+g2*587+b2*114)/1000;const txtOnCol=lum>128?'#1e293b':'#ffffff';
+  const reste=Math.max(0,(parseFloat(total)||0)-parseFloat(paye));
+  const pct=(total>0)?Math.round((paye/total)*100):100;
+  const isPartiel=pct<100&&paye>0;
+  const stampLabel=pct>=100?'✓ PAYÉ':isPartiel?'⏳ PARTIEL':'✗ NON PAYÉ';
+  const stampCol=pct>=100?sc:isPartiel?'#f59e0b':'#ef4444';
+  const isRtlName=isRTL((elv.nom||'')+(elv.prenom||''));
+  return `<div style="width:210mm;min-height:297mm;background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;font-size:10pt;color:#1e293b;position:relative;box-sizing:border-box;overflow:hidden">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:8mm;background:${col}"></div>
+    <div style="position:absolute;right:0;top:0;bottom:0;width:3mm;background:${col};opacity:.25"></div>
+    <div style="margin-left:14mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="display:flex;align-items:center;gap:5mm">
+        ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:20mm;max-width:26mm;object-fit:contain">`:`<div style="width:16mm;height:16mm;background:${col};border-radius:3mm;display:flex;align-items:center;justify-content:center;font-size:18pt;color:${txtOnCol}">🎓</div>`}
         <div>
-          <div class="r-sname" style="color:${txtOnCol}">${S.ecole}</div>
-          <div class="r-ssub" style="color:${txtOnCol}">${S.adresse}<br>${S.tel} · ${S.email}</div>
+          <div style="font-size:14pt;font-weight:800;color:${col};letter-spacing:-0.02em">${S.ecole}</div>
+          ${S.adresse?`<div style="font-size:7.5pt;color:#64748b;margin-top:2pt">${S.adresse}</div>`:''}
+          <div style="font-size:7.5pt;color:#64748b;margin-top:1pt">${[S.tel,S.email].filter(Boolean).join(' · ')}</div>
         </div>
       </div>
-      <div class="r-num">
-        <div class="r-nlbl" style="color:${txtOnCol};opacity:.75">Reçu — Assurance scolaire</div>
-        <div class="r-nval" style="color:${txtOnCol}">${num}</div>
-        <div class="r-ndate" style="color:${txtOnCol};opacity:.8">${date}</div>
+      <div style="text-align:right">
+        <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8;margin-bottom:3pt">🛡️ Reçu — Assurance scolaire</div>
+        <div style="font-size:26pt;font-weight:800;color:${col};line-height:1;letter-spacing:-0.03em">${num}</div>
+        <div style="font-size:8pt;color:#64748b;margin-top:4pt">${date}</div>
       </div>
     </div>
-    <div class="r-body">
-      <div class="r-grid">
-        <div><div class="r-flbl">Élève</div><div class="r-fval" ${isRTL(elv.nom+elv.prenom)?'dir="rtl" style="text-align:right"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</div></div>
-        <div><div class="r-flbl">Classe</div><div class="r-fval" ${isRTL(elv.classe)?'dir="rtl" style="text-align:right"':''}>${elv.classe||'—'}</div></div>
-        <div><div class="r-flbl">Type</div><div class="r-fval">🛡️ Assurance scolaire</div></div>
-        <div><div class="r-flbl">Année</div><div class="r-fval">${moisFr}</div></div>
-      </div>
-      <div class="r-amt" style="background:${amtBg};border:1px solid ${amtBorder}">
+    <div style="margin:0 12mm 0 14mm;padding-top:9mm">
+      <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Informations de l'élève<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:8mm">
+        <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Nom complet</td><td style="padding:6pt 10pt;font-weight:700;font-size:10.5pt;border-bottom:1pt solid #e2e8f0" ${isRtlName?'dir="rtl"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</td></tr>
+        <tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Classe</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #f1f5f9" ${isRTL(elv.classe||'')?'dir="rtl"':''}>${elv.classe||'—'}</td></tr>
+        <tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt">Année scolaire</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt">${moisFr}</td></tr>
+      </table>
+      <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Détails de l'assurance<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
+      ${total>0?`<table style="width:100%;border-collapse:collapse;margin-bottom:8mm">
+        <tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Montant total</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #e2e8f0">${total.toFixed?total.toFixed(2):total} ${S.devise}</td></tr>
+        <tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Déjà réglé</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;color:#16a34a;border-bottom:1pt solid #f1f5f9">${paye.toFixed(2)} ${S.devise}</td></tr>
+        ${reste>0?`<tr style="background:#fef2f2"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt">Reste à payer</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;color:#ef4444">${reste.toFixed(2)} ${S.devise}</td></tr>`:''}
+      </table>`:''}
+      <div style="background:${col};border-radius:4mm;padding:9mm 12mm;display:flex;justify-content:space-between;align-items:center;margin-bottom:10mm">
         <div>
-          <div class="r-albl" style="color:${col}">🛡️ Montant encaissé</div>
-          <div class="r-asub">${total>0?`Total : ${total} ${S.devise} · Reste : ${reste} ${S.devise}`:'Assurance intégrale'}</div>
+          <div style="font-size:8.5pt;font-weight:600;color:${txtOnCol};opacity:.85;text-transform:uppercase;letter-spacing:.06em">🛡️ Montant encaissé</div>
+          <div style="font-size:7.5pt;color:${txtOnCol};opacity:.6;margin-top:2pt">Assurance scolaire ${moisFr}${pct<100?' · Paiement partiel':''}</div>
         </div>
-        <div><span class="r-aval">${paye.toFixed(2)}</span><span class="r-acur">${S.devise}</span></div>
+        <div style="text-align:right">
+          <span style="font-size:34pt;font-weight:800;color:${txtOnCol};line-height:1">${paye.toFixed(2)}</span>
+          <span style="font-size:14pt;color:${txtOnCol};opacity:.8;margin-left:3pt">${S.devise}</span>
+        </div>
       </div>
-      ${rem?`<div class="r-note">📝 ${rem}</div>`:''}
-      ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#64748b;margin-top:4mm;font-style:italic">${S.rFooter}</div>`:''}
+      ${rem?`<div style="background:#f8fafc;border-left:3pt solid ${col};padding:5pt 10pt;font-size:8.5pt;color:#475569;margin-bottom:8mm;border-radius:0 3mm 3mm 0">📝 ${rem}</div>`:''}
+      ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#94a3b8;font-style:italic;margin-bottom:8mm">${S.rFooter}</div>`:''}
     </div>
-    <div style="height:8mm"></div>
-    <div class="r-foot">
-      ${S.rShowSignature!==false?`<div class="r-sig">Signature &amp; Cachet</div>`:'<div></div>'}
-      ${S.rShowStamp!==false?`<div class="r-stamp" style="background:${stampCol}22;border:1.5pt solid ${stampCol};color:${stampCol}">${stampLabel}</div>`:'<div></div>'}
-      ${S.rShowGenerated!==false?`<div class="r-gen">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
+    <div style="position:absolute;bottom:14mm;left:14mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
+      ${S.rShowSignature!==false?`<div><div style="width:55mm;border-top:1pt solid #cbd5e1;padding-top:4pt;font-size:7pt;color:#94a3b8">Signature &amp; Cachet de l'établissement</div></div>`:'<div></div>'}
+      ${S.rShowStamp!==false?`<div style="background:${stampCol}15;border:2.5pt solid ${stampCol};border-radius:3mm;padding:5pt 14pt;transform:rotate(-3deg)"><span style="font-size:13pt;font-weight:800;color:${stampCol};letter-spacing:.05em">${stampLabel}</span></div>`:'<div></div>'}
+      ${S.rShowGenerated!==false?`<div style="text-align:right;font-size:6.5pt;color:#cbd5e1">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
     </div>
-    <div style="height:5mm"></div>
   </div>`;
 }
 function openAddEleve(){document.getElementById('eleveEditId').value='-1';document.getElementById('modalEleveTitle').innerHTML='<i data-lucide="plus"></i> Ajouter un élève';refreshIcons();['indice','nom','prenom','lieuNaissance','classe','tel'].forEach(f=>{const el=document.getElementById('el_'+f);if(el)el.value='';});document.getElementById('el_sexe').value='';document.getElementById('el_dateNaissance').value='';document.getElementById('el_frais').value='';document.getElementById('el_fraisInscription').value='';document.getElementById('el_inscriptionPayee').checked=false;document.getElementById('el_statut').value='en attente';document.getElementById('modalEleve').classList.add('open');setTimeout(()=>document.getElementById('el_nom').focus(),100);}
@@ -1730,43 +1737,60 @@ function quickPay(id){nav('paiement');switchPayMode('eleve');const elv=eleves.fi
 function quickPayInscription(id){nav('paiement');switchPayMode('eleve');const elv=eleves.find(e=>e.id==id);if(elv){const label=elv.nom+' '+elv.prenom;const sub=(elv.classe||'')+(elv.indice?' · '+elv.indice:'');selectEleveFromSearch(id,label,sub);}document.getElementById('typePay').value='inscription';onEleveChange();}
 
 function buildInscriptionRecuHTML(elv,num,date,anneeLabel,mt,mode,rem){
-  const w='148mm';const fmtScale=S.rFormat==='A4'?Math.SQRT2:1;
-  const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';
-  const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
-  const colInt=parseInt(col.replace('#',''),16);
-  const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;
+  const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
+  const colInt=parseInt(col.replace('#',''),16);const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;
   const lum=(r2*299+g2*587+b2*114)/1000;const txtOnCol=lum>128?'#1e293b':'#ffffff';
-  const amtBg=col+'18';const amtBorder=col+'44';
   const ef=S.rExtraFields||{};
-  const extraFields=[ef.matricule?`<div><div class="r-flbl">Matricule</div><div class="r-fval">${ef.matricule}</div></div>`:'',ef.niveau?`<div><div class="r-flbl">Niveau</div><div class="r-fval">${ef.niveau}</div></div>`:'',ef.section?`<div><div class="r-flbl">Section</div><div class="r-fval">${ef.section}</div></div>`:''].join('');
-  return `<div class="recu" style="width:${w};background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;transform:scale(${fmtScale});transform-origin:top left;">
-    <div class="r-top" style="background:${col}">
-      <div style="display:flex;align-items:center;gap:4mm">${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:14mm;max-width:20mm;object-fit:contain;border-radius:3pt;flex-shrink:0">`:''}<div><div class="r-sname" style="color:${txtOnCol}">${S.ecole}</div><div class="r-ssub" style="color:${txtOnCol}">${S.adresse}<br>${S.tel} · ${S.email}</div></div></div>
-      <div class="r-num"><div class="r-nlbl" style="color:${txtOnCol};opacity:.75">Reçu — Frais d'inscription</div><div class="r-nval" style="color:${txtOnCol}">${num}</div><div class="r-ndate" style="color:${txtOnCol};opacity:.8">${date}</div></div>
-    </div>
-    <div class="r-body">
-      <div class="r-grid">
-        <div><div class="r-flbl">Élève</div><div class="r-fval" ${isRTL(elv.nom+elv.prenom)?'dir="rtl" style="text-align:right"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</div></div>
-        <div><div class="r-flbl">Classe</div><div class="r-fval" ${isRTL(elv.classe)?'dir="rtl" style="text-align:right"':''}>${elv.classe||'—'}</div></div>
-        <div><div class="r-flbl">Type</div><div class="r-fval">🎓 Frais d'inscription</div></div>
-        <div><div class="r-flbl">Année scolaire</div><div class="r-fval">${anneeLabel}</div></div>
-        <div><div class="r-flbl">Mode de paiement</div><div class="r-fval">${mode}</div></div>
-        ${extraFields}
+  const extraRows=[ef.matricule?`<tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #e2e8f0">Matricule</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #e2e8f0">${ef.matricule}</td></tr>`:'',ef.niveau?`<tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Niveau</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #f1f5f9">${ef.niveau}</td></tr>`:'',ef.section?`<tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt">Section</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt">${ef.section}</td></tr>`:``].join('');
+  const isRtlName=isRTL((elv.nom||'')+(elv.prenom||''));
+  return `<div style="width:210mm;min-height:297mm;background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;font-size:10pt;color:#1e293b;position:relative;box-sizing:border-box;overflow:hidden">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:8mm;background:${col}"></div>
+    <div style="position:absolute;right:0;top:0;bottom:0;width:3mm;background:${col};opacity:.25"></div>
+    <div style="margin-left:14mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="display:flex;align-items:center;gap:5mm">
+        ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:20mm;max-width:26mm;object-fit:contain">`:`<div style="width:16mm;height:16mm;background:${col};border-radius:3mm;display:flex;align-items:center;justify-content:center;font-size:18pt;color:${txtOnCol}">🎓</div>`}
+        <div>
+          <div style="font-size:14pt;font-weight:800;color:${col};letter-spacing:-0.02em">${S.ecole}</div>
+          ${S.adresse?`<div style="font-size:7.5pt;color:#64748b;margin-top:2pt">${S.adresse}</div>`:''}
+          <div style="font-size:7.5pt;color:#64748b;margin-top:1pt">${[S.tel,S.email].filter(Boolean).join(' · ')}</div>
+        </div>
       </div>
-      <div class="r-amt" style="background:${amtBg};border:1px solid ${amtBorder}">
-        <div><div class="r-albl" style="color:${col}">🎓 Frais d'inscription encaissés</div><div class="r-asub">${anneeLabel}</div></div>
-        <div><span class="r-aval">${parseFloat(mt).toFixed(2)}</span><span class="r-acur">${S.devise}</span></div>
+      <div style="text-align:right">
+        <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8;margin-bottom:3pt">🎓 Reçu — Frais d'inscription</div>
+        <div style="font-size:26pt;font-weight:800;color:${col};line-height:1;letter-spacing:-0.03em">${num}</div>
+        <div style="font-size:8pt;color:#64748b;margin-top:4pt">${date}</div>
       </div>
-      ${rem?`<div class="r-note">📝 ${rem}</div>`:''}
-      ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#64748b;margin-top:4mm;font-style:italic">${S.rFooter}</div>`:''}
     </div>
-    <div style="height:8mm"></div>
-    <div class="r-foot">
-      ${S.rShowSignature!==false?`<div class="r-sig">Signature &amp; Cachet</div>`:'<div></div>'}
-      ${S.rShowStamp!==false?`<div class="r-stamp" style="background:${sc}22;border:1.5pt solid ${sc};color:${sc}">✓ PAYÉ</div>`:'<div></div>'}
-      ${S.rShowGenerated!==false?`<div class="r-gen">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
+    <div style="margin:0 12mm 0 14mm;padding-top:9mm">
+      <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Informations de l'élève<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:8mm">
+        <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Nom complet</td><td style="padding:6pt 10pt;font-weight:700;font-size:10.5pt;border-bottom:1pt solid #e2e8f0" ${isRtlName?'dir="rtl"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</td></tr>
+        <tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Classe</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #f1f5f9" ${isRTL(elv.classe||'')?'dir="rtl"':''}>${elv.classe||'—'}</td></tr>
+        ${extraRows}
+      </table>
+      <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Détails de l'inscription<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10mm">
+        <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Année scolaire</td><td style="padding:6pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #e2e8f0">${anneeLabel}</td></tr>
+        <tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Mode de paiement</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #f1f5f9">${mode}</td></tr>
+        ${rem?`<tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt">Remarque</td><td style="padding:5pt 10pt;font-size:8.5pt;color:#475569">${rem}</td></tr>`:''}
+      </table>
+      <div style="background:${col};border-radius:4mm;padding:9mm 12mm;display:flex;justify-content:space-between;align-items:center;margin-bottom:10mm">
+        <div>
+          <div style="font-size:8.5pt;font-weight:600;color:${txtOnCol};opacity:.85;text-transform:uppercase;letter-spacing:.06em">🎓 Frais d'inscription encaissés</div>
+          <div style="font-size:7.5pt;color:${txtOnCol};opacity:.6;margin-top:2pt">Année scolaire ${anneeLabel}</div>
+        </div>
+        <div style="text-align:right">
+          <span style="font-size:34pt;font-weight:800;color:${txtOnCol};line-height:1">${parseFloat(mt).toFixed(2)}</span>
+          <span style="font-size:14pt;color:${txtOnCol};opacity:.8;margin-left:3pt">${S.devise}</span>
+        </div>
+      </div>
+      ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#94a3b8;font-style:italic;margin-bottom:8mm">${S.rFooter}</div>`:''}
     </div>
-    <div style="height:5mm"></div>
+    <div style="position:absolute;bottom:14mm;left:14mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
+      ${S.rShowSignature!==false?`<div><div style="width:55mm;border-top:1pt solid #cbd5e1;padding-top:4pt;font-size:7pt;color:#94a3b8">Signature &amp; Cachet de l'établissement</div></div>`:'<div></div>'}
+      ${S.rShowStamp!==false?`<div style="background:${sc}15;border:2.5pt solid ${sc};border-radius:3mm;padding:5pt 14pt;transform:rotate(-3deg)"><span style="font-size:13pt;font-weight:800;color:${sc};letter-spacing:.05em">✓ PAYÉ</span></div>`:'<div></div>'}
+      ${S.rShowGenerated!==false?`<div style="text-align:right;font-size:6.5pt;color:#cbd5e1">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
+    </div>
   </div>`;
 }
 function changeStatut(id,newStatut){const elv=eleves.find(e=>e.id==id);if(!elv)return;elv.statut=newStatut;saveElevesToFirebase();toast('✅','Statut mis à jour',`${elv.nom} ${elv.prenom} → ${newStatut}`);}
