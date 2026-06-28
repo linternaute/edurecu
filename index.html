@@ -395,8 +395,24 @@ textarea.inp{resize:vertical;}
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;flex-wrap:wrap">
           <div class="fg" style="margin:0">
             <label class="lbl">Désignation *</label>
-            <input class="inp" id="fraisLib" placeholder="Ex: Papeterie, Ménage, Repas…" oninput="updateFraisLibSuggestions()" autocomplete="off">
-            <div id="fraisLibSugg" style="display:none;background:var(--card);border:1px solid var(--b2);border-radius:8px;margin-top:4px;overflow:hidden"></div>
+            <select class="inp" id="fraisLibSel" onchange="onFraisLibChange()">
+              <option value="">— Choisir une dépense —</option>
+              <option value="Papeterie">📄 Papeterie</option>
+              <option value="Stylos">✏️ Stylos</option>
+              <option value="Fournitures">🗂️ Fournitures</option>
+              <option value="Photocopies">🖨️ Photocopies</option>
+              <option value="Ménage">🧹 Ménage</option>
+              <option value="Eau">💧 Eau</option>
+              <option value="Électricité">⚡ Électricité</option>
+              <option value="Internet">🌐 Internet</option>
+              <option value="Téléphone">📞 Téléphone</option>
+              <option value="Repas">🍽️ Repas</option>
+              <option value="Transport">🚌 Transport</option>
+              <option value="Avance">💸 Avance</option>
+              <option value="Entretien">🔧 Entretien</option>
+              <option value="autre">✏️ Autre (préciser)</option>
+            </select>
+            <input class="inp" id="fraisLib" placeholder="Précisez la dépense…" autocomplete="off" style="display:none;margin-top:6px">
           </div>
           <div class="fg" style="margin:0"><label class="lbl">Montant *</label><input class="inp" type="number" id="fraisMt" placeholder="0" min="0" step="1"></div>
           <div class="fg" style="margin:0"><label class="lbl">Date</label><input class="inp" type="date" id="fraisDate"></div>
@@ -2275,28 +2291,39 @@ window.addEventListener('DOMContentLoaded',()=>{
   const fm=document.getElementById('fraisFiltMois');if(fm)fm.value=new Date().toISOString().slice(0,7);
 });
 
-function updateFraisLibSuggestions(){
-  const q=(document.getElementById('fraisLib').value||'').toLowerCase();
-  const sugg=document.getElementById('fraisLibSugg');if(!sugg)return;
-  if(!q){sugg.style.display='none';return;}
-  const matches=FRAIS_SUGGESTIONS.filter(s=>s.toLowerCase().includes(q));
-  if(!matches.length){sugg.style.display='none';return;}
-  sugg.innerHTML=matches.map(s=>`<div onclick="document.getElementById('fraisLib').value='${s}';document.getElementById('fraisLibSugg').style.display='none';document.getElementById('fraisMt').focus()" style="padding:8px 12px;cursor:pointer;font-size:13px;color:var(--tx);border-bottom:1px solid var(--b1)" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''">${s}</div>`).join('');
-  sugg.style.display='block';
+function onFraisLibChange(){
+  const sel=document.getElementById('fraisLibSel');
+  const inp=document.getElementById('fraisLib');
+  if(!sel||!inp)return;
+  if(sel.value==='autre'){
+    inp.style.display='block';
+    inp.value='';
+    setTimeout(()=>inp.focus(),50);
+  } else {
+    inp.style.display='none';
+    inp.value='';
+  }
 }
-document.addEventListener('click',e=>{const sugg=document.getElementById('fraisLibSugg');const inp=document.getElementById('fraisLib');if(sugg&&inp&&!inp.contains(e.target)&&!sugg.contains(e.target))sugg.style.display='none';});
+function updateFraisLibSuggestions(){} // kept for compatibility
 
 async function ajouterFrais(){
-  const lib=(document.getElementById('fraisLib').value||'').trim();
+  const sel=document.getElementById('fraisLibSel');
+  const inp=document.getElementById('fraisLib');
+  const selVal=(sel?.value||'').trim();
+  if(!selVal){toast('⚠️','Choisissez une désignation','');return;}
+  let lib=selVal;
+  if(selVal==='autre'){
+    lib=(inp?.value||'').trim();
+    if(!lib){toast('⚠️','Précisez la dépense dans le champ texte','');inp?.focus();return;}
+  }
   const mt=parseFloat(document.getElementById('fraisMt').value)||0;
   const date=document.getElementById('fraisDate').value||todayStr();
-  if(!lib){toast('⚠️','Renseignez la désignation','');return;}
   if(!mt||mt<=0){toast('⚠️','Montant invalide','');return;}
   const dep={id:Date.now(),lib,mt,date,saisieA:new Date().toISOString()};
   fraisDepenses.unshift(dep);
-  document.getElementById('fraisLib').value='';
+  sel.value='';
+  if(inp){inp.value='';inp.style.display='none';}
   document.getElementById('fraisMt').value='';
-  document.getElementById('fraisLibSugg').style.display='none';
   await saveFraisToFirebase();
   renderFrais();updStatsFrais();renderDashboard();
   toast('✅','Dépense ajoutée',`${lib} — ${mt.toFixed(2)} ${S.devise}`);
