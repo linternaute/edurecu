@@ -314,7 +314,7 @@ textarea.inp{resize:vertical;}
     <div class="nav-i" onclick="nav('eleves')"><span class="nav-ico"><i data-lucide="users"></i></span>Élèves</div>
     <div class="nav-i" onclick="nav('paiement')"><span class="nav-ico"><i data-lucide="credit-card"></i></span>Nouveau Paiement</div>
     <div class="nav-i" onclick="nav('historique')"><span class="nav-ico"><i data-lucide="clipboard-list"></i></span>Historique</div>
-    <div class="nav-i" onclick="nav('frais')"><span class="nav-ico"><i data-lucide="receipt"></i></span>Frais</div>
+    <div class="nav-i" onclick="nav('depenses')"><span class="nav-ico"><i data-lucide="receipt"></i></span>Dépenses</div>
     <div class="nav-i" onclick="nav('dossier')"><span class="nav-ico"><i data-lucide="user-round-search"></i></span>Dossier Élève</div>
     <div class="nav-i" onclick="nav('parametres')"><span class="nav-ico"><i data-lucide="settings"></i></span>Paramètres</div>
     <div class="sdiv"></div>
@@ -370,8 +370,8 @@ textarea.inp{resize:vertical;}
       <div class="card"><div class="ct" style="margin-bottom:14px"><i data-lucide="clock" class="ic-sm"></i> Derniers paiements</div><div id="dashLastPay" style="color:var(--di);font-size:13px;text-align:center;padding:20px">Aucun paiement enregistré</div></div>
     </div>
     <!-- FRAIS -->
-    <div class="sec" id="sec-frais">
-      <div class="ph">Frais de l'École</div>
+    <div class="sec" id="sec-depenses">
+      <div class="ph">Dépenses de l'École</div>
       <div class="ps">Enregistrez les dépenses quotidiennes — papeterie, ménage, repas, avances…</div>
 
       <!-- Encadré Frais du jour -->
@@ -854,7 +854,7 @@ service cloud.firestore {
   <button class="bn-item" id="bn-eleves" onclick="nav('eleves')"><span class="bn-ico"><i data-lucide="users"></i></span>Élèves</button>
   <button class="bn-item" id="bn-paiement" onclick="nav('paiement')"><span class="bn-ico"><i data-lucide="credit-card"></i></span>Paiement</button>
   <button class="bn-item" id="bn-historique" onclick="nav('historique')"><span class="bn-ico"><i data-lucide="clipboard-list"></i></span>Historique</button>
-  <button class="bn-item" id="bn-frais" onclick="nav('frais')"><span class="bn-ico"><i data-lucide="receipt"></i></span>Frais</button>
+  <button class="bn-item" id="bn-depenses" onclick="nav('depenses')"><span class="bn-ico"><i data-lucide="receipt"></i></span>Dépenses</button>
   <button class="bn-item" id="bn-dossier" onclick="nav('dossier')"><span class="bn-ico"><i data-lucide="user-round-search"></i></span>Dossier</button>
   <button class="bn-item" id="bn-parametres" onclick="nav('parametres')"><span class="bn-ico"><i data-lucide="settings"></i></span>Params</button>
 </nav>
@@ -1238,14 +1238,14 @@ function nav(id){
   document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.nav-i').forEach(n=>n.classList.remove('on'));
   document.getElementById('sec-'+id).classList.add('on');
-  const m={dashboard:0,eleves:1,paiement:2,historique:3,frais:4,dossier:5,parametres:6};
+  const m={dashboard:0,eleves:1,paiement:2,historique:3,depenses:4,dossier:5,parametres:6};
   if(m[id]!==undefined)document.querySelectorAll('.nav-i')[m[id]]?.classList.add('on');
   document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('on'));
   const bn=document.getElementById('bn-'+id);if(bn)bn.classList.add('on');
   window.scrollTo(0,0);
   if(id==='dashboard')setTimeout(renderDashboard,50);
   if(id==='dossier')setTimeout(()=>{fillDossierSel();renderDossier();},50);
-  if(id==='frais')setTimeout(()=>{const fd=document.getElementById('fraisDate');if(fd&&!fd.value)fd.value=todayStr();const fm=document.getElementById('fraisFiltMois');if(fm&&!fm.value)fm.value=new Date().toISOString().slice(0,7);renderFrais();updStatsFrais();refreshIcons();},50);
+  if(id==='depenses')setTimeout(()=>{const fd=document.getElementById('fraisDate');if(fd&&!fd.value)fd.value=todayStr();const fm=document.getElementById('fraisFiltMois');if(fm&&!fm.value)fm.value=new Date().toISOString().slice(0,7);renderFrais();updStatsFrais();refreshIcons();},50);
   if(id==='parametres')setTimeout(()=>{applyS();if(S.fbConfig){['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('fb_'+k);if(el)el.value=S.fbConfig[k]||'';});}livePreview();updateLastBackupInfo();},50);
 }
 function switchTab(t){document.getElementById('pane-form').style.display=t==='form'?'block':'none';document.getElementById('pane-prev').style.display=t==='prev'?'block':'none';document.getElementById('tab-form').className='tab'+(t==='form'?' on':'');document.getElementById('tab-prev').className='tab'+(t==='prev'?' on':'');if(t==='prev')buildPrev();}
@@ -1976,7 +1976,67 @@ function onTypePayChange(){
 }
 function onEleveChange(){const id=document.getElementById('selEleve').value;const elv=eleves.find(e=>e.id==id);if(!elv){document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève</span>';return;}const type=document.getElementById('typePay').value;if(type==='inscription')document.getElementById('mtPay').value=elv.fraisInscription||0;else if(type==='assurance')document.getElementById('mtPay').value=(elv.assurance&&elv.assurance.montantTotal)||0;else document.getElementById('mtPay').value=elv.frais||0;document.getElementById('eleveRecap').innerHTML=`<div style="display:grid;gap:8px"><div><div style="font-size:10px;color:var(--di);text-transform:uppercase;letter-spacing:.06em">Nom</div><div style="font-weight:600;color:var(--tx)">${elv.nom} ${elv.prenom}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Classe</div><div style="color:var(--tx)">${elv.classe}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Téléphone</div><div style="color:var(--tx)">${elv.tel}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Frais mensuel</div><div style="font-weight:700;color:var(--g2)">${elv.frais} ${S.devise}</div></div><div><div style="font-size:10px;color:var(--di);text-transform:uppercase">Frais inscription</div><div style="font-weight:700;color:#7aaaff">${elv.fraisInscription||0} ${S.devise}</div></div>${bst(elv.statut)}</div>`;refreshIcons();}
 function buildAlertMsg(elv,mois,mt,num,rem,type){const date=new Date().toLocaleDateString('fr-MA',{day:'2-digit',month:'long',year:'numeric'});const moisFr=mois?new Date(mois+'-01').toLocaleDateString('fr-MA',{month:'long',year:'numeric'}):'—';const typeLbl=type==='inscription'?'🎓 Frais d\'inscription':type==='assurance'?'🛡️ Assurance scolaire':'📅 Mensualité';return S.alertMsg.replace(/{ecole}/g,S.ecole).replace(/{eleve}/g,elv.nom+' '+elv.prenom).replace(/{classe}/g,elv.classe).replace(/{mois}/g,type==='inscription'?`Frais d'inscription ${mois?mois.slice(0,4):''}`:moisFr).replace(/{montant}/g,parseFloat(mt).toFixed(2)).replace(/{devise}/g,S.devise).replace(/{recu}/g,num).replace(/{date}/g,date).replace(/{remarque}/g,rem||'—')+'\n🏷️ '+typeLbl;}
-function buildRecuHTML(elv,num,date,moisFr,mt,mode,rem){const w='148mm';const fmtScale=S.rFormat==='A4'?Math.SQRT2:1;const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';const colInt=parseInt(col.replace('#',''),16);const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;const lum=(r2*299+g2*587+b2*114)/1000;const txtOnCol=lum>128?'#1e293b':'#ffffff';const amtBg=col+'18';const amtBorder=col+'44';const ef=S.rExtraFields||{};const extraFields=[ef.matricule?`<div><div class="r-flbl">Matricule</div><div class="r-fval">${ef.matricule}</div></div>`:'',ef.niveau?`<div><div class="r-flbl">Niveau</div><div class="r-fval">${ef.niveau}</div></div>`:'',ef.section?`<div><div class="r-flbl">Section</div><div class="r-fval">${ef.section}</div></div>`:''].join('');return `<div class="recu" style="width:${w};background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;transform:scale(${fmtScale});transform-origin:top left;"><div class="r-top" style="background:${col}"><div style="display:flex;align-items:center;gap:4mm">${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:14mm;max-width:20mm;object-fit:contain;border-radius:3pt;flex-shrink:0">`:''}<div><div class="r-sname" style="color:${txtOnCol}">${S.ecole}</div><div class="r-ssub" style="color:${txtOnCol}">${S.adresse}<br>${S.tel} · ${S.email}</div></div></div><div class="r-num"><div class="r-nlbl" style="color:${txtOnCol};opacity:.75">Reçu de paiement</div><div class="r-nval" style="color:${txtOnCol}">${num}</div><div class="r-ndate" style="color:${txtOnCol};opacity:.8">${date}</div></div></div><div class="r-body"><div class="r-grid"><div><div class="r-flbl">Élève</div><div class="r-fval" ${isRTL(elv.nom+elv.prenom)?'dir="rtl" style="text-align:right"':''}>${elv.nom} ${elv.prenom}</div></div><div><div class="r-flbl">Classe</div><div class="r-fval" ${isRTL(elv.classe)?'dir="rtl" style="text-align:right"':''}>${elv.classe||'—'}</div></div><div><div class="r-flbl">Mois concerné</div><div class="r-fval">${moisFr}</div></div><div><div class="r-flbl">Mode de paiement</div><div class="r-fval">${mode}</div></div>${extraFields}</div><div class="r-amt" style="background:${amtBg};border:1px solid ${amtBorder}"><div><div class="r-albl" style="color:${col}">💰 Montant encaissé</div><div class="r-asub">Mois de ${moisFr}</div></div><div><span class="r-aval">${parseFloat(mt).toFixed(2)}</span><span class="r-acur">${S.devise}</span></div></div>${rem?`<div class="r-note">📝 ${rem}</div>`:''}${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#64748b;margin-top:4mm;font-style:italic">${S.rFooter}</div>`:''}</div><div style="height:8mm"></div><div class="r-foot">${S.rShowSignature!==false?`<div class="r-sig">Signature &amp; Cachet</div>`:'<div></div>'}${S.rShowStamp!==false?`<div class="r-stamp" style="background:${sc}22;border:1.5pt solid ${sc};color:${sc}">✓ PAYÉ</div>`:'<div></div>'}${S.rShowGenerated!==false?`<div class="r-gen">Généré par EduReçu<br>${date}</div>`:'<div></div>'}</div><div style="height:5mm"></div></div>`;}
+function buildRecuHTML(elv,num,date,moisFr,mt,mode,rem){
+  const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
+  const colInt=parseInt(col.replace('#',''),16);const r2=colInt>>16,g2=(colInt>>8)&255,b2=colInt&255;
+  const lum=(r2*299+g2*587+b2*114)/1000;const txtOnCol=lum>128?'#1e293b':'#ffffff';
+  const ef=S.rExtraFields||{};
+  const extraRows=[
+    ef.matricule?`<tr><td style="padding:5pt 8pt;color:#64748b;font-size:8.5pt;width:40%">Matricule</td><td style="padding:5pt 8pt;font-weight:600;font-size:9pt">${ef.matricule}</td></tr>`:'',
+    ef.niveau?`<tr><td style="padding:5pt 8pt;color:#64748b;font-size:8.5pt">Niveau</td><td style="padding:5pt 8pt;font-weight:600;font-size:9pt">${ef.niveau}</td></tr>`:'',
+    ef.section?`<tr><td style="padding:5pt 8pt;color:#64748b;font-size:8.5pt">Section</td><td style="padding:5pt 8pt;font-weight:600;font-size:9pt">${ef.section}</td></tr>`:''
+  ].join('');
+  const isRtlName=isRTL((elv.nom||'')+(elv.prenom||''));
+  return `<div style="width:210mm;min-height:297mm;background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;font-size:10pt;color:#1e293b;position:relative;box-sizing:border-box;overflow:hidden">
+    <div style="position:absolute;left:0;top:0;bottom:0;width:8mm;background:${col}"></div>
+    <div style="position:absolute;right:0;top:0;bottom:0;width:3mm;background:${col};opacity:.25"></div>
+    <div style="margin-left:14mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="display:flex;align-items:center;gap:5mm">
+        ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:20mm;max-width:26mm;object-fit:contain">`:`<div style="width:16mm;height:16mm;background:${col};border-radius:3mm;display:flex;align-items:center;justify-content:center;font-size:18pt;color:${txtOnCol}">🎓</div>`}
+        <div>
+          <div style="font-size:14pt;font-weight:800;color:${col};letter-spacing:-0.02em">${S.ecole}</div>
+          ${S.adresse?`<div style="font-size:7.5pt;color:#64748b;margin-top:2pt">${S.adresse}</div>`:''}
+          <div style="font-size:7.5pt;color:#64748b;margin-top:1pt">${[S.tel,S.email].filter(Boolean).join(' · ')}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8;margin-bottom:3pt">Reçu de paiement</div>
+        <div style="font-size:26pt;font-weight:800;color:${col};line-height:1;letter-spacing:-0.03em">${num}</div>
+        <div style="font-size:8pt;color:#64748b;margin-top:4pt">${date}</div>
+      </div>
+    </div>
+    <div style="margin:0 12mm 0 14mm;padding-top:9mm">
+      <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Informations de l'élève<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:8mm;border-radius:3mm;overflow:hidden">
+        <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Nom complet</td><td style="padding:6pt 10pt;font-weight:700;font-size:10.5pt;border-bottom:1pt solid #e2e8f0" ${isRtlName?'dir="rtl"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</td></tr>
+        <tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Classe</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #f1f5f9" ${isRTL(elv.classe||'')?'dir="rtl"':''}>${elv.classe||'—'}</td></tr>
+        ${extraRows}
+      </table>
+      <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Détails du paiement<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10mm;border-radius:3mm;overflow:hidden">
+        <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Mois concerné</td><td style="padding:6pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #e2e8f0">${moisFr}</td></tr>
+        <tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Mode de paiement</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #f1f5f9">${mode}</td></tr>
+        ${rem?`<tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt">Remarque</td><td style="padding:5pt 10pt;font-size:8.5pt;color:#475569">${rem}</td></tr>`:''}
+      </table>
+      <div style="background:${col};border-radius:4mm;padding:9mm 12mm;display:flex;justify-content:space-between;align-items:center;margin-bottom:10mm">
+        <div>
+          <div style="font-size:8.5pt;font-weight:600;color:${txtOnCol};opacity:.85;text-transform:uppercase;letter-spacing:.06em">Montant encaissé</div>
+          <div style="font-size:7.5pt;color:${txtOnCol};opacity:.6;margin-top:2pt">Mensualité — ${moisFr}</div>
+        </div>
+        <div style="text-align:right">
+          <span style="font-size:34pt;font-weight:800;color:${txtOnCol};line-height:1">${parseFloat(mt).toFixed(2)}</span>
+          <span style="font-size:14pt;color:${txtOnCol};opacity:.8;margin-left:3pt">${S.devise}</span>
+        </div>
+      </div>
+      ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#94a3b8;font-style:italic;margin-bottom:8mm">${S.rFooter}</div>`:''}
+    </div>
+    <div style="position:absolute;bottom:14mm;left:14mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
+      ${S.rShowSignature!==false?`<div><div style="width:55mm;border-top:1pt solid #cbd5e1;padding-top:4pt;font-size:7pt;color:#94a3b8">Signature &amp; Cachet de l'établissement</div></div>`:'<div></div>'}
+      ${S.rShowStamp!==false?`<div style="background:${sc}15;border:2.5pt solid ${sc};border-radius:3mm;padding:5pt 14pt;transform:rotate(-3deg)"><span style="font-size:13pt;font-weight:800;color:${sc};letter-spacing:.05em">✓ PAYÉ</span></div>`:'<div></div>'}
+      ${S.rShowGenerated!==false?`<div style="text-align:right;font-size:6.5pt;color:#cbd5e1">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
+    </div>
+  </div>`;
+}
 function buildPrev(){
   const id=document.getElementById('selEleve').value;
   const elv=eleves.find(e=>e.id==id);
@@ -2023,6 +2083,24 @@ async function genererRecu(){
   const moisFr=moisDate.toLocaleDateString('fr-MA',{month:'long',year:'numeric'});
   const annee=mois?mois.slice(0,4):new Date().getFullYear();
   const moisLabel=isInscription?String(annee):isAssurance?String(annee):moisFr;
+
+  // ─── Vérification doublons ───
+  const dejaPayes=[];
+  for(const elv of cibles){
+    const nom=elv.nom+' '+elv.prenom;
+    if(isInscription&&elv.inscriptionPayee){dejaPayes.push(`${nom} (inscription déjà payée)`);continue;}
+    if(isAssurance&&elv.assurance?.statut==='payé'){dejaPayes.push(`${nom} (assurance déjà payée)`);continue;}
+    if(!isInscription&&!isAssurance){
+      const dejaCeMois=paiements.some(p=>p.eleve===nom&&p.mois===moisFr&&!p.recu?.startsWith('RI')&&!p.recu?.startsWith('RA'));
+      if(dejaCeMois){dejaPayes.push(`${nom} (${moisFr} déjà payé)`);continue;}
+    }
+  }
+  if(dejaPayes.length>0){
+    if(dejaPayes.length===cibles.length){toast('⚠️','Paiement(s) déjà effectué(s)',dejaPayes.slice(0,2).join(' · ')+(dejaPayes.length>2?` +${dejaPayes.length-2}`:''));return;}
+    if(!confirm(`⚠️ ${dejaPayes.length} élève(s) ont déjà été payés ce mois :\n${dejaPayes.join('\n')}\n\nContinuer pour les ${cibles.length-dejaPayes.length} autre(s) ?`))return;
+    cibles=cibles.filter(elv=>{const nom=elv.nom+' '+elv.prenom;return!dejaPayes.some(d=>d.startsWith(nom));});
+    if(!cibles.length)return;
+  }
 
   const htmlFrames=[];
   for(const elv of cibles){
@@ -2084,7 +2162,10 @@ function doPrint(nomFichier,multiPage){
     let pageSize=S.rFormat==='A4'?'210mm 297mm':'148mm 210mm';
     if(!multiPage){
       const recu=frame.querySelector('.recu');
-      if(recu){
+      // Le nouveau buildRecuHTML est en format A4 fixe (210mm×297mm)
+      if(recu&&recu.style.width==='210mm'){
+        pageSize='210mm 297mm';
+      } else if(recu){
         const PX_TO_MM=25.4/96;
         const rect=recu.getBoundingClientRect();
         const wMM=(rect.width*PX_TO_MM).toFixed(2);
