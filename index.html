@@ -1670,9 +1670,7 @@ function buildAssuranceRecuHTML(elv,num,date,moisFr,paye,total,rem,statut){
   const stampCol=pct>=100?sc:isPartiel?'#f59e0b':'#ef4444';
   const isRtlName=isRTL((elv.nom||'')+(elv.prenom||''));
   return `<div style="width:210mm;min-height:297mm;background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;font-size:10pt;color:#1e293b;position:relative;box-sizing:border-box;overflow:hidden">
-    <div style="position:absolute;left:0;top:0;bottom:0;width:8mm;background:${col}"></div>
-    <div style="position:absolute;right:0;top:0;bottom:0;width:3mm;background:${col};opacity:.25"></div>
-    <div style="margin-left:14mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
+    <div style="margin-left:12mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
       <div style="display:flex;align-items:center;gap:5mm">
         ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:20mm;max-width:26mm;object-fit:contain">`:`<div style="width:16mm;height:16mm;background:${col};border-radius:3mm;display:flex;align-items:center;justify-content:center;font-size:18pt;color:${txtOnCol}">🎓</div>`}
         <div>
@@ -1687,7 +1685,7 @@ function buildAssuranceRecuHTML(elv,num,date,moisFr,paye,total,rem,statut){
         <div style="font-size:8pt;color:#64748b;margin-top:4pt">${date}</div>
       </div>
     </div>
-    <div style="margin:0 12mm 0 14mm;padding-top:9mm">
+    <div style="margin:0 12mm;padding-top:9mm">
       <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Informations de l'élève<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:8mm">
         <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Nom complet</td><td style="padding:6pt 10pt;font-weight:700;font-size:10.5pt;border-bottom:1pt solid #e2e8f0" ${isRtlName?'dir="rtl"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</td></tr>
@@ -1713,7 +1711,7 @@ function buildAssuranceRecuHTML(elv,num,date,moisFr,paye,total,rem,statut){
       ${rem?`<div style="background:#f8fafc;border-left:3pt solid ${col};padding:5pt 10pt;font-size:8.5pt;color:#475569;margin-bottom:8mm;border-radius:0 3mm 3mm 0">📝 ${rem}</div>`:''}
       ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#94a3b8;font-style:italic;margin-bottom:8mm">${S.rFooter}</div>`:''}
     </div>
-    <div style="position:absolute;bottom:14mm;left:14mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
+    <div style="position:absolute;bottom:14mm;left:12mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
       ${S.rShowSignature!==false?`<div><div style="width:55mm;border-top:1pt solid #cbd5e1;padding-top:4pt;font-size:7pt;color:#94a3b8">Signature &amp; Cachet de l'établissement</div></div>`:'<div></div>'}
       ${S.rShowStamp!==false?`<div style="background:${stampCol}15;border:2.5pt solid ${stampCol};border-radius:3mm;padding:5pt 14pt;transform:rotate(-3deg)"><span style="font-size:13pt;font-weight:800;color:${stampCol};letter-spacing:.05em">${stampLabel}</span></div>`:'<div></div>'}
       ${S.rShowGenerated!==false?`<div style="text-align:right;font-size:6.5pt;color:#cbd5e1">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
@@ -1744,9 +1742,7 @@ function buildInscriptionRecuHTML(elv,num,date,anneeLabel,mt,mode,rem){
   const extraRows=[ef.matricule?`<tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #e2e8f0">Matricule</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #e2e8f0">${ef.matricule}</td></tr>`:'',ef.niveau?`<tr><td style="padding:5pt 10pt;color:#64748b;font-size:8pt;border-bottom:1pt solid #f1f5f9">Niveau</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt;border-bottom:1pt solid #f1f5f9">${ef.niveau}</td></tr>`:'',ef.section?`<tr style="background:#f8fafc"><td style="padding:5pt 10pt;color:#64748b;font-size:8pt">Section</td><td style="padding:5pt 10pt;font-weight:600;font-size:9pt">${ef.section}</td></tr>`:``].join('');
   const isRtlName=isRTL((elv.nom||'')+(elv.prenom||''));
   return `<div style="width:210mm;min-height:297mm;background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;font-size:10pt;color:#1e293b;position:relative;box-sizing:border-box;overflow:hidden">
-    <div style="position:absolute;left:0;top:0;bottom:0;width:8mm;background:${col}"></div>
-    <div style="position:absolute;right:0;top:0;bottom:0;width:3mm;background:${col};opacity:.25"></div>
-    <div style="margin-left:14mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
+    <div style="margin-left:12mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
       <div style="display:flex;align-items:center;gap:5mm">
         ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:20mm;max-width:26mm;object-fit:contain">`:`<div style="width:16mm;height:16mm;background:${col};border-radius:3mm;display:flex;align-items:center;justify-content:center;font-size:18pt;color:${txtOnCol}">🎓</div>`}
         <div>
@@ -1761,7 +1757,7 @@ function buildInscriptionRecuHTML(elv,num,date,anneeLabel,mt,mode,rem){
         <div style="font-size:8pt;color:#64748b;margin-top:4pt">${date}</div>
       </div>
     </div>
-    <div style="margin:0 12mm 0 14mm;padding-top:9mm">
+    <div style="margin:0 12mm;padding-top:9mm">
       <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Informations de l'élève<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:8mm">
         <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Nom complet</td><td style="padding:6pt 10pt;font-weight:700;font-size:10.5pt;border-bottom:1pt solid #e2e8f0" ${isRtlName?'dir="rtl"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</td></tr>
@@ -1786,7 +1782,7 @@ function buildInscriptionRecuHTML(elv,num,date,anneeLabel,mt,mode,rem){
       </div>
       ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#94a3b8;font-style:italic;margin-bottom:8mm">${S.rFooter}</div>`:''}
     </div>
-    <div style="position:absolute;bottom:14mm;left:14mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
+    <div style="position:absolute;bottom:14mm;left:12mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
       ${S.rShowSignature!==false?`<div><div style="width:55mm;border-top:1pt solid #cbd5e1;padding-top:4pt;font-size:7pt;color:#94a3b8">Signature &amp; Cachet de l'établissement</div></div>`:'<div></div>'}
       ${S.rShowStamp!==false?`<div style="background:${sc}15;border:2.5pt solid ${sc};border-radius:3mm;padding:5pt 14pt;transform:rotate(-3deg)"><span style="font-size:13pt;font-weight:800;color:${sc};letter-spacing:.05em">✓ PAYÉ</span></div>`:'<div></div>'}
       ${S.rShowGenerated!==false?`<div style="text-align:right;font-size:6.5pt;color:#cbd5e1">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
@@ -2028,9 +2024,7 @@ function buildRecuHTML(elv,num,date,moisFr,mt,mode,rem){
   ].join('');
   const isRtlName=isRTL((elv.nom||'')+(elv.prenom||''));
   return `<div style="width:210mm;min-height:297mm;background:${bg};font-family:'${fnt}','Helvetica Neue',Arial,sans-serif;font-size:10pt;color:#1e293b;position:relative;box-sizing:border-box;overflow:hidden">
-    <div style="position:absolute;left:0;top:0;bottom:0;width:8mm;background:${col}"></div>
-    <div style="position:absolute;right:0;top:0;bottom:0;width:3mm;background:${col};opacity:.25"></div>
-    <div style="margin-left:14mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
+    <div style="margin-left:12mm;margin-right:12mm;padding-top:14mm;padding-bottom:8mm;border-bottom:2pt solid ${col};display:flex;justify-content:space-between;align-items:flex-start">
       <div style="display:flex;align-items:center;gap:5mm">
         ${S.schoolLogo?`<img src="${S.schoolLogo}" style="height:20mm;max-width:26mm;object-fit:contain">`:`<div style="width:16mm;height:16mm;background:${col};border-radius:3mm;display:flex;align-items:center;justify-content:center;font-size:18pt;color:${txtOnCol}">🎓</div>`}
         <div>
@@ -2045,7 +2039,7 @@ function buildRecuHTML(elv,num,date,moisFr,mt,mode,rem){
         <div style="font-size:8pt;color:#64748b;margin-top:4pt">${date}</div>
       </div>
     </div>
-    <div style="margin:0 12mm 0 14mm;padding-top:9mm">
+    <div style="margin:0 12mm;padding-top:9mm">
       <div style="font-size:6.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${col};margin-bottom:4mm;display:flex;align-items:center;gap:3mm"><span style="display:inline-block;width:15mm;height:1.5pt;background:${col};opacity:.35"></span>Informations de l'élève<span style="display:inline-block;flex:1;height:1.5pt;background:${col};opacity:.35"></span></div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:8mm;border-radius:3mm;overflow:hidden">
         <tr style="background:#f8fafc"><td style="padding:6pt 10pt;color:#64748b;font-size:8pt;width:40%;border-bottom:1pt solid #e2e8f0">Nom complet</td><td style="padding:6pt 10pt;font-weight:700;font-size:10.5pt;border-bottom:1pt solid #e2e8f0" ${isRtlName?'dir="rtl"':''}>${(elv.nom||'')+(elv.prenom?' '+elv.prenom:'')}</td></tr>
@@ -2070,7 +2064,7 @@ function buildRecuHTML(elv,num,date,moisFr,mt,mode,rem){
       </div>
       ${S.rFooter?`<div style="text-align:center;font-size:8pt;color:#94a3b8;font-style:italic;margin-bottom:8mm">${S.rFooter}</div>`:''}
     </div>
-    <div style="position:absolute;bottom:14mm;left:14mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
+    <div style="position:absolute;bottom:14mm;left:12mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end">
       ${S.rShowSignature!==false?`<div><div style="width:55mm;border-top:1pt solid #cbd5e1;padding-top:4pt;font-size:7pt;color:#94a3b8">Signature &amp; Cachet de l'établissement</div></div>`:'<div></div>'}
       ${S.rShowStamp!==false?`<div style="background:${sc}15;border:2.5pt solid ${sc};border-radius:3mm;padding:5pt 14pt;transform:rotate(-3deg)"><span style="font-size:13pt;font-weight:800;color:${sc};letter-spacing:.05em">✓ PAYÉ</span></div>`:'<div></div>'}
       ${S.rShowGenerated!==false?`<div style="text-align:right;font-size:6.5pt;color:#cbd5e1">Généré par EduReçu<br>${date}</div>`:'<div></div>'}
