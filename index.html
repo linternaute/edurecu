@@ -961,7 +961,7 @@ service cloud.firestore {
 let eleves=[], paiements=[], fraisDepenses=[], recuN=1000, sortState={col:'nom',dir:'asc'};
 let currentViewerHTML='', currentUser=null;
 let _sessionTimer=null, _sessionStart=null, _sessionExpiring=false;
-const SESSION_DURATION = 10*60*1000;
+const SESSION_DURATION = 5*60*1000;
 
 let S={
   ecole:'École Privée', adresse:'', tel:'', email:'', devise:'MAD',
