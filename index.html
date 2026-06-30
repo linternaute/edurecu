@@ -1008,7 +1008,7 @@ function triggerSessionExpiry(){
   _sessionExpiring=true;
   clearTimeout(_sessionTimer);
   toast('⏱️','Session expirée','Reconnexion requise');
-  setTimeout(doLogout,1500);
+  setTimeout(()=>{doLogout();},1500);
 }
 function updateSessionBar(){
   if(!_sessionStart||!currentUser)return;
@@ -1132,7 +1132,30 @@ async function doLogin(){
   }
 }
 
-function doLogout(){if(window.FB)window.FB.signOut();document.getElementById('userBadge').style.display='none';document.getElementById('userMenu').style.display='none';clearTimeout(_sessionTimer);_sessionStart=null;_sessionExpiring=false;}
+async function doLogout(){
+  // Déconnexion Firebase (best-effort, ne doit jamais bloquer la déconnexion locale)
+  try{
+    if(window.FB&&window.FB.isReady()){
+      await Promise.race([
+        window.FB.signOut(),
+        new Promise(resolve=>setTimeout(resolve,2000)) // sécurité : ne jamais bloquer plus de 2s
+      ]);
+    }
+  }catch(e){console.warn('signOut error (ignored):',e);}
+
+  // Forcer l'état déconnecté côté UI, indépendamment du résultat Firebase
+  currentUser=null;
+  clearTimeout(_sessionTimer);
+  _sessionStart=null;
+  _sessionExpiring=false;
+  document.getElementById('userBadge').style.display='none';
+  document.getElementById('userMenu').style.display='none';
+  document.getElementById('sessionBar').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  setSyncStatus('','');
+  if(window.FB&&window.FB.stopListeners)window.FB.stopListeners();
+  try{document.getElementById('loginUser').focus();}catch(e){}
+}
 function toggleUserMenu(){const m=document.getElementById('userMenu');if(!m)return;m.style.display=m.style.display==='none'?'block':'none';}
 document.addEventListener('click',e=>{const menu=document.getElementById('userMenu');const badge=document.getElementById('userBadge');if(menu&&badge&&!menu.contains(e.target)&&!badge.contains(e.target))menu.style.display='none';});
 function changePassword(){document.getElementById('userMenu').style.display='none';document.getElementById('newPass1').value='';document.getElementById('newPass2').value='';document.getElementById('mdpErr').style.display='none';document.getElementById('modalMdp').classList.add('open');}
