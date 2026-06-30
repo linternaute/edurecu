@@ -566,7 +566,7 @@ textarea.inp{resize:vertical;}
                 <option value="assurance">🛡️ Assurance scolaire</option>
               </select>
             </div>
-            <div class="fg">
+            <div class="fg" id="moisPayField">
               <label class="lbl">Mois concerné *</label>
               <div class="month-picker" id="moisPayWrap">
                 <button type="button" class="inp month-picker-btn" id="moisPayBtn" onclick="toggleMonthPicker(event)">
@@ -582,6 +582,14 @@ textarea.inp{resize:vertical;}
                   <div class="month-picker-grid" id="moisPayGrid"></div>
                   <div class="month-picker-today" onclick="selectToday()"><i data-lucide="map-pin" class="ic-sm"></i> Mois actuel</div>
                 </div>
+              </div>
+            </div>
+            <div class="fg" id="anneePayField" style="display:none">
+              <label class="lbl">Année scolaire *</label>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button type="button" class="btn bg bsm" onclick="changeAnneePay(-1)">‹</button>
+                <div class="inp" style="text-align:center;font-weight:600;flex:1" id="anneePayLabel">2026</div>
+                <button type="button" class="btn bg bsm" onclick="changeAnneePay(1)">›</button>
               </div>
             </div>
             <div class="fg" id="payMontantRow"><label class="lbl">Montant *</label><input class="inp" type="number" id="mtPay" placeholder="ex: 850" min="0" step="10"></div>
@@ -1804,6 +1812,8 @@ function annulerPaiement(){
   document.getElementById('remPay').value='';
   document.getElementById('modePay').selectedIndex=0;
   document.getElementById('typePay').value='mensualite';
+  _anneePay=new Date().getFullYear();
+  toggleMoisAnneeField();
   document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
   document.getElementById('prevBox').innerHTML='<div style="color:var(--di);padding:40px;text-align:center">Sélectionnez un élève</div>';
   setMoisPay(new Date().toISOString().slice(0,7));
@@ -1997,8 +2007,27 @@ function updateClasseRecap(cls,elevesClasse){
   </div>`;
 }
 
+let _anneePay=new Date().getFullYear();
+function toggleMoisAnneeField(){
+  const type=document.getElementById('typePay').value;
+  const isAnnuel=type==='inscription'||type==='assurance';
+  document.getElementById('moisPayField').style.display=isAnnuel?'none':'block';
+  document.getElementById('anneePayField').style.display=isAnnuel?'block':'none';
+  if(isAnnuel){
+    document.getElementById('anneePayLabel').textContent=_anneePay;
+    document.getElementById('moisPay').value=_anneePay+'-01'; // valeur technique (1er mois de l'année) — non affichée
+  } else {
+    setMoisPay(new Date().toISOString().slice(0,7));
+  }
+}
+function changeAnneePay(delta){
+  _anneePay+=delta;
+  document.getElementById('anneePayLabel').textContent=_anneePay;
+  document.getElementById('moisPay').value=_anneePay+'-01';
+}
 function onTypePayChange(){
   const type=document.getElementById('typePay').value;
+  toggleMoisAnneeField();
   if(_payMode==='eleve'){
     const id=document.getElementById('selEleve').value;
     const elv=eleves.find(e=>e.id==id);if(!elv)return;
@@ -2089,7 +2118,8 @@ function buildPrev(){
 async function genererRecu(){
   const type=document.getElementById('typePay').value;
   const mois=document.getElementById('moisPay').value;
-  if(!mois){toast('⚠️','Sélectionnez le mois','');return;}
+  const isAnnuelType=type==='inscription'||type==='assurance';
+  if(!mois){toast('⚠️',isAnnuelType?'Sélectionnez l\'année':'Sélectionnez le mois','');return;}
   const mode=document.getElementById('modePay').value;
   const rem=document.getElementById('remPay').value;
 
