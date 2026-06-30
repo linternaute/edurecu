@@ -527,21 +527,14 @@ textarea.inp{resize:vertical;}
             <div id="payByEleve">
               <div class="fg">
                 <label class="lbl">Élève *</label>
-                <div style="position:relative">
-                  <div style="position:relative;display:flex;align-items:center">
-                    <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"></i>
-                    <input class="inp" id="selEleveSearch" placeholder="Rechercher par nom, prénom ou code…" autocomplete="off" oninput="onEleveSearch()" onfocus="onEleveSearch()" style="padding-left:32px">
-                    <button id="clearEleveBtn" type="button" onclick="clearEleveSearch()" style="display:none;position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px;padding:0">✕</button>
-                  </div>
-                  <input type="hidden" id="selEleve">
-                  <!-- Résultats de recherche -->
-                  <div id="eleveSearchResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--b2);border-radius:10px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);max-height:220px;overflow-y:auto"></div>
+                <div style="position:relative;margin-bottom:8px">
+                  <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--di);pointer-events:none"></i>
+                  <input class="inp" id="selEleveSearch" placeholder="Filtrer par nom, prénom ou code…" autocomplete="off" oninput="onEleveSearch()" style="padding-left:32px;padding-right:28px">
+                  <button id="clearEleveBtn" type="button" onclick="clearEleveSearch()" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px;padding:0">✕</button>
                 </div>
-                <!-- Élève sélectionné -->
-                <div id="eleveSelected" style="display:none;margin-top:6px;background:rgba(59,125,255,.08);border:1px solid rgba(59,125,255,.2);border-radius:8px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between">
-                  <span id="eleveSelectedLabel" style="font-size:13px;font-weight:500;color:var(--tx)"></span>
-                  <button type="button" onclick="clearEleveSearch()" style="background:none;border:none;cursor:pointer;color:var(--mu);font-size:13px;padding:0 2px">✕</button>
-                </div>
+                <input type="hidden" id="selEleve">
+                <!-- Liste toujours visible -->
+                <div id="eleveSearchResults" style="background:var(--bg3);border:1px solid var(--b2);border-radius:9px;max-height:240px;overflow-y:auto"></div>
               </div>
             </div>
             <!-- Sélection par classe -->
@@ -1269,6 +1262,7 @@ function nav(id){
   window.scrollTo(0,0);
   if(id==='dashboard')setTimeout(renderDashboard,50);
   if(id==='dossier')setTimeout(()=>{fillDossierSel();renderDossier();},50);
+  if(id==='paiement')setTimeout(()=>{if(_payMode==='eleve')onEleveSearch();},50);
   if(id==='depenses')setTimeout(()=>{const fd=document.getElementById('fraisDate');if(fd&&!fd.value)fd.value=todayStr();const fm=document.getElementById('fraisFiltMois');if(fm&&!fm.value)fm.value=new Date().toISOString().slice(0,7);renderFrais();updStatsFrais();refreshIcons();},50);
   if(id==='parametres')setTimeout(()=>{applyS();if(S.fbConfig){['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('fb_'+k);if(el)el.value=S.fbConfig[k]||'';});}livePreview();updateLastBackupInfo();},50);
 }
@@ -1883,58 +1877,49 @@ function onEleveSearch(){
   const results=document.getElementById('eleveSearchResults');
   const clearBtn=document.getElementById('clearEleveBtn');
   if(clearBtn)clearBtn.style.display=q?'block':'none';
-  if(!q){results.style.display='none';return;}
-  const matches=eleves.filter(e=>
-    (e.nom||'').toLowerCase().includes(q)||
-    (e.prenom||'').toLowerCase().includes(q)||
-    (e.indice||'').toLowerCase().includes(q)||
-    ((e.nom||'')+' '+(e.prenom||'')).toLowerCase().includes(q)
-  ).slice(0,15);
-  if(!matches.length){
-    results.innerHTML='<div style="padding:12px 14px;color:var(--di);font-size:13px">Aucun élève trouvé</div>';
-    results.style.display='block';return;
+  const selectedId=document.getElementById('selEleve').value;
+  const source=q
+    ? eleves.filter(e=>
+        (e.nom||'').toLowerCase().includes(q)||
+        (e.prenom||'').toLowerCase().includes(q)||
+        (e.indice||'').toLowerCase().includes(q)||
+        ((e.nom||'')+' '+(e.prenom||'')).toLowerCase().includes(q)
+      )
+    : [...eleves].sort((a,b)=>(a.nom||'').localeCompare(b.nom||'','fr'));
+  if(!source.length){
+    results.innerHTML='<div style="padding:12px 14px;color:var(--di);font-size:13px;text-align:center">Aucun élève trouvé</div>';
+    return;
   }
-  results.innerHTML=matches.map(e=>{
+  results.innerHTML=source.map(e=>{
     const label=`${e.nom} ${e.prenom}`;
     const sub=`${e.classe||''}${e.indice?' · '+e.indice:''}`;
-    return `<div onclick="selectEleveFromSearch(${e.id},'${label.replace(/'/g,"\\'")}','${sub.replace(/'/g,"\\'")}')
-      " style="padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--b1);transition:background .1s"
-      onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"
+    const isSel=String(e.id)===String(selectedId);
+    return `<div onclick="selectEleveFromSearch(${e.id},'${label.replace(/'/g,"\\'")}','${sub.replace(/'/g,"\\'")}')"
+      style="padding:8px 13px;cursor:pointer;border-bottom:1px solid var(--b1);transition:background .1s;${isSel?'background:rgba(59,125,255,.14);border-left:3px solid var(--ac)':''}"
+      onmouseover="if(!${isSel})this.style.background='var(--bg2)'" onmouseout="this.style.background='${isSel?'rgba(59,125,255,.14)':''}'"
     >
-      <div style="font-weight:500;color:var(--tx);font-size:13.5px" ${isRTL(label)?'dir="rtl"':''}>${label}</div>
-      <div style="font-size:11.5px;color:var(--mu)">${sub}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+        <div style="font-weight:${isSel?'700':'500'};color:var(--tx);font-size:13.5px" ${isRTL(label)?'dir="rtl"':''}>${label}</div>
+        ${isSel?'<i data-lucide="check" class="ic-sm" style="color:var(--ac);flex-shrink:0"></i>':''}
+      </div>
+      <div style="font-size:11px;color:var(--mu)">${sub}</div>
     </div>`;
   }).join('');
-  results.style.display='block';
+  refreshIcons();
 }
 function selectEleveFromSearch(id,label,sub){
   document.getElementById('selEleve').value=id;
-  document.getElementById('selEleveSearch').value='';
-  document.getElementById('eleveSearchResults').style.display='none';
-  document.getElementById('clearEleveBtn').style.display='none';
-  const sel=document.getElementById('eleveSelected');
-  const lbl=document.getElementById('eleveSelectedLabel');
-  if(sel)sel.style.display='flex';
-  if(lbl)lbl.textContent=label+(sub?' — '+sub:'');
+  onEleveSearch(); // rafraîchit la liste pour montrer la sélection en surbrillance
   onEleveChange();
 }
 function clearEleveSearch(){
   document.getElementById('selEleve').value='';
   document.getElementById('selEleveSearch').value='';
-  document.getElementById('eleveSearchResults').style.display='none';
-  document.getElementById('clearEleveBtn').style.display='none';
-  const sel=document.getElementById('eleveSelected');if(sel)sel.style.display='none';
+  const clearBtn=document.getElementById('clearEleveBtn');if(clearBtn)clearBtn.style.display='none';
+  onEleveSearch();
   document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
   document.getElementById('mtPay').value='';
 }
-// Fermer les résultats si on clique ailleurs
-document.addEventListener('click',e=>{
-  const wrap=document.getElementById('payByEleve');
-  if(wrap&&!wrap.contains(e.target)){
-    const r=document.getElementById('eleveSearchResults');
-    if(r)r.style.display='none';
-  }
-});
 
 // ─── RECHERCHE ÉLÈVE (autocomplete) ───
 let _payMode='eleve';
@@ -1953,6 +1938,8 @@ function switchPayMode(mode){
     const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();
     s.innerHTML='<option value="">— Sélectionner —</option>';
     cls.forEach(c=>s.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);
+  } else {
+    onEleveSearch();
   }
 }
 function onClasseChange(){
@@ -1976,7 +1963,7 @@ function onClasseChange(){
   cnt.textContent=`(${elevesClasse.length})`;
   grid.innerHTML=elevesClasse.map(e=>`
     <label style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--tx);transition:background .1s" onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background=''">
-      <input type="checkbox" class="classe-eleve-chk" value="${e.id}" checked style="accent-color:var(--ac);width:15px;height:15px;flex-shrink:0" onchange="refreshClasseRecap()">
+      <input type="checkbox" class="classe-eleve-chk" value="${e.id}" style="accent-color:var(--ac);width:15px;height:15px;flex-shrink:0" onchange="refreshClasseRecap()">
       <span ${isRTL(e.nom+e.prenom)?'dir="rtl"':''}>${e.nom} ${e.prenom}</span>
       <span style="margin-left:auto;font-size:11px;color:var(--mu);white-space:nowrap">${e.frais||0} ${S.devise}</span>
     </label>`).join('');
