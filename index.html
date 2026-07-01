@@ -1174,7 +1174,9 @@ async function saveMdp(){const p1=document.getElementById('newPass1').value;cons
 async function startFirebaseSync(){
   if(!window.FB||!window.FB.isReady())return;
   setSyncStatus('syncing','Synchronisation…');
-  try{const data=await window.FB.getFrais();if(data&&data.length>0){fraisDepenses=data;renderFrais();updStatsFrais();}}catch(e){}
+  try{const data=await window.FB.getFrais();if(data&&data.length>0){fraisDepenses=data;localStorage.setItem('edurecu_frais',JSON.stringify(data));renderFrais();updStatsFrais();}}catch(e){}
+  // Filet de sécurité localStorage si Firebase vide/injoignable
+  if(!fraisDepenses.length){try{const ls=localStorage.getItem('edurecu_frais');if(ls){fraisDepenses=JSON.parse(ls);renderFrais();updStatsFrais();}}catch(e){}}
   try{const data=await window.FB.getEleves();if(data&&data.length>0){eleves=data;renderE(eleves);fillSel();}}catch(e){}
   try{const data=await window.FB.getPaiements();if(data&&data.length>0){paiements=data;renderHist();updStats();}}catch(e){}
   renderDashboard();setSyncStatus('synced','Synchronisé');
@@ -2570,6 +2572,8 @@ function exportFraisExcel(){
 }
 
 async function saveFraisToFirebase(){
+  // Toujours sauvegarder dans localStorage d'abord (immédiat, sans attente réseau)
+  try{localStorage.setItem('edurecu_frais',JSON.stringify(fraisDepenses));}catch(e){}
   if(window.FB&&window.FB.isReady()){
     try{await window.FB.saveFrais(fraisDepenses);}catch(e){console.warn('saveFrais:',e);}
   }
@@ -2655,18 +2659,34 @@ window.FB = {
   async saveFrais(frais){
     if(!fbDb)return false;
     try{
+      // Sauvegarder aussi dans localStorage comme filet de sécurité
+      try{localStorage.setItem('edurecu_frais',JSON.stringify(frais));}catch(e){}
       const CHUNK=200;
+      // Supprimer les anciens documents
       const snap=await getDocs(collection(fbDb,'frais'));
       const toDel=snap.docs;
       for(let i=0;i<toDel.length;i+=CHUNK){const b=writeBatch(fbDb);toDel.slice(i,i+CHUNK).forEach(d=>b.delete(d.ref));await b.commit();}
-      for(let i=0;i<frais.length;i+=CHUNK){const b=writeBatch(fbDb);frais.slice(i,i+CHUNK).forEach((f,j)=>b.set(doc(fbDb,'frais',String(i+j)),f));await b.commit();}
+      // Réécrire avec l'ID timestamp comme clé de document (stable, jamais en collision)
+      for(let i=0;i<frais.length;i+=CHUNK){const b=writeBatch(fbDb);frais.slice(i,i+CHUNK).forEach(f=>b.set(doc(fbDb,'frais',String(f.id)),f));await b.commit();}
       return true;
-    }catch(e){return false;}
+    }catch(e){console.warn('saveFrais error:',e);return false;}
   },
   async getFrais(){
     if(!fbDb)return[];
-    try{const snap=await getDocs(collection(fbDb,'frais'));return snap.docs.map(d=>d.data()).sort((a,b)=>b.id-a.id);}
-    catch(e){return[];}
+    try{
+      const snap=await getDocs(collection(fbDb,'frais'));
+      const data=snap.docs.map(d=>d.data());
+      // Filet de sécurité : si Firestore est vide, essayer localStorage
+      if(!data.length){
+        try{const ls=localStorage.getItem('edurecu_frais');if(ls)return JSON.parse(ls);}catch(e){}
+      }
+      return data.sort((a,b)=>(b.id||0)-(a.id||0));
+    }
+    catch(e){
+      // En cas d'erreur Firebase, retourner depuis localStorage
+      try{const ls=localStorage.getItem('edurecu_frais');if(ls)return JSON.parse(ls);}catch(e2){}
+      return[];
+    }
   }
 };
 </script>
