@@ -1296,7 +1296,7 @@ function nav(id){
   window.scrollTo(0,0);
   if(id==='dashboard')setTimeout(renderDashboard,50);
   if(id==='dossier')setTimeout(()=>{fillDossierSel();renderDossier();},50);
-  if(id==='paiement')setTimeout(()=>{if(_payMode==='eleve')onEleveSearch();},50);
+  if(id==='paiement')setTimeout(()=>{if(_payMode==='eleve'&&!document.getElementById('selEleve').value)onEleveSearch();},50);
   if(id==='depenses')setTimeout(()=>{const fd=document.getElementById('fraisDate');if(fd&&!fd.value)fd.value=todayStr();const fm=document.getElementById('fraisFiltMois');if(fm&&!fm.value)fm.value=new Date().toISOString().slice(0,7);renderFrais();updStatsFrais();refreshIcons();},50);
   if(id==='parametres')setTimeout(()=>{applyS();if(S.fbConfig){['apiKey','projectId','appId','authDomain'].forEach(k=>{const el=document.getElementById('fb_'+k);if(el)el.value=S.fbConfig[k]||'';});}livePreview();updateLastBackupInfo();},50);
 }
@@ -1767,8 +1767,31 @@ function fillSel(){
   const sc=document.getElementById('selClasse');
   if(sc){const prev=sc.value;const cls=[...new Set(eleves.map(e=>e.classe))].filter(Boolean).sort();sc.innerHTML='<option value="">— Sélectionner —</option>';cls.forEach(c=>sc.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);}
 }
-function quickPay(id){nav('paiement');switchPayMode('eleve');const elv=eleves.find(e=>e.id==id);if(elv){const label=elv.nom+' '+elv.prenom;const sub=(elv.classe||'')+(elv.indice?' · '+elv.indice:'');selectEleveFromSearch(id,label,sub);}document.getElementById('typePay').value='mensualite';onEleveChange();}
-function quickPayInscription(id){nav('paiement');switchPayMode('eleve');const elv=eleves.find(e=>e.id==id);if(elv){const label=elv.nom+' '+elv.prenom;const sub=(elv.classe||'')+(elv.indice?' · '+elv.indice:'');selectEleveFromSearch(id,label,sub);}document.getElementById('typePay').value='inscription';onEleveChange();}
+function quickPay(id){
+  nav('paiement');
+  switchPayMode('eleve');
+  const elv=eleves.find(e=>e.id==id);
+  if(elv){
+    document.getElementById('selEleve').value=id;
+    document.getElementById('typePay').value='mensualite';
+    const label=elv.nom+' '+elv.prenom;
+    const sub=(elv.classe||'')+(elv.indice?' · '+elv.indice:'');
+    // Délai pour laisser nav() initialiser la section, puis afficher l'élève sélectionné
+    setTimeout(()=>{selectEleveFromSearch(id,label,sub);},80);
+  }
+}
+function quickPayInscription(id){
+  nav('paiement');
+  switchPayMode('eleve');
+  const elv=eleves.find(e=>e.id==id);
+  if(elv){
+    document.getElementById('selEleve').value=id;
+    document.getElementById('typePay').value='inscription';
+    const label=elv.nom+' '+elv.prenom;
+    const sub=(elv.classe||'')+(elv.indice?' · '+elv.indice:'');
+    setTimeout(()=>{selectEleveFromSearch(id,label,sub);},80);
+  }
+}
 
 function buildInscriptionRecuHTML(elv,num,date,anneeLabel,mt,mode,rem){
   const col=S.rColor||'#3b7dff';const sc=S.rStampColor||'#16a34a';const bg=S.rBg||'#ffffff';const fnt=S.rFont||'DM Sans';
