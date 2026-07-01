@@ -1943,14 +1943,24 @@ function onEleveSearch(){
 }
 function selectEleveFromSearch(id,label,sub){
   document.getElementById('selEleve').value=id;
-  onEleveSearch(); // rafraîchit la liste pour montrer la sélection en surbrillance
+  // Masquer la liste et afficher uniquement l'élève sélectionné
+  const results=document.getElementById('eleveSearchResults');
+  if(results){
+    results.innerHTML=`<div style="padding:9px 13px;background:rgba(59,125,255,.1);border-left:3px solid var(--ac);display:flex;align-items:center;justify-content:space-between;border-radius:0 0 9px 9px">
+      <div>
+        <div style="font-weight:700;color:var(--tx);font-size:13.5px" ${isRTL(label)?'dir="rtl"':''}>${label}</div>
+        <div style="font-size:11px;color:var(--mu)">${sub}</div>
+      </div>
+      <button type="button" onclick="clearEleveSearch()" style="background:none;border:none;cursor:pointer;color:var(--mu);padding:4px;font-size:13px" title="Changer d'élève">✕</button>
+    </div>`;
+  }
   onEleveChange();
 }
 function clearEleveSearch(){
   document.getElementById('selEleve').value='';
   document.getElementById('selEleveSearch').value='';
   const clearBtn=document.getElementById('clearEleveBtn');if(clearBtn)clearBtn.style.display='none';
-  onEleveSearch();
+  onEleveSearch(); // réaffiche la liste complète
   document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
   document.getElementById('mtPay').value='';
 }
