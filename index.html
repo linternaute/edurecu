@@ -535,14 +535,17 @@ textarea.inp{resize:vertical;}
             <div id="payByEleve">
               <div class="fg">
                 <label class="lbl">Élève *</label>
-                <div style="position:relative;margin-bottom:8px">
-                  <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--di);pointer-events:none"></i>
-                  <input class="inp" id="selEleveSearch" placeholder="Filtrer par nom, prénom ou code…" autocomplete="off" oninput="onEleveSearch()" style="padding-left:32px;padding-right:28px">
-                  <button id="clearEleveBtn" type="button" onclick="clearEleveSearch()" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px;padding:0">✕</button>
+                <div style="position:relative">
+                  <div style="position:relative;display:flex;align-items:center">
+                    <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"></i>
+                    <input class="inp" id="selEleveSearch" placeholder="Rechercher ou cliquer pour la liste…" autocomplete="off"
+                      oninput="onEleveSearch()" onfocus="onEleveSearchOpen()" style="padding-left:32px;padding-right:28px">
+                    <button id="clearEleveBtn" type="button" onclick="clearEleveSearch()" style="display:none;position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px;padding:0">✕</button>
+                  </div>
+                  <input type="hidden" id="selEleve">
+                  <!-- Dropdown liste (caché par défaut) -->
+                  <div id="eleveSearchResults" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--b2);border-radius:10px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.45);max-height:240px;overflow-y:auto"></div>
                 </div>
-                <input type="hidden" id="selEleve">
-                <!-- Liste toujours visible -->
-                <div id="eleveSearchResults" style="background:var(--bg3);border:1px solid var(--b2);border-radius:9px;max-height:240px;overflow-y:auto"></div>
               </div>
             </div>
             <!-- Sélection par classe -->
@@ -1931,11 +1934,19 @@ document.addEventListener('keydown',e=>{
 
 // ─── PAIEMENT ───
 // ─── RECHERCHE ÉLÈVE (autocomplete) ───
+function onEleveSearchOpen(){
+  // Ouvre le dropdown avec toute la liste au focus
+  onEleveSearch();
+  const r=document.getElementById('eleveSearchResults');
+  if(r)r.style.display='block';
+}
 function onEleveSearch(){
   const q=(document.getElementById('selEleveSearch').value||'').toLowerCase().trim();
   const results=document.getElementById('eleveSearchResults');
   const clearBtn=document.getElementById('clearEleveBtn');
   if(clearBtn)clearBtn.style.display=q?'block':'none';
+  // Si un élève est déjà sélectionné et le champ est vide, ne pas rouvrir
+  if(!q&&document.getElementById('selEleve').value&&results&&results.style.display==='none')return;
   const selectedId=document.getElementById('selEleve').value;
   const source=q
     ? eleves.filter(e=>
@@ -1947,45 +1958,41 @@ function onEleveSearch(){
     : [...eleves].sort((a,b)=>(a.nom||'').localeCompare(b.nom||'','fr'));
   if(!source.length){
     results.innerHTML='<div style="padding:12px 14px;color:var(--di);font-size:13px;text-align:center">Aucun élève trouvé</div>';
-    return;
+    results.style.display='block';return;
   }
   results.innerHTML=source.map(e=>{
     const label=`${e.nom} ${e.prenom}`;
     const sub=`${e.classe||''}${e.indice?' · '+e.indice:''}`;
     const isSel=String(e.id)===String(selectedId);
     return `<div onclick="selectEleveFromSearch(${e.id},'${label.replace(/'/g,"\\'")}','${sub.replace(/'/g,"\\'")}')"
-      style="padding:8px 13px;cursor:pointer;border-bottom:1px solid var(--b1);transition:background .1s;${isSel?'background:rgba(59,125,255,.14);border-left:3px solid var(--ac)':''}"
-      onmouseover="if(!${isSel})this.style.background='var(--bg2)'" onmouseout="this.style.background='${isSel?'rgba(59,125,255,.14)':''}'"
+      style="padding:8px 13px;cursor:pointer;border-bottom:1px solid var(--b1);${isSel?'background:rgba(59,125,255,.12);':''}transition:background .1s"
+      onmouseover="this.style.background='var(--bg2)'" onmouseout="this.style.background='${isSel?'rgba(59,125,255,.12)':''}'"
     >
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <div style="font-weight:${isSel?'700':'500'};color:var(--tx);font-size:13.5px" ${isRTL(label)?'dir="rtl"':''}>${label}</div>
-        ${isSel?'<i data-lucide="check" class="ic-sm" style="color:var(--ac);flex-shrink:0"></i>':''}
-      </div>
+      <div style="font-weight:${isSel?'700':'500'};color:var(--tx);font-size:13.5px" ${isRTL(label)?'dir="rtl"':''}>${label}</div>
       <div style="font-size:11px;color:var(--mu)">${sub}</div>
     </div>`;
   }).join('');
-  refreshIcons();
+  results.style.display='block';
 }
+// Fermer le dropdown si on clique en dehors
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('payByEleve');
+  const r=document.getElementById('eleveSearchResults');
+  if(r&&wrap&&!wrap.contains(e.target))r.style.display='none';
+});
 function selectEleveFromSearch(id,label,sub){
   document.getElementById('selEleve').value=id;
-  // Masquer la liste et afficher uniquement l'élève sélectionné
-  const results=document.getElementById('eleveSearchResults');
-  if(results){
-    results.innerHTML=`<div style="padding:9px 13px;background:rgba(59,125,255,.1);border-left:3px solid var(--ac);display:flex;align-items:center;justify-content:space-between;border-radius:0 0 9px 9px">
-      <div>
-        <div style="font-weight:700;color:var(--tx);font-size:13.5px" ${isRTL(label)?'dir="rtl"':''}>${label}</div>
-        <div style="font-size:11px;color:var(--mu)">${sub}</div>
-      </div>
-      <button type="button" onclick="clearEleveSearch()" style="background:none;border:none;cursor:pointer;color:var(--mu);padding:4px;font-size:13px" title="Changer d'élève">✕</button>
-    </div>`;
-  }
+  document.getElementById('selEleveSearch').value=label;
+  document.getElementById('clearEleveBtn').style.display='block';
+  const r=document.getElementById('eleveSearchResults');
+  if(r)r.style.display='none';
   onEleveChange();
 }
 function clearEleveSearch(){
   document.getElementById('selEleve').value='';
   document.getElementById('selEleveSearch').value='';
   const clearBtn=document.getElementById('clearEleveBtn');if(clearBtn)clearBtn.style.display='none';
-  onEleveSearch(); // réaffiche la liste complète
+  const r=document.getElementById('eleveSearchResults');if(r)r.style.display='none';
   document.getElementById('eleveRecap').innerHTML='<span style="color:var(--di)">Sélectionnez un élève ou une classe</span>';
   document.getElementById('mtPay').value='';
 }
