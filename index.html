@@ -638,10 +638,16 @@ textarea.inp{resize:vertical;}
       <div class="card" style="margin-bottom:16px">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
           <div>
-            <label class="lbl">Rechercher par nom</label>
-            <div style="position:relative;display:flex;align-items:center">
-              <input class="inp" id="dossierSearch" placeholder="🔍 Nom ou prénom…" oninput="filterDossierSel()" style="padding-right:28px">
-              <button id="dossierSearchClear" onclick="clearDossierSearch()" title="Effacer" style="display:none;position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px">✕</button>
+            <label class="lbl">Rechercher un élève</label>
+            <div style="position:relative">
+              <div style="position:relative;display:flex;align-items:center">
+                <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"></i>
+                <input class="inp" id="dossierSearch" placeholder="Cliquer ou taper un nom…" autocomplete="off"
+                  oninput="filterDossierSel()" onfocus="openDossierDropdown()" style="padding-left:32px;padding-right:28px">
+                <button id="dossierSearchClear" onclick="clearDossierSearch()" title="Effacer" style="display:none;position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px">✕</button>
+              </div>
+              <input type="hidden" id="dossierSelEleve">
+              <div id="dossierEleveList" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--card);border:1px solid var(--b2);border-radius:10px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.45);max-height:240px;overflow-y:auto;"></div>
             </div>
           </div>
           <div>
@@ -650,12 +656,6 @@ textarea.inp{resize:vertical;}
               <option value="">Toutes les classes</option>
             </select>
           </div>
-        </div>
-        <!-- Liste visible des élèves -->
-        <div>
-          <label class="lbl" style="margin-bottom:6px">Élèves <span id="dossierEleveCount" style="color:var(--ac)"></span></label>
-          <input type="hidden" id="dossierSelEleve">
-          <div id="dossierEleveList" style="background:var(--bg3);border:1px solid var(--b2);border-radius:9px;max-height:220px;overflow-y:auto;"></div>
         </div>
         <div style="margin-top:12px">
           <label class="lbl">Filtrer par année</label>
@@ -1319,51 +1319,68 @@ function fillDossierSel(){
   }
   filterDossierSel();
 }
+function openDossierDropdown(){
+  filterDossierSel();
+  const list=document.getElementById('dossierEleveList');
+  if(list)list.style.display='block';
+}
 function filterDossierSel(){
   const q=(document.getElementById('dossierSearch')?.value||'').toLowerCase().trim();
   const cls=document.getElementById('dossierFiltClasse')?.value||'';
   const clrBtn=document.getElementById('dossierSearchClear');
   if(clrBtn)clrBtn.style.display=q?'block':'none';
   const currentId=document.getElementById('dossierSelEleve')?.value||'';
+  const list=document.getElementById('dossierEleveList');
+  if(!list)return;
+  // Si élève déjà sélectionné et liste fermée, ne pas rouvrir
+  if(!q&&currentId&&list.style.display==='none')return;
   let filtered=eleves.filter(e=>{
     const matchCls=!cls||e.classe===cls;
     const matchQ=!q||(e.nom+' '+e.prenom).toLowerCase().includes(q)||(e.prenom+' '+e.nom).toLowerCase().includes(q);
     return matchCls&&matchQ;
   }).sort((a,b)=>(a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom,'fr'));
-  const cnt=document.getElementById('dossierEleveCount');
-  if(cnt)cnt.textContent=`(${filtered.length})`;
-  const list=document.getElementById('dossierEleveList');
-  if(!list)return;
   if(!filtered.length){
     list.innerHTML='<div style="padding:14px;text-align:center;color:var(--di);font-size:13px">Aucun élève trouvé</div>';
-    return;
+    list.style.display='block';return;
   }
   list.innerHTML=filtered.map(e=>{
     const sel=String(e.id)===String(currentId);
-    return `<div onclick="selectDossierEleve('${e.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer;border-radius:7px;margin:2px;transition:background .1s;background:${sel?'rgba(59,125,255,.12)':'transparent'};border:1px solid ${sel?'rgba(59,125,255,.25)':'transparent'}"
+    return `<div onclick="selectDossierEleve('${e.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:9px 13px;cursor:pointer;border-bottom:1px solid var(--b1);background:${sel?'rgba(59,125,255,.12)':'transparent'};transition:background .1s"
       onmouseover="this.style.background='${sel?'rgba(59,125,255,.15)':'var(--bg2)'}'" onmouseout="this.style.background='${sel?'rgba(59,125,255,.12)':'transparent'}'">
       <div>
-        <div style="font-weight:${sel?'600':'400'};color:${sel?'var(--tx)':'var(--mu)'};font-size:13.5px" ${isRTL((e.nom||'')+(e.prenom||')'))? 'dir="rtl"':''}>${e.nom} ${e.prenom}</div>
+        <div style="font-weight:${sel?'600':'400'};color:${sel?'var(--tx)':'var(--mu)'};font-size:13.5px" ${isRTL((e.nom||'')+(e.prenom||''))?'dir="rtl"':''}>${e.nom} ${e.prenom}</div>
         ${e.classe?`<div style="font-size:11.5px;color:var(--di)">${e.classe}</div>`:''}
       </div>
       ${sel?`<div style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></div>`:''}
     </div>`;
   }).join('');
+  list.style.display='block';
 }
 function selectDossierEleve(id){
-  const inp=document.getElementById('dossierSelEleve');
-  if(inp)inp.value=id;
-  filterDossierSel(); // re-render list to update selected state
+  const elv=eleves.find(e=>String(e.id)===String(id));
+  const inp=document.getElementById('dossierSelEleve');if(inp)inp.value=id;
+  // Afficher le nom dans le champ et fermer la liste
+  const search=document.getElementById('dossierSearch');
+  if(search&&elv)search.value=elv.nom+' '+elv.prenom;
+  const list=document.getElementById('dossierEleveList');if(list)list.style.display='none';
+  const clrBtn=document.getElementById('dossierSearchClear');if(clrBtn)clrBtn.style.display='block';
   renderDossier();
-  // Scroll vers le haut de la liste
-  const list=document.getElementById('dossierEleveList');
-  if(list){const sel=list.querySelector('[style*="rgba(59,125,255"]');if(sel)sel.scrollIntoView({block:'nearest'});}
 }
 function clearDossierSearch(){
   const s=document.getElementById('dossierSearch');if(s)s.value='';
   const btn=document.getElementById('dossierSearchClear');if(btn)btn.style.display='none';
-  filterDossierSel();
+  const inp=document.getElementById('dossierSelEleve');if(inp)inp.value='';
+  const list=document.getElementById('dossierEleveList');if(list)list.style.display='none';
+  const fiche=document.getElementById('dossierFiche');if(fiche)fiche.style.display='none';
+  const empty=document.getElementById('dossierEmpty');if(empty)empty.style.display='block';
 }
+// Fermer dropdown dossier au clic ailleurs
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('sec-dossier');
+  const list=document.getElementById('dossierEleveList');
+  const searchInput=document.getElementById('dossierSearch');
+  if(list&&searchInput&&!searchInput.contains(e.target)&&!list.contains(e.target))list.style.display='none';
+});
 
 function renderDossier(){
   const id=document.getElementById('dossierSelEleve')?.value;
