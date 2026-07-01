@@ -423,10 +423,18 @@ textarea.inp{resize:vertical;}
       <!-- Liste des dépenses -->
       <div class="tw">
         <div class="th2">
-          <div class="th2-t" id="fraisCnt">0 dépense(s)</div>
+          <div class="tc" style="gap:6px">
+            <div class="tabs" style="margin:0">
+              <div class="tab on" id="fraisTabJour" onclick="setFraisView('jour')">📅 Jour</div>
+              <div class="tab" id="fraisTabMois" onclick="setFraisView('mois')">📆 Mois</div>
+              <div class="tab" id="fraisTabAnnee" onclick="setFraisView('annee')">🗓️ Année</div>
+            </div>
+          </div>
           <div class="tc">
-            <input class="inp" style="width:150px" placeholder="🔍 Filtrer…" id="fraisSearch" oninput="renderFrais()">
-            <input class="inp" type="month" id="fraisFiltMois" onchange="renderFrais()" style="width:140px">
+            <input class="inp" style="width:140px" placeholder="🔍 Filtrer…" id="fraisSearch" oninput="renderFrais()">
+            <input class="inp" type="month" id="fraisFiltMois" onchange="renderFrais()" style="width:130px">
+            <select class="inp" id="fraisFiltAnnee" onchange="renderFrais()" style="width:90px"></select>
+            <div class="th2-t" id="fraisCnt" style="white-space:nowrap">0 dépense(s)</div>
             <button class="btn bg bsm" onclick="exportFraisExcel()"><i data-lucide="download" class="ic-sm"></i> Export</button>
           </div>
         </div>
@@ -1155,6 +1163,8 @@ async function doLogout(){
   setSyncStatus('','');
   if(window.FB&&window.FB.stopListeners)window.FB.stopListeners();
   try{document.getElementById('loginUser').focus();}catch(e){}
+  // Vider les champs pour éviter la mémorisation par le navigateur
+  try{document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';}catch(e){}
 }
 function toggleUserMenu(){const m=document.getElementById('userMenu');if(!m)return;m.style.display=m.style.display==='none'?'block':'none';}
 document.addEventListener('click',e=>{const menu=document.getElementById('userMenu');const badge=document.getElementById('userBadge');if(menu&&badge&&!menu.contains(e.target)&&!badge.contains(e.target))menu.style.display='none';});
@@ -1200,6 +1210,7 @@ window.onload=()=>{
     if(logos)try{const l=JSON.parse(logos);S.appLogo=l.appLogo||'';S.schoolLogo=l.schoolLogo||'';}catch(e){}
     applyS();
     setMoisPay(new Date().toISOString().slice(0,7));
+    const fraisAnneeSel=document.getElementById('fraisFiltAnnee');if(fraisAnneeSel)fraisAnneeSel.style.display='none';
     if(S.appLogo){const lp=document.getElementById('loginLogoPill');if(lp)lp.innerHTML=`<img src="${S.appLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;const lp2=document.getElementById('loadPill');if(lp2)lp2.innerHTML=`<img src="${S.appLogo}" style="width:100%;height:100%;object-fit:cover;border-radius:12px">`;}
   }catch(e){}
   const checkOffline=()=>{const msg=document.getElementById('offlineMsg');if(msg)msg.style.display=navigator.onLine?'none':'block';};
@@ -2395,36 +2406,117 @@ async function deleteFrais(id){
   toast('🗑️','Dépense supprimée','');
 }
 
+let _fraisView='jour'; // 'jour' | 'mois' | 'annee'
+function setFraisView(v){
+  _fraisView=v;
+  ['jour','mois','annee'].forEach(t=>{
+    const el=document.getElementById('fraisTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(el)el.className='tab'+(v===t?' on':'');
+  });
+  const moisFld=document.getElementById('fraisFiltMois');
+  const anneeFld=document.getElementById('fraisFiltAnnee');
+  if(v==='jour'||v==='mois'){
+    if(moisFld)moisFld.style.display='';
+    if(anneeFld)anneeFld.style.display='none';
+  } else {
+    if(moisFld)moisFld.style.display='none';
+    if(anneeFld)anneeFld.style.display='';
+  }
+  renderFrais();
+}
+function initFraisAnneeSelect(){
+  const sel=document.getElementById('fraisFiltAnnee');if(!sel)return;
+  const annees=[...new Set(fraisDepenses.map(d=>d.date?d.date.slice(0,4):'')).values()].filter(Boolean).sort((a,b)=>b-a);
+  const cur=sel.value||new Date().getFullYear().toString();
+  sel.innerHTML=annees.length?annees.map(a=>`<option${a===cur?' selected':''}>${a}</option>`).join(''):`<option>${new Date().getFullYear()}</option>`;
+}
 function renderFrais(){
+  initFraisAnneeSelect();
   const q=(document.getElementById('fraisSearch')?.value||'').toLowerCase();
   const moisFilt=document.getElementById('fraisFiltMois')?.value||'';
-  let data=fraisDepenses;
+  const anneeFilt=document.getElementById('fraisFiltAnnee')?.value||new Date().getFullYear().toString();
+  let data=[...fraisDepenses];
   if(q)data=data.filter(d=>d.lib.toLowerCase().includes(q));
-  if(moisFilt)data=data.filter(d=>d.date&&d.date.startsWith(moisFilt));
-  document.getElementById('fraisCnt').textContent=data.length+' dépense(s)';
+
   const body=document.getElementById('fraisBody');
-  if(!data.length){body.innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="receipt" class="ic-xl"></i></div><div class="e-t">Aucune dépense</div></div>';refreshIcons();return;}
-  // Grouper par date
-  const byDate={};data.forEach(d=>{if(!byDate[d.date])byDate[d.date]=[];byDate[d.date].push(d);});
-  const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
-  body.innerHTML=dates.map(date=>{
-    const items=byDate[date];
-    const dayTotal=items.reduce((s,d)=>s+d.mt,0);
-    const dateLabel=new Date(date+'T12:00').toLocaleDateString('fr-MA',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-    return `<div style="border-bottom:1px solid var(--b1)">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg3)">
-        <span style="font-size:12px;font-weight:600;color:var(--mu);text-transform:capitalize">${dateLabel}</span>
-        <span style="font-size:12.5px;font-weight:700;color:var(--re)">${dayTotal.toFixed(2)} ${S.devise}</span>
-      </div>
-      ${items.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--b1)">
-        <span style="font-size:13.5px;color:var(--tx)">${d.lib}</span>
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-weight:600;color:var(--re);font-size:13.5px">${d.mt.toFixed(2)} ${S.devise}</span>
-          <button class="btn bre bsm" onclick="deleteFrais(${d.id})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button>
+  if(!data.length){body.innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="receipt" class="ic-xl"></i></div><div class="e-t">Aucune dépense</div></div>';refreshIcons();document.getElementById('fraisCnt').textContent='0 dépense(s)';return;}
+
+  // ── VUE JOUR ──
+  if(_fraisView==='jour'){
+    const filtered=moisFilt?data.filter(d=>d.date&&d.date.startsWith(moisFilt)):data;
+    document.getElementById('fraisCnt').textContent=filtered.length+' dépense(s)';
+    if(!filtered.length){body.innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="receipt" class="ic-xl"></i></div><div class="e-t">Aucune dépense ce mois</div></div>';refreshIcons();return;}
+    const byDate={};filtered.forEach(d=>{if(!byDate[d.date])byDate[d.date]=[];byDate[d.date].push(d);});
+    const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+    body.innerHTML=dates.map(date=>{
+      const items=byDate[date];const dayTotal=items.reduce((s,d)=>s+d.mt,0);
+      const dateLabel=new Date(date+'T12:00').toLocaleDateString('fr-MA',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+      return `<div style="border-bottom:1px solid var(--b1)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg3)">
+          <span style="font-size:12px;font-weight:600;color:var(--mu);text-transform:capitalize">${dateLabel}</span>
+          <span style="font-size:12.5px;font-weight:700;color:var(--re)">${dayTotal.toFixed(2)} ${S.devise}</span>
         </div>
-      </div>`).join('')}
-    </div>`;
-  }).join('');
+        ${items.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--b1)">
+          <span style="font-size:13.5px;color:var(--tx)">${d.lib}</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-weight:600;color:var(--re);font-size:13.5px">${d.mt.toFixed(2)} ${S.devise}</span>
+            <button class="btn bre bsm" onclick="deleteFrais(${d.id})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+  // ── VUE MOIS ──
+  else if(_fraisView==='mois'){
+    const annee=moisFilt?moisFilt.slice(0,4):anneeFilt;
+    const filtAnnee=data.filter(d=>d.date&&d.date.startsWith(annee));
+    document.getElementById('fraisCnt').textContent=filtAnnee.length+' dépense(s) en '+annee;
+    const byMois={};filtAnnee.forEach(d=>{const m=d.date.slice(0,7);if(!byMois[m])byMois[m]={total:0,items:[]};byMois[m].total+=d.mt;byMois[m].items.push(d);});
+    const moisKeys=Object.keys(byMois).sort((a,b)=>b.localeCompare(a));
+    if(!moisKeys.length){body.innerHTML='<div class="empty"><div class="e-ico"><i data-lucide="receipt" class="ic-xl"></i></div><div class="e-t">Aucune dépense cette année</div></div>';refreshIcons();return;}
+    const totalAnnee=Object.values(byMois).reduce((s,m)=>s+m.total,0);
+    body.innerHTML=`<div style="padding:12px 16px;background:rgba(239,68,68,.06);border-bottom:2px solid rgba(239,68,68,.2);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;color:var(--tx)">Total ${annee}</span>
+      <span style="font-weight:800;color:var(--re);font-size:16px">${totalAnnee.toFixed(2)} ${S.devise}</span>
+    </div>`+moisKeys.map(m=>{
+      const {total,items}=byMois[m];
+      const mLabel=new Date(m+'-01').toLocaleDateString('fr-MA',{month:'long',year:'numeric'});
+      const cats={};items.forEach(d=>{if(!cats[d.lib])cats[d.lib]=0;cats[d.lib]+=d.mt;});
+      return `<div style="border-bottom:1px solid var(--b1)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg3);cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <span style="font-size:13px;font-weight:600;color:var(--tx);text-transform:capitalize">${mLabel}</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:11px;color:var(--mu)">${items.length} dépense(s)</span>
+            <span style="font-weight:700;color:var(--re)">${total.toFixed(2)} ${S.devise}</span>
+          </div>
+        </div>
+        <div style="display:none">
+          ${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([lib,mt])=>`<div style="display:flex;justify-content:space-between;padding:7px 16px 7px 24px;border-bottom:1px solid var(--b1)"><span style="font-size:12.5px;color:var(--mu)">${lib}</span><span style="font-size:12.5px;font-weight:600;color:var(--re)">${mt.toFixed(2)} ${S.devise}</span></div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // ── VUE ANNÉE ──
+  else {
+    const byAnnee={};data.forEach(d=>{const a=d.date?d.date.slice(0,4):'?';if(!byAnnee[a])byAnnee[a]={total:0,count:0,cats:{}};byAnnee[a].total+=d.mt;byAnnee[a].count++;if(!byAnnee[a].cats[d.lib])byAnnee[a].cats[d.lib]=0;byAnnee[a].cats[d.lib]+=d.mt;});
+    const anneeKeys=Object.keys(byAnnee).sort((a,b)=>b.localeCompare(a));
+    document.getElementById('fraisCnt').textContent=data.length+' dépense(s) · '+anneeKeys.length+' année(s)';
+    body.innerHTML=anneeKeys.map(a=>{
+      const {total,count,cats}=byAnnee[a];
+      return `<div style="border-bottom:1px solid var(--b1)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(239,68,68,.06);cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <span style="font-size:16px;font-weight:800;color:var(--tx)">${a}</span>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span style="font-size:11px;color:var(--mu)">${count} dépense(s)</span>
+            <span style="font-weight:800;color:var(--re);font-size:16px">${total.toFixed(2)} ${S.devise}</span>
+          </div>
+        </div>
+        <div style="display:none">
+          ${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([lib,mt])=>`<div style="display:flex;justify-content:space-between;padding:8px 16px 8px 24px;border-bottom:1px solid var(--b1)"><span style="font-size:12.5px;color:var(--mu)">${lib}</span><span style="font-size:12.5px;font-weight:600;color:var(--re)">${mt.toFixed(2)} ${S.devise}</span></div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
   refreshIcons();
 }
 
