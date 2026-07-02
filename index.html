@@ -1209,8 +1209,15 @@ async function changeMyPassword(){
 window.onload=()=>{
   refreshIcons();
   try{
-    const fbCfg=localStorage.getItem('edurecu_fbconfig');
-    if(fbCfg)try{S.fbConfig=JSON.parse(fbCfg);}catch(e){}
+    // 1. La config embarquée dans le HTML a priorité absolue (fonctionne sur tout navigateur)
+    if(S.fbConfig&&S.fbConfig.apiKey){
+      // Config valide trouvée dans le HTML — la synchroniser dans localStorage pour ce navigateur
+      localStorage.setItem('edurecu_fbconfig',JSON.stringify(S.fbConfig));
+    } else {
+      // 2. Fallback : lire depuis localStorage (si config non embarquée dans ce fichier)
+      const fbCfg=localStorage.getItem('edurecu_fbconfig');
+      if(fbCfg)try{S.fbConfig=JSON.parse(fbCfg);}catch(e){}
+    }
     const logos=localStorage.getItem('edurecu_logos');
     if(logos)try{const l=JSON.parse(logos);S.appLogo=l.appLogo||'';S.schoolLogo=l.schoolLogo||'';}catch(e){}
     applyS();
