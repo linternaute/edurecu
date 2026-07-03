@@ -727,6 +727,7 @@ service cloud.firestore {
     match /eleves/{id}    { allow read, write: if request.auth != null; }
     match /paiements/{id} { allow read, write: if request.auth != null; }
     match /config/{id}    { allow read, write: if request.auth != null; }
+    match /frais/{id}     { allow read, write: if request.auth != null; }
     match /roles/{uid} {
       allow read: if request.auth != null;
       allow write: if request.auth != null
