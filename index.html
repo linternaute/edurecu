@@ -1957,19 +1957,16 @@ document.addEventListener('keydown',e=>{
 // ─── PAIEMENT ───
 // ─── RECHERCHE ÉLÈVE (autocomplete) ───
 function onEleveSearchOpen(){
-  // Ouvre le dropdown avec toute la liste au focus
-  onEleveSearch();
-  const r=document.getElementById('eleveSearchResults');
-  if(r)r.style.display='block';
+  onEleveSearch(true);
 }
-function onEleveSearch(){
+function onEleveSearch(forceOpen){
   const q=(document.getElementById('selEleveSearch').value||'').toLowerCase().trim();
   const results=document.getElementById('eleveSearchResults');
   const clearBtn=document.getElementById('clearEleveBtn');
   if(clearBtn)clearBtn.style.display=q?'block':'none';
-  // Si un élève est déjà sélectionné et le champ est vide, ne pas rouvrir
-  if(!q&&document.getElementById('selEleve').value&&results&&results.style.display==='none')return;
+  // Ne pas ouvrir si un élève est déjà sélectionné et qu'on n'a pas cliqué explicitement
   const selectedId=document.getElementById('selEleve').value;
+  if(!forceOpen&&!q&&selectedId)return;
   const source=q
     ? eleves.filter(e=>
         (e.nom||'').toLowerCase().includes(q)||
@@ -1980,7 +1977,8 @@ function onEleveSearch(){
     : [...eleves].sort((a,b)=>(a.nom||'').localeCompare(b.nom||'','fr'));
   if(!source.length){
     results.innerHTML='<div style="padding:12px 14px;color:var(--di);font-size:13px;text-align:center">Aucun élève trouvé</div>';
-    results.style.display='block';return;
+    if(forceOpen||q)results.style.display='block';
+    return;
   }
   results.innerHTML=source.map(e=>{
     const label=`${e.nom} ${e.prenom}`;
@@ -1994,7 +1992,8 @@ function onEleveSearch(){
       <div style="font-size:11px;color:var(--mu)">${sub}</div>
     </div>`;
   }).join('');
-  results.style.display='block';
+  // N'afficher que si focus explicite ou recherche active
+  if(forceOpen||q)results.style.display='block';
 }
 // Fermer le dropdown si on clique en dehors
 document.addEventListener('click',e=>{
