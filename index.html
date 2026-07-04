@@ -1322,14 +1322,12 @@ function fillDossierSel(){
     fc.innerHTML='<option value="">Toutes les classes</option>';
     cls.forEach(c=>fc.innerHTML+=`<option${c===prev?' selected':''}>${c}</option>`);
   }
-  filterDossierSel();
+  // Ne pas ouvrir la liste — elle s'ouvre uniquement au focus ou à la saisie
 }
 function openDossierDropdown(){
-  filterDossierSel();
-  const list=document.getElementById('dossierEleveList');
-  if(list)list.style.display='block';
+  filterDossierSel(true);
 }
-function filterDossierSel(){
+function filterDossierSel(forceOpen){
   const q=(document.getElementById('dossierSearch')?.value||'').toLowerCase().trim();
   const cls=document.getElementById('dossierFiltClasse')?.value||'';
   const clrBtn=document.getElementById('dossierSearchClear');
@@ -1337,8 +1335,8 @@ function filterDossierSel(){
   const currentId=document.getElementById('dossierSelEleve')?.value||'';
   const list=document.getElementById('dossierEleveList');
   if(!list)return;
-  // Si élève déjà sélectionné et liste fermée, ne pas rouvrir
-  if(!q&&currentId&&list.style.display==='none')return;
+  // Ne pas ouvrir si pas d'interaction explicite et élève déjà sélectionné
+  if(!forceOpen&&!q&&currentId)return;
   let filtered=eleves.filter(e=>{
     const matchCls=!cls||e.classe===cls;
     const matchQ=!q||(e.nom+' '+e.prenom).toLowerCase().includes(q)||(e.prenom+' '+e.nom).toLowerCase().includes(q);
@@ -1346,7 +1344,8 @@ function filterDossierSel(){
   }).sort((a,b)=>(a.nom+' '+a.prenom).localeCompare(b.nom+' '+b.prenom,'fr'));
   if(!filtered.length){
     list.innerHTML='<div style="padding:14px;text-align:center;color:var(--di);font-size:13px">Aucun élève trouvé</div>';
-    list.style.display='block';return;
+    if(forceOpen||q)list.style.display='block';
+    return;
   }
   list.innerHTML=filtered.map(e=>{
     const sel=String(e.id)===String(currentId);
@@ -1359,7 +1358,8 @@ function filterDossierSel(){
       ${sel?`<div style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></div>`:''}
     </div>`;
   }).join('');
-  list.style.display='block';
+  // Afficher seulement si focus explicite ou recherche active
+  if(forceOpen||q)list.style.display='block';
 }
 function selectDossierEleve(id){
   const elv=eleves.find(e=>String(e.id)===String(id));
