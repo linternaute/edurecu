@@ -988,14 +988,12 @@ let S={
 // ─── EMBED CONFIG DANS LE HTML ───
 async function embedConfigInHTML(config){
   try{
-    // Lire le source HTML de la page courante
-    const resp=await fetch(window.location.href);
-    if(!resp.ok)return false;
-    let html=await resp.text();
-    // Remplacer le marqueur par la config sérialisée
+    // Utiliser le DOM en mémoire au lieu de fetch() — fonctionne depuis file://, Netlify, ou tout hébergement
+    let html=document.documentElement.outerHTML;
+    if(!html||html.length<1000)return false;
     const marker=/\/\*FBCONFIG_START\*\/[\s\S]*?\/\*FBCONFIG_END\*\//;
-    const replacement='/*FBCONFIG_START*/'+JSON.stringify(config)+'/*FBCONFIG_END*/';
     if(!marker.test(html))return false;
+    const replacement='/*FBCONFIG_START*/'+JSON.stringify(config)+'/*FBCONFIG_END*/';
     html=html.replace(marker,replacement);
     // Télécharger le fichier mis à jour
     const blob=new Blob([html],{type:'text/html;charset=utf-8'});
@@ -2496,17 +2494,23 @@ function renderFrais(){
     const byDate={};filtered.forEach(d=>{if(!byDate[d.date])byDate[d.date]=[];byDate[d.date].push(d);});
     const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
     body.innerHTML=dates.map(date=>{
-      const items=byDate[date];const dayTotal=items.reduce((s,d)=>s+d.mt,0);
+      const items=byDate[date];
+      const dayTotal=items.reduce((s,d)=>s+d.mt,0);
       const dateLabel=new Date(date+'T12:00').toLocaleDateString('fr-MA',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-      return `<div style="border-bottom:1px solid var(--b1)">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--bg3)">
-          <span style="font-size:12px;font-weight:600;color:var(--mu);text-transform:capitalize">${dateLabel}</span>
-          <span style="font-size:12.5px;font-weight:700;color:var(--re)">${dayTotal.toFixed(2)} ${S.devise}</span>
+      return `<div style="border-bottom:2px solid var(--b2);margin-bottom:2px">
+        <!-- En-tête du jour avec total bien mis en évidence -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--bg3);border-bottom:1px solid var(--b2)">
+          <span style="font-size:12.5px;font-weight:700;color:var(--tx);text-transform:capitalize">${dateLabel}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:var(--mu)">${items.length} dépense(s)</span>
+            <span style="font-size:16px;font-weight:800;color:var(--re);background:rgba(239,68,68,.1);padding:3px 10px;border-radius:8px;border:1px solid rgba(239,68,68,.25)">${dayTotal.toFixed(2)} ${S.devise}</span>
+          </div>
         </div>
-        ${items.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--b1)">
-          <span style="font-size:13.5px;color:var(--tx)">${d.lib}</span>
-          <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-weight:600;color:var(--re);font-size:13.5px">${d.mt.toFixed(2)} ${S.devise}</span>
+        <!-- Lignes de dépenses individuelles -->
+        ${items.map(d=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 16px 7px 24px;border-bottom:1px solid var(--b1)">
+          <span style="font-size:12.5px;color:var(--mu)">${d.lib}</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-weight:500;color:var(--re);font-size:12.5px;opacity:.8">${d.mt.toFixed(2)} ${S.devise}</span>
             <button class="btn bre bsm" onclick="deleteFrais(${d.id})" title="Supprimer"><i data-lucide="trash-2" class="ic-sm"></i></button>
           </div>
         </div>`).join('')}
