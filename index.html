@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
+<html lang="fr"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EduReçu — Gestion Scolaire</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='72' x='50%' text-anchor='middle' dominant-baseline='hanging'>🎓</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='72' x='50%' text-anchor='middle' dominant-baseline='hanging'&gt;🎓&lt;/text&gt;&lt;/svg&gt;">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -237,86 +235,86 @@ textarea.inp{resize:vertical;}
 </head>
 <body>
 <div id="PRINT_FRAME"></div>
-<div id="loadingOverlay">
+<div id="loadingOverlay" style="display: none;">
   <div style="display:flex;align-items:center;gap:10px">
-    <div class="login-logo-pill" id="loadPill"><i data-lucide="graduation-cap" class="ic-xl"></i></div>
+    <div class="login-logo-pill" id="loadPill"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap ic-xl"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg></div>
     <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800">EduReçu</div>
   </div>
   <div class="spin"></div>
   <div style="font-size:13px;color:var(--mu)" id="loadMsg">Connexion à Firebase…</div>
 </div>
 <div id="sessionBar"><div id="sessionProgress"></div></div>
-<div id="loginScreen" style="display:none">
+<div id="loginScreen" style="display: flex;">
   <div class="login-box">
     <div class="login-logo">
-      <div class="login-logo-pill" id="loginLogoPill"><i data-lucide="graduation-cap" class="ic-xl"></i></div>
+      <div class="login-logo-pill" id="loginLogoPill"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap ic-xl"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg></div>
       <div class="login-title">EduReçu</div>
     </div>
     <div class="login-sub">Gestion scolaire — École privée Maroc</div>
-    <div id="offlineMsg" style="display:none;text-align:center;padding:10px 14px;font-size:12.5px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);color:#fcd34d;border-radius:10px;margin-bottom:12px"><i data-lucide="wifi-off"></i> Hors ligne — connexion impossible sans internet</div>
-    <div id="fbConfigPanel" style="display:none">
+    <div id="offlineMsg" style="display:none;text-align:center;padding:10px 14px;font-size:12.5px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);color:#fcd34d;border-radius:10px;margin-bottom:12px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="wifi-off" aria-hidden="true" class="lucide lucide-wifi-off"><path d="M12 20h.01"></path><path d="M8.5 16.429a5 5 0 0 1 7 0"></path><path d="M5 12.859a10 10 0 0 1 5.17-2.69"></path><path d="M19 12.859a10 10 0 0 0-2.007-1.523"></path><path d="M2 8.82a15 15 0 0 1 4.177-2.643"></path><path d="M22 8.82a15 15 0 0 0-11.288-3.764"></path><path d="m2 2 20 20"></path></svg> Hors ligne — connexion impossible sans internet</div>
+    <div id="fbConfigPanel" style="display: none;">
       <div style="background:rgba(59,125,255,.06);border:1px solid rgba(59,125,255,.18);border-radius:12px;padding:16px;margin-bottom:14px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:4px"><i data-lucide="flame" class="ic-sm"></i> Configuration Firebase requise</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame" aria-hidden="true" class="lucide lucide-flame ic-sm"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg> Configuration Firebase requise</div>
         <div style="font-size:12px;color:var(--mu);margin-bottom:14px">Collez vos identifiants Firebase pour connecter l'application</div>
         <div class="fg"><label class="lbl">API Key</label><input class="inp" id="setup_apiKey" placeholder="AIzaSy…" autocomplete="off"></div>
         <div class="fg"><label class="lbl">Project ID</label><input class="inp" id="setup_projectId" placeholder="mon-projet-12345" autocomplete="off"></div>
         <div class="fg"><label class="lbl">App ID</label><input class="inp" id="setup_appId" placeholder="1:123:web:abc…" autocomplete="off"></div>
         <div class="fg"><label class="lbl">Auth Domain</label><input class="inp" id="setup_authDomain" placeholder="mon-projet.firebaseapp.com" autocomplete="off"></div>
         <div id="fbConfigErr" style="display:none;color:#fca5a5;font-size:12.5px;margin-bottom:10px"></div>
-        <button class="btn bp" style="width:100%;justify-content:center" onclick="saveFirebaseConfig()"><i data-lucide="flame" class="ic-sm"></i> Connecter Firebase</button>
+        <button class="btn bp" style="width:100%;justify-content:center" onclick="saveFirebaseConfig()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame" aria-hidden="true" class="lucide lucide-flame ic-sm"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg> Connecter Firebase</button>
       </div>
     </div>
-    <div id="loginFormPanel">
+    <div id="loginFormPanel" style="display: block;">
       <div class="login-err" id="loginErr"></div>
       <div class="fg"><label class="lbl">Email</label><input class="inp" type="email" id="loginUser" placeholder="votre@email.com" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div class="fg"><label class="lbl">Mot de passe</label><input class="inp" type="password" id="loginPass" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <div id="loginStatus" style="text-align:center;font-size:12px;color:var(--di);margin-bottom:6px;min-height:18px"></div>
-      <button class="btn bp" id="loginBtn" style="width:100%;justify-content:center;margin-top:8px;padding:11px" onclick="doLogin()"><i data-lucide="log-in" class="ic-sm"></i> Se connecter</button>
-      <div style="text-align:center;margin-top:12px"><a href="#" style="font-size:11.5px;color:var(--di)" onclick="showFbConfig();return false"><i data-lucide="settings" class="ic-sm"></i> Reconfigurer Firebase</a></div>
+      <button class="btn bp" id="loginBtn" style="width:100%;justify-content:center;margin-top:8px;padding:11px" onclick="doLogin()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-in" aria-hidden="true" class="lucide lucide-log-in ic-sm"><path d="m10 17 5-5-5-5"></path><path d="M15 12H3"></path><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path></svg> Se connecter</button>
+      <div style="text-align:center;margin-top:12px"><a href="#" style="font-size:11.5px;color:var(--di)" onclick="showFbConfig();return false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings ic-sm"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg> Reconfigurer Firebase</a></div>
     </div>
   </div>
 </div>
 <div class="user-badge" id="userBadge" style="display:none" onclick="toggleUserMenu()">
-  <span><i data-lucide="user" class="ic-sm"></i></span><span id="userBadgeName">—</span>
+  <span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user" aria-hidden="true" class="lucide lucide-user ic-sm"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span><span id="userBadgeName">—</span>
   <span id="userBadgeRole" class="login-role role-admin" style="font-size:10px;padding:2px 7px">—</span>
 </div>
 <div id="userMenu" style="display:none;position:fixed;top:110px;right:14px;z-index:99;background:var(--card);border:1px solid var(--b2);border-radius:12px;padding:8px;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.4)">
   <div style="padding:8px 10px;font-size:12px;color:var(--mu);border-bottom:1px solid var(--b1);margin-bottom:6px" id="userMenuInfo"></div>
-  <button class="btn bg bsm" id="btnChangePwd" style="width:100%;justify-content:flex-start;display:none" onclick="changePassword()"><i data-lucide="key" class="ic-sm"></i> Changer le mot de passe</button>
-  <button class="btn bg bsm" style="width:100%;justify-content:flex-start;margin-top:4px;color:var(--re)" onclick="doLogout()"><i data-lucide="log-out" class="ic-sm"></i> Se déconnecter</button>
+  <button class="btn bg bsm" id="btnChangePwd" style="width:100%;justify-content:flex-start;display:none" onclick="changePassword()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key" aria-hidden="true" class="lucide lucide-key ic-sm"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"></path><path d="m21 2-9.6 9.6"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg> Changer le mot de passe</button>
+  <button class="btn bg bsm" style="width:100%;justify-content:flex-start;margin-top:4px;color:var(--re)" onclick="doLogout()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="log-out" aria-hidden="true" class="lucide lucide-log-out ic-sm"><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path></svg> Se déconnecter</button>
 </div>
 <div class="mov" id="modalMdp">
   <div class="modal">
-    <div class="m-t"><i data-lucide="key"></i> Changer le mot de passe</div>
+    <div class="m-t"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key" aria-hidden="true" class="lucide lucide-key"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"></path><path d="m21 2-9.6 9.6"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg> Changer le mot de passe</div>
     <div class="m-s">Modifiez votre mot de passe Firebase</div>
     <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="newPass1" placeholder="Minimum 6 caractères" autocomplete="off"></div>
     <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="newPass2" placeholder="Répéter" autocomplete="off"></div>
     <div id="mdpErr" style="color:var(--re);font-size:13px;margin-top:4px;display:none"></div>
-    <div class="m-ft"><button class="btn bg" onclick="closeM('modalMdp')">Annuler</button><button class="btn bp" onclick="saveMdp()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
+    <div class="m-ft"><button class="btn bg" onclick="closeM('modalMdp')">Annuler</button><button class="btn bp" onclick="saveMdp()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save ic-sm"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Enregistrer</button></div>
   </div>
 </div>
 <header>
-  <div class="logo"><div class="logo-pill" id="appLogoPill"><i data-lucide="graduation-cap"></i></div>EduReçu</div>
+  <div class="logo"><div class="logo-pill" id="appLogoPill"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg></div>EduReçu</div>
   <div class="hdr-r">
     <div class="mobile-stat"><span id="mStatTotal">0</span></div>
     <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mu)">
-      <span class="sync-dot" id="syncDot" title="Statut Firebase"></span>
-      <span id="syncLabel" style="font-size:11px">—</span>
+      <span class="sync-dot synced" id="syncDot" title="Statut Firebase"></span>
+      <span id="syncLabel" style="font-size:11px">Connecté</span>
     </div>
-    <div class="chip" id="schoolChip">École non définie</div>
+    <div class="chip" id="schoolChip">École Privée</div>
   </div>
 </header>
 <div class="wrap">
   <aside>
     <div class="nav-lbl">Menu</div>
-    <div class="nav-i" onclick="nav('dashboard')"><span class="nav-ico"><i data-lucide="layout-dashboard"></i></span>Tableau de bord</div>
+    <div class="nav-i" onclick="nav('dashboard')"><span class="nav-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-dashboard" aria-hidden="true" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg></span>Tableau de bord</div>
 
-    <div class="nav-i" onclick="nav('eleves')"><span class="nav-ico"><i data-lucide="users"></i></span>Élèves</div>
-    <div class="nav-i" onclick="nav('paiement')"><span class="nav-ico"><i data-lucide="credit-card"></i></span>Nouveau Paiement</div>
-    <div class="nav-i" onclick="nav('historique')"><span class="nav-ico"><i data-lucide="clipboard-list"></i></span>Historique</div>
-    <div class="nav-i" onclick="nav('depenses')"><span class="nav-ico"><i data-lucide="receipt"></i></span>Dépenses</div>
-    <div class="nav-i" onclick="nav('dossier')"><span class="nav-ico"><i data-lucide="user-round-search"></i></span>Dossier Élève</div>
-    <div class="nav-i" onclick="nav('parametres')"><span class="nav-ico"><i data-lucide="settings"></i></span>Paramètres</div>
+    <div class="nav-i" onclick="nav('eleves')"><span class="nav-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" aria-hidden="true" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg></span>Élèves</div>
+    <div class="nav-i" onclick="nav('paiement')"><span class="nav-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="credit-card" aria-hidden="true" class="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg></span>Nouveau Paiement</div>
+    <div class="nav-i" onclick="nav('historique')"><span class="nav-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clipboard-list" aria-hidden="true" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg></span>Historique</div>
+    <div class="nav-i" onclick="nav('depenses')"><span class="nav-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="receipt" aria-hidden="true" class="lucide lucide-receipt"><path d="M12 17V7"></path><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"></path><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"></path></svg></span>Dépenses</div>
+    <div class="nav-i" onclick="nav('dossier')"><span class="nav-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-round-search" aria-hidden="true" class="lucide lucide-user-round-search"><circle cx="10" cy="8" r="5"></circle><path d="M2 21a8 8 0 0 1 10.434-7.62"></path><circle cx="18" cy="18" r="3"></circle><path d="m22 22-1.9-1.9"></path></svg></span>Dossier Élève</div>
+    <div class="nav-i" onclick="nav('parametres')"><span class="nav-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg></span>Paramètres</div>
     <div class="sdiv"></div>
     <div class="stat-box">
       <div class="s-lbl">Total par jour</div>
@@ -333,33 +331,33 @@ textarea.inp{resize:vertical;}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
         <div style="background:linear-gradient(135deg,rgba(59,125,255,.15),rgba(59,125,255,.05));border:2px solid rgba(59,125,255,.35);border-radius:18px;padding:22px;position:relative;overflow:hidden">
           <div style="position:absolute;top:-10px;right:-10px;width:80px;height:80px;background:rgba(59,125,255,.1);border-radius:50%"></div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#7aaaff;margin-bottom:8px;display:flex;align-items:center;gap:6px"><i data-lucide="calendar-days" class="ic-sm"></i> Total du jour</div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#7aaaff;margin-bottom:8px;display:flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar-days" aria-hidden="true" class="lucide lucide-calendar-days ic-sm"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path><path d="M16 18h.01"></path></svg> Total du jour</div>
           <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#fff;line-height:1" id="kpi-total">0 MAD</div>
           <div style="font-size:12px;color:var(--mu);margin-top:6px" id="kpi-total-sub">Mensualités · Frais déduits</div>
         </div>
         <div style="background:linear-gradient(135deg,rgba(22,163,74,.15),rgba(22,163,74,.05));border:2px solid rgba(22,163,74,.35);border-radius:18px;padding:22px;position:relative;overflow:hidden">
           <div style="position:absolute;top:-10px;right:-10px;width:80px;height:80px;background:rgba(22,163,74,.1);border-radius:50%"></div>
-          <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--g2);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i data-lucide="trending-up" class="ic-sm"></i> Total ce mois</div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--g2);margin-bottom:8px;display:flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-up" aria-hidden="true" class="lucide lucide-trending-up ic-sm"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg> Total ce mois</div>
           <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--g2);line-height:1" id="kpi-mois">0 MAD</div>
           <div style="font-size:12px;color:var(--mu);margin-top:6px" id="kpi-mois-sub">Mensualités ce mois</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px">
-        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clipboard-list"></i></div><div class="kpi-val" id="kpi-recus">0</div><div class="kpi-lbl">Reçus générés</div></div>
-        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="check-circle-2"></i></div><div class="kpi-val" id="kpi-payes">0</div><div class="kpi-lbl">Élèves à jour</div></div>
-        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="clock"></i></div><div class="kpi-val" id="kpi-attente">0</div><div class="kpi-lbl">En attente</div></div>
-        <div class="kpi-card"><div class="kpi-ico"><i data-lucide="circle-alert"></i></div><div class="kpi-val" id="kpi-retard">0</div><div class="kpi-lbl">En retard</div></div>
-        <div class="kpi-card kpi-accent"><div class="kpi-ico"><i data-lucide="trending-up"></i></div><div class="kpi-val" id="kpi-taux">0%</div><div class="kpi-lbl">Taux paiement</div></div>
-        <div class="kpi-card" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2)"><div class="kpi-ico"><i data-lucide="trending-down"></i></div><div class="kpi-val" id="kpi-frais-jour" style="color:var(--re)">0 MAD</div><div class="kpi-lbl">Frais du jour</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clipboard-list" aria-hidden="true" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg></div><div class="kpi-val" id="kpi-recus">0</div><div class="kpi-lbl">Reçus générés</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg></div><div class="kpi-val" id="kpi-payes">0</div><div class="kpi-lbl">Élèves à jour</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" aria-hidden="true" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></div><div class="kpi-val" id="kpi-attente">0</div><div class="kpi-lbl">En attente</div></div>
+        <div class="kpi-card"><div class="kpi-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="circle-alert" aria-hidden="true" class="lucide lucide-circle-alert"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="8" y2="12"></line><line x1="12" x2="12.01" y1="16" y2="16"></line></svg></div><div class="kpi-val" id="kpi-retard">0</div><div class="kpi-lbl">En retard</div></div>
+        <div class="kpi-card kpi-accent"><div class="kpi-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-up" aria-hidden="true" class="lucide lucide-trending-up"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg></div><div class="kpi-val" id="kpi-taux">0%</div><div class="kpi-lbl">Taux paiement</div></div>
+        <div class="kpi-card" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2)"><div class="kpi-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-down" aria-hidden="true" class="lucide lucide-trending-down"><path d="M16 17h6v-6"></path><path d="m22 17-8.5-8.5-5 5L2 7"></path></svg></div><div class="kpi-val" id="kpi-frais-jour" style="color:var(--re)">0 MAD</div><div class="kpi-lbl">Frais du jour</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-        <div class="card" style="min-height:260px"><div class="ct"><i data-lucide="wallet" class="ic-sm"></i> Encaissements par mois</div><div class="cs">6 derniers mois</div><canvas id="chartMois" height="180"></canvas></div>
-        <div class="card" style="min-height:260px;display:flex;flex-direction:column"><div class="ct"><i data-lucide="target" class="ic-sm"></i> Répartition des statuts</div><div class="cs">État actuel des élèves</div><div style="flex:1;display:flex;align-items:center;justify-content:center"><canvas id="chartStatuts" style="max-height:180px;max-width:180px"></canvas></div></div>
+        <div class="card" style="min-height:260px"><div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="wallet" aria-hidden="true" class="lucide lucide-wallet ic-sm"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg> Encaissements par mois</div><div class="cs">6 derniers mois</div><canvas id="chartMois" height="180"></canvas></div>
+        <div class="card" style="min-height:260px;display:flex;flex-direction:column"><div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="target" aria-hidden="true" class="lucide lucide-target ic-sm"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Répartition des statuts</div><div class="cs">État actuel des élèves</div><div style="flex:1;display:flex;align-items:center;justify-content:center"><canvas id="chartStatuts" style="max-height:180px;max-width:180px"></canvas></div></div>
       </div>
-      <div class="card" style="margin-bottom:20px"><div class="ct"><i data-lucide="school" class="ic-sm"></i> Encaissements par classe</div><div class="cs">Comparaison entre classes</div><canvas id="chartClasses" height="120"></canvas></div>
+      <div class="card" style="margin-bottom:20px"><div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="school" aria-hidden="true" class="lucide lucide-school ic-sm"><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M18 4.933V21"></path><path d="m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6"></path><path d="m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11"></path><path d="M6 4.933V21"></path><circle cx="12" cy="9" r="2"></circle></svg> Encaissements par classe</div><div class="cs">Comparaison entre classes</div><canvas id="chartClasses" height="120"></canvas></div>
       <div class="card" style="background:rgba(59,125,255,.04);border-color:rgba(59,125,255,.15);margin-bottom:20px">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-          <div><div class="ct" style="margin-bottom:2px"><i data-lucide="save" class="ic-sm"></i> Sauvegarde rapide</div><div class="cs" id="dashBackupInfo">Élèves et paiements inclus</div></div>
+          <div><div class="ct" style="margin-bottom:2px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save ic-sm"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Sauvegarde rapide</div><div class="cs" id="dashBackupInfo">Élèves et paiements inclus</div></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <button class="btn bp" onclick="exportBackup()">⬇️ Sauvegarder</button>
             <button class="btn bg" onclick="document.getElementById('restoreInput2').click()">⬆️ Restaurer</button>
@@ -367,7 +365,7 @@ textarea.inp{resize:vertical;}
           </div>
         </div>
       </div>
-      <div class="card"><div class="ct" style="margin-bottom:14px"><i data-lucide="clock" class="ic-sm"></i> Derniers paiements</div><div id="dashLastPay" style="color:var(--di);font-size:13px;text-align:center;padding:20px">Aucun paiement enregistré</div></div>
+      <div class="card"><div class="ct" style="margin-bottom:14px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" aria-hidden="true" class="lucide lucide-clock ic-sm"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg> Derniers paiements</div><div id="dashLastPay" style="color:var(--di);font-size:13px;text-align:center;padding:20px">Aucun paiement enregistré</div></div>
     </div>
     <!-- FRAIS -->
     <div class="sec" id="sec-depenses">
@@ -377,12 +375,12 @@ textarea.inp{resize:vertical;}
       <!-- Encadré Frais du jour -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px">
         <div style="background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.05));border:1.5px solid rgba(239,68,68,.3);border-radius:16px;padding:20px">
-          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--re);margin-bottom:6px;display:flex;align-items:center;gap:6px"><i data-lucide="trending-down" class="ic-sm"></i> Frais du jour</div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--re);margin-bottom:6px;display:flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trending-down" aria-hidden="true" class="lucide lucide-trending-down ic-sm"><path d="M16 17h6v-6"></path><path d="m22 17-8.5-8.5-5 5L2 7"></path></svg> Frais du jour</div>
           <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--re)" id="fraisJourTotal">0 MAD</div>
           <div style="font-size:12px;color:var(--mu);margin-top:4px" id="fraisJourNb">0 dépense(s)</div>
         </div>
         <div style="background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(34,197,94,.05));border:1.5px solid rgba(34,197,94,.3);border-radius:16px;padding:20px">
-          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--g2);margin-bottom:6px;display:flex;align-items:center;gap:6px"><i data-lucide="wallet" class="ic-sm"></i> Net du jour</div>
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--g2);margin-bottom:6px;display:flex;align-items:center;gap:6px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="wallet" aria-hidden="true" class="lucide lucide-wallet ic-sm"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg> Net du jour</div>
           <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--g2)" id="fraisNetJour">0 MAD</div>
           <div style="font-size:12px;color:var(--mu);margin-top:4px">Encaissements − Frais</div>
         </div>
@@ -390,7 +388,7 @@ textarea.inp{resize:vertical;}
 
       <!-- Formulaire ajout dépense -->
       <div class="card" style="margin-bottom:18px">
-        <div class="ct"><i data-lucide="plus-circle" class="ic-sm"></i> Ajouter une dépense</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus-circle" aria-hidden="true" class="lucide lucide-plus-circle ic-sm"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg> Ajouter une dépense</div>
         <div class="cs">Les dépenses du jour sont déduites du total encaissé</div>
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;flex-wrap:wrap">
           <div class="fg" style="margin:0">
@@ -416,7 +414,7 @@ textarea.inp{resize:vertical;}
           </div>
           <div class="fg" style="margin:0"><label class="lbl">Montant *</label><input class="inp" type="number" id="fraisMt" placeholder="0" min="0" step="1"></div>
           <div class="fg" style="margin:0"><label class="lbl">Date</label><input class="inp" type="date" id="fraisDate"></div>
-          <button class="btn bp" onclick="ajouterFrais()" style="height:40px;white-space:nowrap"><i data-lucide="plus" class="ic-sm"></i> Ajouter</button>
+          <button class="btn bp" onclick="ajouterFrais()" style="height:40px;white-space:nowrap"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus ic-sm"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> Ajouter</button>
         </div>
       </div>
 
@@ -433,12 +431,12 @@ textarea.inp{resize:vertical;}
           <div class="tc">
             <input class="inp" style="width:140px" placeholder="🔍 Filtrer…" id="fraisSearch" oninput="renderFrais()">
             <input class="inp" type="month" id="fraisFiltMois" onchange="renderFrais()" style="width:130px">
-            <select class="inp" id="fraisFiltAnnee" onchange="renderFrais()" style="width:90px"></select>
+            <select class="inp" id="fraisFiltAnnee" onchange="renderFrais()" style="width: 90px; display: none;"></select>
             <div class="th2-t" id="fraisCnt" style="white-space:nowrap">0 dépense(s)</div>
-            <button class="btn bg bsm" onclick="exportFraisExcel()"><i data-lucide="download" class="ic-sm"></i> Export</button>
+            <button class="btn bg bsm" onclick="exportFraisExcel()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download ic-sm"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Export</button>
           </div>
         </div>
-        <div id="fraisBody"><div class="empty"><div class="e-ico"><i data-lucide="receipt" class="ic-xl"></i></div><div class="e-t">Aucune dépense enregistrée</div></div></div>
+        <div id="fraisBody"><div class="empty"><div class="e-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="receipt" aria-hidden="true" class="lucide lucide-receipt ic-xl"><path d="M12 17V7"></path><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"></path><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"></path></svg></div><div class="e-t">Aucune dépense enregistrée</div></div></div>
       </div>
     </div>
 
@@ -447,7 +445,7 @@ textarea.inp{resize:vertical;}
       <div class="ph">Import base de données</div>
       <div class="ps">Chargez le fichier Excel contenant la liste des élèves</div>
       <div class="drop" id="dropZone" onclick="document.getElementById('fileInp').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="onDrop(event)">
-        <div class="drop-ico"><i data-lucide="upload-cloud"></i></div><div class="drop-t">Glissez votre fichier Excel ici</div>
+        <div class="drop-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload-cloud" aria-hidden="true" class="lucide lucide-upload-cloud"><path d="M12 13v8"></path><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="m8 17 4-4 4 4"></path></svg></div><div class="drop-t">Glissez votre fichier Excel ici</div>
         <div class="drop-s">ou cliquez pour parcourir · .xlsx · .xls · .csv</div>
       </div>
       <input type="file" id="fileInp" accept=".xlsx,.xls,.csv" onchange="onFileChange(event)">
@@ -458,7 +456,7 @@ textarea.inp{resize:vertical;}
         <div class="tr2" style="grid-template-columns:repeat(8,1fr)"><div class="tc2">002</div><div class="tc2">BENALI</div><div class="tc2">Fatima</div><div class="tc2">2ème B</div><div class="tc2">+212677654321</div><div class="tc2">750</div><div class="tc2">500</div><div class="tc2">en attente</div></div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn bg" onclick="loadDemo()"><i data-lucide="zap" class="ic-sm"></i> Charger données de démonstration</button>
+        <button class="btn bg" onclick="loadDemo()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="zap" aria-hidden="true" class="lucide lucide-zap ic-sm"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg> Charger données de démonstration</button>
       </div>
     </div>
     <!-- ÉLÈVES -->
@@ -469,8 +467,8 @@ textarea.inp{resize:vertical;}
         <div class="th2">
           <div class="th2-t" id="eleveCnt">0 élèves</div>
           <div class="tc">
-            <button class="btn bp bsm" onclick="openAddEleve()" style="white-space:nowrap"><i data-lucide="plus" class="ic-sm"></i> Ajouter</button>
-            <button class="btn bg bsm" onclick="document.getElementById('fileInpAddEleves').click()" style="white-space:nowrap" title="Ajoute les élèves du fichier à la liste actuelle, sans rien supprimer"><i data-lucide="file-up" class="ic-sm"></i> Importer Excel</button>
+            <button class="btn bp bsm" onclick="openAddEleve()" style="white-space:nowrap"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus ic-sm"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> Ajouter</button>
+            <button class="btn bg bsm" onclick="document.getElementById('fileInpAddEleves').click()" style="white-space:nowrap" title="Ajoute les élèves du fichier à la liste actuelle, sans rien supprimer"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-up" aria-hidden="true" class="lucide lucide-file-up ic-sm"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M12 12v6"></path><path d="m15 15-3-3-3 3"></path></svg> Importer Excel</button>
             <input type="file" id="fileInpAddEleves" accept=".xlsx,.xls,.csv" style="display:none" onchange="onFileChangeAddEleves(event)">
             <div style="position:relative;display:flex;align-items:center">
               <input class="inp" style="width:140px;padding-right:28px" placeholder="🔍 Rechercher…" id="search" oninput="filterE();updateClearBtn()">
@@ -491,21 +489,21 @@ textarea.inp{resize:vertical;}
             <th>SEXE</th><th>DATE NAISS.</th><th>LIEU NAISS.</th><th>TÉL.</th>
             <th class="th-sort" id="th-frais" onclick="sortBy('frais')">FRAIS / STATUT <span class="sort-ico"></span></th>
             <th class="th-sort" id="th-inscription" onclick="sortBy('inscription')" style="white-space:nowrap">🎓 INSCRIPTION <span class="sort-ico"></span></th>
-            <th class="th-sort" id="th-assurance" onclick="sortBy('assurance')" style="white-space:nowrap"><i data-lucide="shield" class="ic-sm"></i> ASSURANCE <span class="sort-ico"></span></th>
+            <th class="th-sort" id="th-assurance" onclick="sortBy('assurance')" style="white-space:nowrap"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield" aria-hidden="true" class="lucide lucide-shield ic-sm"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg> ASSURANCE <span class="sort-ico"></span></th>
             <th>ACTIONS</th>
           </tr></thead>
-          <tbody id="eleveTb"><tr><td colspan="13"><div class="empty"><div class="e-ico"><i data-lucide="table" class="ic-xl"></i></div><div class="e-t">Importez un fichier Excel</div></div></td></tr></tbody>
+          <tbody id="eleveTb"><tr><td colspan="13"><div class="empty"><div class="e-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="table" aria-hidden="true" class="lucide lucide-table ic-xl"><path d="M12 3v18"></path><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M3 9h18"></path><path d="M3 15h18"></path></svg></div><div class="e-t">Importez un fichier Excel</div></div></td></tr></tbody>
         </table>
         <!-- PAGINATION -->
         <div id="paginationBar" style="display:none;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--b1);flex-wrap:wrap;gap:8px">
           <div style="font-size:12.5px;color:var(--mu)" id="pageInfo"></div>
           <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn bg bsm" id="btnPrevPage" onclick="changePage(-1)"><i data-lucide="chevron-left" class="ic-sm"></i></button>
+            <button class="btn bg bsm" id="btnPrevPage" onclick="changePage(-1)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-left" aria-hidden="true" class="lucide lucide-chevron-left ic-sm"><path d="m15 18-6-6 6-6"></path></svg></button>
             <div id="pageNums" style="display:flex;gap:4px"></div>
-            <button class="btn bg bsm" id="btnNextPage" onclick="changePage(1)"><i data-lucide="chevron-right" class="ic-sm"></i></button>
+            <button class="btn bg bsm" id="btnNextPage" onclick="changePage(1)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-right" aria-hidden="true" class="lucide lucide-chevron-right ic-sm"><path d="m9 18 6-6-6-6"></path></svg></button>
             <select class="inp" id="pageSizeSelect" onchange="changePageSize(this.value)" style="width:80px;font-size:12px;padding:4px 8px">
               <option value="25">25 / page</option>
-              <option value="50" selected>50 / page</option>
+              <option value="50" selected="">50 / page</option>
               <option value="100">100 / page</option>
             </select>
           </div>
@@ -517,8 +515,8 @@ textarea.inp{resize:vertical;}
       <div class="ph">Enregistrer un Paiement</div>
       <div class="ps">Remplissez le formulaire et générez le reçu PDF imprimable</div>
       <div class="tabs">
-        <div class="tab on" id="tab-form" onclick="switchTab('form')"><i data-lucide="file-text" class="ic-sm"></i> Formulaire</div>
-        <div class="tab" id="tab-prev" onclick="switchTab('prev')"><i data-lucide="eye" class="ic-sm"></i> Aperçu reçu</div>
+        <div class="tab on" id="tab-form" onclick="switchTab('form')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" aria-hidden="true" class="lucide lucide-file-text ic-sm"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg> Formulaire</div>
+        <div class="tab" id="tab-prev" onclick="switchTab('prev')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" aria-hidden="true" class="lucide lucide-eye ic-sm"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg> Aperçu reçu</div>
       </div>
       <div id="pane-form">
         <!-- Sélecteur mode : Par classe ou par élève -->
@@ -537,9 +535,8 @@ textarea.inp{resize:vertical;}
                 <label class="lbl">Élève *</label>
                 <div style="position:relative">
                   <div style="position:relative;display:flex;align-items:center">
-                    <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"></i>
-                    <input class="inp" id="selEleveSearch" placeholder="Rechercher ou cliquer pour la liste…" autocomplete="off"
-                      oninput="onEleveSearch()" onfocus="onEleveSearchOpen()" style="padding-left:32px;padding-right:28px">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" aria-hidden="true" class="lucide lucide-search ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                    <input class="inp" id="selEleveSearch" placeholder="Rechercher ou cliquer pour la liste…" autocomplete="off" oninput="onEleveSearch()" onfocus="onEleveSearchOpen()" style="padding-left:32px;padding-right:28px">
                     <button id="clearEleveBtn" type="button" onclick="clearEleveSearch()" style="display:none;position:absolute;right:8px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px;padding:0">✕</button>
                   </div>
                   <input type="hidden" id="selEleve">
@@ -571,9 +568,9 @@ textarea.inp{resize:vertical;}
               <label class="lbl">Mois concerné *</label>
               <div class="month-picker" id="moisPayWrap">
                 <button type="button" class="inp month-picker-btn" id="moisPayBtn" onclick="toggleMonthPicker(event)">
-                  <span id="moisPayLabel">—</span><span class="month-picker-ico"><i data-lucide="calendar"></i></span>
+                  <span id="moisPayLabel">Juillet 2026</span><span class="month-picker-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="calendar" aria-hidden="true" class="lucide lucide-calendar"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg></span>
                 </button>
-                <input type="hidden" id="moisPay">
+                <input type="hidden" id="moisPay" value="2026-07">
                 <div class="month-picker-pop" id="moisPayPop">
                   <div class="month-picker-year">
                     <button type="button" class="btn bg bsm" onclick="changeMPYear(-1)">‹</button>
@@ -581,7 +578,7 @@ textarea.inp{resize:vertical;}
                     <button type="button" class="btn bg bsm" onclick="changeMPYear(1)">›</button>
                   </div>
                   <div class="month-picker-grid" id="moisPayGrid"></div>
-                  <div class="month-picker-today" onclick="selectToday()"><i data-lucide="map-pin" class="ic-sm"></i> Mois actuel</div>
+                  <div class="month-picker-today" onclick="selectToday()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="map-pin" aria-hidden="true" class="lucide lucide-map-pin ic-sm"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Mois actuel</div>
                 </div>
               </div>
             </div>
@@ -601,15 +598,15 @@ textarea.inp{resize:vertical;}
           <div><div class="card"><div class="ct">Récapitulatif</div><div class="cs">Renseigné automatiquement</div><div id="eleveRecap" style="color:var(--di);font-size:13px">Sélectionnez un élève ou une classe</div></div></div>
         </div>
         <div class="brow">
-          <button class="btn bp" onclick="genererRecu()"><i data-lucide="printer" class="ic-sm"></i> Générer &amp; Imprimer le PDF</button>
-          <button class="btn bg" onclick="switchTab('prev')"><i data-lucide="eye" class="ic-sm"></i> Aperçu reçu</button>
-          <button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><i data-lucide="x" class="ic-sm"></i> Annuler</button>
-          <button class="btn bg" onclick="annulerPaiement();nav('dashboard')"><i data-lucide="door-open" class="ic-sm"></i> Fermer</button>
+          <button class="btn bp" onclick="genererRecu()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="printer" aria-hidden="true" class="lucide lucide-printer ic-sm"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg> Générer &amp; Imprimer le PDF</button>
+          <button class="btn bg" onclick="switchTab('prev')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="eye" aria-hidden="true" class="lucide lucide-eye ic-sm"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg> Aperçu reçu</button>
+          <button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x ic-sm"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Annuler</button>
+          <button class="btn bg" onclick="annulerPaiement();nav('dashboard')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="door-open" aria-hidden="true" class="lucide lucide-door-open ic-sm"><path d="M11 20H2"></path><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z"></path><path d="M11 4H8a2 2 0 0 0-2 2v14"></path><path d="M14 12h.01"></path><path d="M22 20h-3"></path></svg> Fermer</button>
         </div>
       </div>
       <div id="pane-prev" style="display:none">
         <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:14px;padding:22px;display:flex;justify-content:center;margin-bottom:16px;overflow:auto"><div id="prevBox"><div style="color:var(--di);padding:40px;text-align:center">Sélectionnez un élève</div></div></div>
-        <div class="brow"><button class="btn bp" onclick="genererRecu()"><i data-lucide="printer" class="ic-sm"></i> Générer &amp; Imprimer le PDF</button><button class="btn bg" onclick="switchTab('form')">← Retour</button><button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><i data-lucide="x" class="ic-sm"></i> Annuler</button><button class="btn bg" onclick="annulerPaiement();nav('dashboard')"><i data-lucide="door-open" class="ic-sm"></i> Fermer</button></div>
+        <div class="brow"><button class="btn bp" onclick="genererRecu()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="printer" aria-hidden="true" class="lucide lucide-printer ic-sm"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg> Générer &amp; Imprimer le PDF</button><button class="btn bg" onclick="switchTab('form')">← Retour</button><button class="btn bg" onclick="annulerPaiement()" style="color:var(--re);border-color:rgba(239,68,68,.3)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x ic-sm"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Annuler</button><button class="btn bg" onclick="annulerPaiement();nav('dashboard')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="door-open" aria-hidden="true" class="lucide lucide-door-open ic-sm"><path d="M11 20H2"></path><path d="M11 4.562v16.157a1 1 0 0 0 1.242.97L19 20V5.562a2 2 0 0 0-1.515-1.94l-4-1A2 2 0 0 0 11 4.561z"></path><path d="M11 4H8a2 2 0 0 0-2 2v14"></path><path d="M14 12h.01"></path><path d="M22 20h-3"></path></svg> Fermer</button></div>
       </div>
     </div>
     <!-- HISTORIQUE -->
@@ -622,10 +619,10 @@ textarea.inp{resize:vertical;}
           <div class="tc">
             <input class="inp" style="width:160px" placeholder="🔍 Rechercher…" id="histSearch" oninput="filterHist()">
             <select class="inp" style="width:130px" id="histFiltMois" onchange="filterHist()"><option value="">Tous les mois</option></select>
-            <button class="btn bg bsm" onclick="exportHist()"><i data-lucide="download" class="ic-sm"></i> Export Excel</button>
+            <button class="btn bg bsm" onclick="exportHist()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download ic-sm"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Export Excel</button>
           </div>
         </div>
-        <div id="histBody"><div class="empty"><div class="e-ico"><i data-lucide="clipboard-list" class="ic-xl"></i></div><div class="e-t">Aucun paiement enregistré</div></div></div>
+        <div id="histBody"><div class="empty"><div class="e-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clipboard-list" aria-hidden="true" class="lucide lucide-clipboard-list ic-xl"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg></div><div class="e-t">Aucun paiement enregistré</div></div></div>
       </div>
     </div>
     <!-- DOSSIER ÉLÈVE -->
@@ -638,9 +635,8 @@ textarea.inp{resize:vertical;}
             <label class="lbl">Rechercher un élève</label>
             <div style="position:relative">
               <div style="position:relative;display:flex;align-items:center">
-                <i data-lucide="search" class="ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"></i>
-                <input class="inp" id="dossierSearch" placeholder="Cliquer ou taper un nom…" autocomplete="off"
-                  oninput="filterDossierSel()" onfocus="openDossierDropdown()" style="padding-left:32px;padding-right:28px">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" aria-hidden="true" class="lucide lucide-search ic-sm" style="position:absolute;left:10px;color:var(--di);pointer-events:none"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                <input class="inp" id="dossierSearch" placeholder="Cliquer ou taper un nom…" autocomplete="off" oninput="filterDossierSel()" onfocus="openDossierDropdown()" style="padding-left:32px;padding-right:28px">
                 <button id="dossierSearchClear" onclick="clearDossierSearch()" title="Effacer" style="display:none;position:absolute;right:6px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:14px">✕</button>
               </div>
               <input type="hidden" id="dossierSelEleve">
@@ -690,7 +686,7 @@ textarea.inp{resize:vertical;}
         </div>
       </div>
       <div id="dossierEmpty" style="text-align:center;padding:60px 20px;color:var(--di)">
-        <div style="font-size:48px;margin-bottom:12px"><i data-lucide="user-round-search" style="width:48px;height:48px;opacity:.3"></i></div>
+        <div style="font-size:48px;margin-bottom:12px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-round-search" aria-hidden="true" style="width:48px;height:48px;opacity:.3" class="lucide lucide-user-round-search"><circle cx="10" cy="8" r="5"></circle><path d="M2 21a8 8 0 0 1 10.434-7.62"></path><circle cx="18" cy="18" r="3"></circle><path d="m22 22-1.9-1.9"></path></svg></div>
         <div style="font-size:15px;color:var(--mu)">Sélectionnez un élève pour afficher son dossier</div>
       </div>
     </div>
@@ -699,7 +695,7 @@ textarea.inp{resize:vertical;}
       <div class="ps">Configuration de l'application et de l'école</div>
       <!-- FIREBASE -->
       <div class="card" id="cardFirebase">
-        <div class="ct"><i data-lucide="flame" class="ic-sm"></i> Base de données Firebase</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame" aria-hidden="true" class="lucide lucide-flame ic-sm"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg> Base de données Firebase</div>
         <div class="cs">Synchronisation en temps réel sur tous vos appareils</div>
         <div class="ib" id="fbStatusBox" style="margin-bottom:14px">⏳ Initialisation…</div>
         <div class="fg2">
@@ -709,15 +705,15 @@ textarea.inp{resize:vertical;}
           <div class="fg"><label class="lbl">Auth Domain</label><input class="inp" id="fb_authDomain" placeholder="mon-projet.firebaseapp.com" autocomplete="off"></div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn bp" onclick="initFirebase()"><i data-lucide="flame" class="ic-sm"></i> Connecter Firebase</button>
-          <button class="btn bg" onclick="syncToFirebase()"><i data-lucide="upload" class="ic-sm"></i> Envoyer vers Firebase</button>
-          <button class="btn bg" onclick="syncFromFirebase()"><i data-lucide="download" class="ic-sm"></i> Charger depuis Firebase</button>
-          <button class="btn bg" onclick="downloadConfiguredHTML()" title="Télécharger le fichier HTML avec la config Firebase intégrée — à utiliser sur tout autre navigateur/PC"><i data-lucide="file-down" class="ic-sm"></i> Télécharger fichier configuré</button>
+          <button class="btn bp" onclick="initFirebase()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame" aria-hidden="true" class="lucide lucide-flame ic-sm"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg> Connecter Firebase</button>
+          <button class="btn bg" onclick="syncToFirebase()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload" aria-hidden="true" class="lucide lucide-upload ic-sm"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Envoyer vers Firebase</button>
+          <button class="btn bg" onclick="syncFromFirebase()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download ic-sm"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Charger depuis Firebase</button>
+          <button class="btn bg" onclick="downloadConfiguredHTML()" title="Télécharger le fichier HTML avec la config Firebase intégrée — à utiliser sur tout autre navigateur/PC"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-down" aria-hidden="true" class="lucide lucide-file-down ic-sm"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M12 18v-6"></path><path d="m9 15 3 3 3-3"></path></svg> Télécharger fichier configuré</button>
         </div>
         <div class="ib ib-ok" style="margin-top:10px;font-size:12.5px">
           💡 <strong>Config permanente</strong> : après connexion, un fichier HTML mis à jour est automatiquement téléchargé avec la config Firebase intégrée. Remplacez votre ancien fichier par ce nouveau — il fonctionnera sur n'importe quel navigateur sans reconfiguration. Vous pouvez aussi le télécharger manuellement avec le bouton ci-dessus.
         </div>
-          <summary style="cursor:pointer;font-size:13px;color:var(--mu);font-weight:600;padding:8px 0"><i data-lucide="clipboard-list" class="ic-sm"></i> Règles Firestore sécurisées (à copier dans la console)</summary>
+          <summary style="cursor:pointer;font-size:13px;color:var(--mu);font-weight:600;padding:8px 0"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clipboard-list" aria-hidden="true" class="lucide lucide-clipboard-list ic-sm"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg> Règles Firestore sécurisées (à copier dans la console)</summary>
           <div class="ib ib-sec" style="margin-top:10px;font-family:monospace;font-size:11px;white-space:pre;overflow-x:auto">rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
@@ -732,36 +728,36 @@ service cloud.firestore {
     }
   }
 }</div>
-          <div class="ib ib-warn" style="margin-top:8px;font-size:12px"><i data-lucide="triangle-alert" class="ic-sm"></i> N'utilisez PAS le mode test (lecture/écriture libre) en production.</div>
-        </details>
+          <div class="ib ib-warn" style="margin-top:8px;font-size:12px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="triangle-alert" aria-hidden="true" class="lucide lucide-triangle-alert ic-sm"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg> N'utilisez PAS le mode test (lecture/écriture libre) en production.</div>
+        
       </div>
       <!-- IMPORT DEPUIS PARAMÈTRES -->
       <div class="card">
-        <div class="ct"><i data-lucide="folder-open" class="ic-sm"></i> Import de la liste des élèves</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="folder-open" aria-hidden="true" class="lucide lucide-folder-open ic-sm"><path d="m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg> Import de la liste des élèves</div>
         <div class="cs">Importez (en remplaçant toute la liste) ou exportez la liste des élèves</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn bp" onclick="document.getElementById('fileInpParam').click()"><i data-lucide="upload" class="ic-sm"></i> Importer Excel / CSV (remplacer la liste)</button>
-          <button class="btn bg" onclick="exportElevesExcel()"><i data-lucide="download" class="ic-sm"></i> Exporter liste élèves (.xlsx)</button>
+          <button class="btn bp" onclick="document.getElementById('fileInpParam').click()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload" aria-hidden="true" class="lucide lucide-upload ic-sm"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Importer Excel / CSV (remplacer la liste)</button>
+          <button class="btn bg" onclick="exportElevesExcel()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download ic-sm"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Exporter liste élèves (.xlsx)</button>
           <input type="file" id="fileInpParam" accept=".xlsx,.xls,.csv" style="display:none" onchange="onFileChangeParam(event)">
         </div>
-        <div class="ib ib-warn" style="margin-top:12px;font-size:12px"><i data-lucide="triangle-alert" class="ic-sm"></i> Cet import <strong>remplace toute la liste existante</strong>. Faites une sauvegarde avant.</div>
-        <div class="ib" style="margin-top:8px;font-size:12px"><i data-lucide="lightbulb" class="ic-sm"></i> Pour <strong>ajouter</strong> des élèves à la liste actuelle sans rien supprimer, utilisez le bouton <strong><i data-lucide="file-up" class="ic-sm"></i> Importer Excel</strong> dans la section <strong>Élèves</strong>.</div>
+        <div class="ib ib-warn" style="margin-top:12px;font-size:12px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="triangle-alert" aria-hidden="true" class="lucide lucide-triangle-alert ic-sm"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg> Cet import <strong>remplace toute la liste existante</strong>. Faites une sauvegarde avant.</div>
+        <div class="ib" style="margin-top:8px;font-size:12px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="lightbulb" aria-hidden="true" class="lucide lucide-lightbulb ic-sm"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> Pour <strong>ajouter</strong> des élèves à la liste actuelle sans rien supprimer, utilisez le bouton <strong><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-up" aria-hidden="true" class="lucide lucide-file-up ic-sm"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M12 12v6"></path><path d="m15 15-3-3-3 3"></path></svg> Importer Excel</strong> dans la section <strong>Élèves</strong>.</div>
       </div>
       <!-- SAUVEGARDE -->
       <div class="card">
-        <div class="ct"><i data-lucide="save" class="ic-sm"></i> Sauvegarde &amp; Restauration</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save ic-sm"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Sauvegarde &amp; Restauration</div>
         <div class="cs">Exportez toutes vos données en JSON ou restaurez depuis une sauvegarde</div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
-          <button class="btn bp" onclick="exportBackup()"><i data-lucide="download" class="ic-sm"></i> Sauvegarder (JSON)</button>
-          <button class="btn bg" onclick="document.getElementById('restoreInput').click()"><i data-lucide="upload" class="ic-sm"></i> Restaurer depuis fichier</button>
+          <button class="btn bp" onclick="exportBackup()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download ic-sm"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> Sauvegarder (JSON)</button>
+          <button class="btn bg" onclick="document.getElementById('restoreInput').click()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload" aria-hidden="true" class="lucide lucide-upload ic-sm"><path d="M12 3v12"></path><path d="m17 8-5-5-5 5"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path></svg> Restaurer depuis fichier</button>
           <input type="file" id="restoreInput" accept=".json" style="display:none" onchange="importBackup(this)">
         </div>
         <div id="lastBackupInfo" style="font-size:12px;color:var(--di);margin-bottom:10px"></div>
-        <div class="ib ib-warn" style="font-size:12.5px"><i data-lucide="triangle-alert" class="ic-sm"></i> La restauration remplace toutes les données actuelles. Action irréversible.</div>
+        <div class="ib ib-warn" style="font-size:12.5px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="triangle-alert" aria-hidden="true" class="lucide lucide-triangle-alert ic-sm"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg> La restauration remplace toutes les données actuelles. Action irréversible.</div>
       </div>
       <!-- INFOS ÉCOLE -->
       <div class="card">
-        <div class="ct"><i data-lucide="school" class="ic-sm"></i> Informations de l'École</div><div class="cs">Apparaissent sur tous les reçus générés</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="school" aria-hidden="true" class="lucide lucide-school ic-sm"><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M18 4.933V21"></path><path d="m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6"></path><path d="m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11"></path><path d="M6 4.933V21"></path><circle cx="12" cy="9" r="2"></circle></svg> Informations de l'École</div><div class="cs">Apparaissent sur tous les reçus générés</div>
         <div class="fg2">
           <div class="fg"><label class="lbl">Nom de l'école</label><input class="inp" id="c_ecole"></div>
           <div class="fg"><label class="lbl">Adresse</label><input class="inp" id="c_adresse"></div>
@@ -775,37 +771,37 @@ service cloud.firestore {
           </select>
         </div>
         <div style="height:1px;background:var(--b1);margin:16px 0"></div>
-        <div class="ct" style="margin-bottom:3px"><i data-lucide="image" class="ic-sm"></i> Logos</div><div class="cs">Formats acceptés : PNG, JPG, SVG</div>
+        <div class="ct" style="margin-bottom:3px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="image" aria-hidden="true" class="lucide lucide-image ic-sm"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"></rect><circle cx="9" cy="9" r="2"></circle><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path></svg> Logos</div><div class="cs">Formats acceptés : PNG, JPG, SVG</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px">
           <div>
             <div class="lbl" style="margin-bottom:8px">Logo de l'application (header)</div>
             <div onclick="document.getElementById('appLogoInp').click()" style="border:2px dashed var(--b2);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--bg3);min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
               <div id="appLogoPreview" style="display:none;width:48px;height:48px;border-radius:10px;overflow:hidden;border:1px solid var(--b2)"><img id="appLogoImg" src="" style="width:100%;height:100%;object-fit:cover"></div>
-              <div id="appLogoPlaceholder"><div style="font-size:24px;margin-bottom:4px"><i data-lucide="graduation-cap" class="ic-xl"></i></div><div style="font-size:12px;color:var(--mu)">Cliquez pour choisir</div></div>
+              <div id="appLogoPlaceholder" style="display: block;"><div style="font-size:24px;margin-bottom:4px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="graduation-cap" aria-hidden="true" class="lucide lucide-graduation-cap ic-xl"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path></svg></div><div style="font-size:12px;color:var(--mu)">Cliquez pour choisir</div></div>
             </div>
             <input type="file" id="appLogoInp" accept="image/*" style="display:none" onchange="loadLogo('app',this)">
-            <button class="btn bg bsm" style="margin-top:8px;width:100%" onclick="removeLogo('app')"><i data-lucide="x" class="ic-sm"></i> Supprimer</button>
+            <button class="btn bg bsm" style="margin-top:8px;width:100%" onclick="removeLogo('app')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x ic-sm"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Supprimer</button>
           </div>
           <div>
             <div class="lbl" style="margin-bottom:8px">Logo de l'école (reçus PDF)</div>
             <div onclick="document.getElementById('schoolLogoInp').click()" style="border:2px dashed var(--b2);border-radius:12px;padding:16px;text-align:center;cursor:pointer;background:var(--bg3);min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px">
               <div id="schoolLogoPreview" style="display:none;height:48px;overflow:hidden"><img id="schoolLogoImg" src="" style="height:100%;max-width:120px;object-fit:contain"></div>
-              <div id="schoolLogoPlaceholder"><div style="font-size:24px;margin-bottom:4px"><i data-lucide="school" class="ic-xl"></i></div><div style="font-size:12px;color:var(--mu)">Cliquez pour choisir</div></div>
+              <div id="schoolLogoPlaceholder" style="display: block;"><div style="font-size:24px;margin-bottom:4px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="school" aria-hidden="true" class="lucide lucide-school ic-xl"><path d="M14 21v-3a2 2 0 0 0-4 0v3"></path><path d="M18 4.933V21"></path><path d="m4 6 7.106-3.79a2 2 0 0 1 1.788 0L20 6"></path><path d="m6 11-3.52 2.147a1 1 0 0 0-.48.854V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-.48-.853L18 11"></path><path d="M6 4.933V21"></path><circle cx="12" cy="9" r="2"></circle></svg></div><div style="font-size:12px;color:var(--mu)">Cliquez pour choisir</div></div>
             </div>
             <input type="file" id="schoolLogoInp" accept="image/*" style="display:none" onchange="loadLogo('school',this)">
-            <button class="btn bg bsm" style="margin-top:8px;width:100%" onclick="removeLogo('school')"><i data-lucide="x" class="ic-sm"></i> Supprimer</button>
+            <button class="btn bg bsm" style="margin-top:8px;width:100%" onclick="removeLogo('school')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x ic-sm"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Supprimer</button>
           </div>
         </div>
       </div>
       <!-- NOTIFICATIONS -->
       <div class="card">
-        <div class="ct"><i data-lucide="megaphone" class="ic-sm"></i> Alertes &amp; Notifications</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="megaphone" aria-hidden="true" class="lucide lucide-megaphone ic-sm"><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"></path><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14"></path><path d="M8 6v8"></path></svg> Alertes &amp; Notifications</div>
         <div class="cs">Choisissez votre canal — Telegram (automatique) ou WhatsApp (lien direct)</div>
         <div class="notif-tabs">
-          <div class="ntab on-tg" id="ntab-tg" onclick="switchNotifTab('tg')"><i data-lucide="send" class="ic-sm"></i> Telegram <span style="font-size:10px;opacity:.7">(recommandé)</span></div>
-          <div class="ntab" id="ntab-wa" onclick="switchNotifTab('wa')"><i data-lucide="message-circle" class="ic-sm"></i> WhatsApp</div>
+          <div class="ntab on-tg" id="ntab-tg" onclick="switchNotifTab('tg')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" aria-hidden="true" class="lucide lucide-send ic-sm"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg> Telegram <span style="font-size:10px;opacity:.7">(recommandé)</span></div>
+          <div class="ntab" id="ntab-wa" onclick="switchNotifTab('wa')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-circle" aria-hidden="true" class="lucide lucide-message-circle ic-sm"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg> WhatsApp</div>
         </div>
-        <div id="notif-tg">
+        <div id="notif-tg" style="display: block;">
           <div class="ib ib-tg"><strong>Telegram Bot — envoi automatique, 100% gratuit</strong><br><br>
             1. Ouvrez Telegram → <code>@BotFather</code> → <code>/newbot</code> → récupérez le <strong>Token</strong><br>
             2. Cherchez votre bot, envoyez <code>/start</code><br>
@@ -815,7 +811,7 @@ service cloud.firestore {
             <div class="fg"><label class="lbl">Token du Bot Telegram</label><input class="inp" id="c_tgToken" placeholder="123456789:ABCdef…"></div>
             <div class="fg"><label class="lbl">Chat ID</label><input class="inp" id="c_tgChat" placeholder="123456789"></div>
           </div>
-          <button class="btn btg" onclick="testTg()"><i data-lucide="send" class="ic-sm"></i> Envoyer un message test</button>
+          <button class="btn btg" onclick="testTg()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" aria-hidden="true" class="lucide lucide-send ic-sm"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg> Envoyer un message test</button>
         </div>
         <div id="notif-wa" style="display:none">
           <div class="ib ib-wa"><strong>WhatsApp via lien direct — aucune API requise</strong><br><br>À chaque reçu généré, un bouton ouvre WhatsApp avec le message pré-rempli.</div>
@@ -823,13 +819,13 @@ service cloud.firestore {
         </div>
       </div>
       <div class="card">
-        <div class="ct"><i data-lucide="file-text" class="ic-sm"></i> Modèle de message d'alerte</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="file-text" aria-hidden="true" class="lucide lucide-file-text ic-sm"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg> Modèle de message d'alerte</div>
         <div class="cs">Variables : {eleve} {classe} {mois} {montant} {devise} {recu} {ecole} {date} {remarque} · La ligne 🏷️ (type de paiement) est ajoutée automatiquement</div>
         <div class="fg"><textarea class="inp" id="c_alertMsg" rows="7"></textarea></div>
       </div>
       <!-- PERSONNALISATION REÇU -->
       <div class="card">
-        <div class="ct"><i data-lucide="palette" class="ic-sm"></i> Personnalisation du Reçu</div><div class="cs">Aperçu en temps réel</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="palette" aria-hidden="true" class="lucide lucide-palette ic-sm"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"></path><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle></svg> Personnalisation du Reçu</div><div class="cs">Aperçu en temps réel</div>
         <div style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Couleurs &amp; Style</div>
         <div class="fg2">
           <div class="fg"><label class="lbl">Couleur du bandeau</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="r_color" value="#3b7dff" oninput="S.rColor=this.value;document.getElementById('r_colorHex').value=this.value;livePreview()" style="width:44px;height:36px;border:1px solid var(--b2);border-radius:8px;background:var(--bg3);cursor:pointer;padding:2px"><input class="inp" id="r_colorHex" value="#3b7dff" style="flex:1;font-family:monospace" oninput="S.rColor=this.value;document.getElementById('r_color').value=this.value;livePreview()"></div></div>
@@ -838,7 +834,7 @@ service cloud.firestore {
           <div class="fg"><label class="lbl">Police</label><select class="inp" id="r_font" onchange="S.rFont=this.value;livePreview()"><option value="DM Sans">DM Sans (défaut)</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Trebuchet MS">Trebuchet MS</option></select></div>
         </div>
         <div style="display:flex;gap:18px;margin-bottom:14px;flex-wrap:wrap">
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--tx)"><input type="radio" name="r_format" id="r_fmtA5" value="A5" checked onchange="S.rFormat='A5';livePreview()" style="accent-color:var(--ac)"> A5 compact (recommandé)</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--tx)"><input type="radio" name="r_format" id="r_fmtA5" value="A5" checked="" onchange="S.rFormat='A5';livePreview()" style="accent-color:var(--ac)"> A5 compact (recommandé)</label>
           <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13.5px;color:var(--tx)"><input type="radio" name="r_format" id="r_fmtA4" value="A4" onchange="S.rFormat='A4';livePreview()" style="accent-color:var(--ac)"> A4 pleine page</label>
         </div>
         <div class="fg2" style="margin-bottom:14px">
@@ -848,62 +844,62 @@ service cloud.firestore {
         </div>
         <div class="fg"><input class="inp" id="r_footer" value="Merci pour votre confiance !" oninput="S.rFooter=this.value;livePreview()"></div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showSig" checked onchange="S.rShowSignature=this.checked;livePreview()" style="accent-color:var(--ac)"> Zone de signature</label>
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showStamp" checked onchange="S.rShowStamp=this.checked;livePreview()" style="accent-color:var(--ac)"> Tampon PAYÉ</label>
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showGen" checked onchange="S.rShowGenerated=this.checked;livePreview()" style="accent-color:var(--ac)"> Mention EduReçu</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showSig" checked="" onchange="S.rShowSignature=this.checked;livePreview()" style="accent-color:var(--ac)"> Zone de signature</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showStamp" checked="" onchange="S.rShowStamp=this.checked;livePreview()" style="accent-color:var(--ac)"> Tampon PAYÉ</label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="r_showGen" checked="" onchange="S.rShowGenerated=this.checked;livePreview()" style="accent-color:var(--ac)"> Mention EduReçu</label>
         </div>
         <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:12px;padding:16px;display:flex;justify-content:center;overflow:auto"><div id="recuLivePreview"></div></div>
       </div>
       <!-- COMPTES -->
       <div class="card" id="cardComptes">
-        <div class="ct"><i data-lucide="users" class="ic-sm"></i> Gestion des Comptes</div><div class="cs">Comptes gérés via Firebase Authentication</div>
-        <div style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px"><i data-lucide="key" class="ic-sm"></i> Modifier un mot de passe (Admin)</div>
+        <div class="ct"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" aria-hidden="true" class="lucide lucide-users ic-sm"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg> Gestion des Comptes</div><div class="cs">Comptes gérés via Firebase Authentication</div>
+        <div style="font-size:12px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="key" aria-hidden="true" class="lucide lucide-key ic-sm"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"></path><path d="m21 2-9.6 9.6"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg> Modifier un mot de passe (Admin)</div>
         <div class="fg2">
           <div class="fg"><label class="lbl">Nouveau mot de passe</label><input class="inp" type="password" id="adm_pass1" placeholder="Minimum 6 caractères" autocomplete="off"></div>
           <div class="fg"><label class="lbl">Confirmer</label><input class="inp" type="password" id="adm_pass2" placeholder="Répéter" autocomplete="off"></div>
         </div>
         <div class="fg"><label class="lbl">Email du compte cible</label><input class="inp" id="adm_target_email" placeholder="email@exemple.com — laisser vide pour votre propre compte" autocomplete="off"></div>
-        <button class="btn bp bsm" onclick="changeMyPassword()"><i data-lucide="save" class="ic-sm"></i> Modifier le mot de passe</button>
+        <button class="btn bp bsm" onclick="changeMyPassword()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save ic-sm"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Modifier le mot de passe</button>
         <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--b1)">
           <div class="ib" style="font-size:12.5px">
-            <i data-lucide="lightbulb" class="ic-sm"></i> <strong>Seul l'administrateur peut modifier les mots de passe.</strong><br><br>Pour modifier le mot de passe d'un <em>autre compte</em>, utilisez la <a href="https://console.firebase.google.com" target="_blank" style="color:var(--ac)">Console Firebase</a> → Authentication → Users → ⋮ → Reset password.<br><br>Pour créer/supprimer des comptes : Console Firebase → Authentication → Users.<br><br>Pour définir le rôle admin : Firestore → <code>roles/{uid}</code> → <code>{role: "admin"}</code>.
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="lightbulb" aria-hidden="true" class="lucide lucide-lightbulb ic-sm"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> <strong>Seul l'administrateur peut modifier les mots de passe.</strong><br><br>Pour modifier le mot de passe d'un <em>autre compte</em>, utilisez la <a href="https://console.firebase.google.com" target="_blank" style="color:var(--ac)">Console Firebase</a> → Authentication → Users → ⋮ → Reset password.<br><br>Pour créer/supprimer des comptes : Console Firebase → Authentication → Users.<br><br>Pour définir le rôle admin : Firestore → <code>roles/{uid}</code> → <code>{role: "admin"}</code>.
           </div>
         </div>
       </div>
-      <button class="btn bp" style="margin-top:4px" onclick="saveSettings()"><i data-lucide="save" class="ic-sm"></i> Enregistrer les paramètres</button>
+      <button class="btn bp" style="margin-top:4px" onclick="saveSettings()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save ic-sm"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Enregistrer les paramètres</button>
     </div>
   </main>
 </div>
 <nav class="bottom-nav">
-  <button class="bn-item" id="bn-dashboard" onclick="nav('dashboard')"><span class="bn-ico"><i data-lucide="layout-dashboard"></i></span>Board</button>
+  <button class="bn-item" id="bn-dashboard" onclick="nav('dashboard')"><span class="bn-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="layout-dashboard" aria-hidden="true" class="lucide lucide-layout-dashboard"><rect width="7" height="9" x="3" y="3" rx="1"></rect><rect width="7" height="5" x="14" y="3" rx="1"></rect><rect width="7" height="9" x="14" y="12" rx="1"></rect><rect width="7" height="5" x="3" y="16" rx="1"></rect></svg></span>Board</button>
 
-  <button class="bn-item" id="bn-eleves" onclick="nav('eleves')"><span class="bn-ico"><i data-lucide="users"></i></span>Élèves</button>
-  <button class="bn-item" id="bn-paiement" onclick="nav('paiement')"><span class="bn-ico"><i data-lucide="credit-card"></i></span>Paiement</button>
-  <button class="bn-item" id="bn-historique" onclick="nav('historique')"><span class="bn-ico"><i data-lucide="clipboard-list"></i></span>Historique</button>
-  <button class="bn-item" id="bn-depenses" onclick="nav('depenses')"><span class="bn-ico"><i data-lucide="receipt"></i></span>Dépenses</button>
-  <button class="bn-item" id="bn-dossier" onclick="nav('dossier')"><span class="bn-ico"><i data-lucide="user-round-search"></i></span>Dossier</button>
-  <button class="bn-item" id="bn-parametres" onclick="nav('parametres')"><span class="bn-ico"><i data-lucide="settings"></i></span>Params</button>
+  <button class="bn-item" id="bn-eleves" onclick="nav('eleves')"><span class="bn-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="users" aria-hidden="true" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg></span>Élèves</button>
+  <button class="bn-item" id="bn-paiement" onclick="nav('paiement')"><span class="bn-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="credit-card" aria-hidden="true" class="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg></span>Paiement</button>
+  <button class="bn-item" id="bn-historique" onclick="nav('historique')"><span class="bn-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clipboard-list" aria-hidden="true" class="lucide lucide-clipboard-list"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4"></path><path d="M12 16h4"></path><path d="M8 11h.01"></path><path d="M8 16h.01"></path></svg></span>Historique</button>
+  <button class="bn-item" id="bn-depenses" onclick="nav('depenses')"><span class="bn-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="receipt" aria-hidden="true" class="lucide lucide-receipt"><path d="M12 17V7"></path><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8"></path><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"></path></svg></span>Dépenses</button>
+  <button class="bn-item" id="bn-dossier" onclick="nav('dossier')"><span class="bn-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user-round-search" aria-hidden="true" class="lucide lucide-user-round-search"><circle cx="10" cy="8" r="5"></circle><path d="M2 21a8 8 0 0 1 10.434-7.62"></path><circle cx="18" cy="18" r="3"></circle><path d="m22 22-1.9-1.9"></path></svg></span>Dossier</button>
+  <button class="bn-item" id="bn-parametres" onclick="nav('parametres')"><span class="bn-ico"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg></span>Params</button>
 </nav>
 <!-- MODALS -->
-<div class="mov" id="modalOk"><div class="modal"><div class="m-t"><i data-lucide="check-circle-2"></i> Reçu généré !</div><div class="m-s" id="mOkMsg"></div><div id="mOkAlerte" style="margin:10px 0"></div><div class="m-ft"><button class="btn bg" onclick="closeM('modalOk')">Fermer</button><button class="btn bp" onclick="closeM('modalOk');nav('historique')">Voir l'historique →</button></div></div></div>
+<div class="mov" id="modalOk"><div class="modal"><div class="m-t"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> Reçu généré !</div><div class="m-s" id="mOkMsg"></div><div id="mOkAlerte" style="margin:10px 0"></div><div class="m-ft"><button class="btn bg" onclick="closeM('modalOk')">Fermer</button><button class="btn bp" onclick="closeM('modalOk');nav('historique')">Voir l'historique →</button></div></div></div>
 <div class="mov" id="modalWa">
   <div class="wa-popup">
-    <div style="font-size:40px;margin-bottom:12px"><i data-lucide="message-circle" class="ic-xl"></i></div>
+    <div style="font-size:40px;margin-bottom:12px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-circle" aria-hidden="true" class="lucide lucide-message-circle ic-xl"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg></div>
     <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px">Envoyer l'alerte WhatsApp</div>
     <div style="color:var(--mu);font-size:13px;margin-bottom:18px;line-height:1.6">Le message est prêt. Cliquez pour ouvrir WhatsApp.</div>
     <div class="wa-msg-box" id="waMsgBox"></div>
-    <div style="display:flex;gap:10px"><a id="waLinkBtn" href="#" target="_blank" class="btn bwa" style="text-decoration:none;flex:1;justify-content:center" onclick="closeM('modalWa')"><i data-lucide="message-circle" class="ic-sm"></i> Ouvrir WhatsApp &amp; Envoyer</a><button class="btn bg" onclick="closeM('modalWa')">Ignorer</button></div>
+    <div style="display:flex;gap:10px"><a id="waLinkBtn" href="#" target="_blank" class="btn bwa" style="text-decoration:none;flex:1;justify-content:center" onclick="closeM('modalWa')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-circle" aria-hidden="true" class="lucide lucide-message-circle ic-sm"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg> Ouvrir WhatsApp &amp; Envoyer</a><button class="btn bg" onclick="closeM('modalWa')">Ignorer</button></div>
   </div>
 </div>
 <div class="mov" id="modalViewer">
   <div class="recu-modal">
-    <div class="rv-hdr"><div class="rv-t" id="rvTitle">Reçu</div><div class="rv-act"><button class="btn bp bsm" onclick="printViewer()"><i data-lucide="printer" class="ic-sm"></i> Imprimer / PDF</button><button class="btn bg bsm" onclick="closeM('modalViewer')"><i data-lucide="x" class="ic-sm"></i> Fermer</button></div></div>
+    <div class="rv-hdr"><div class="rv-t" id="rvTitle">Reçu</div><div class="rv-act"><button class="btn bp bsm" onclick="printViewer()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="printer" aria-hidden="true" class="lucide lucide-printer ic-sm"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg> Imprimer / PDF</button><button class="btn bg bsm" onclick="closeM('modalViewer')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x ic-sm"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Fermer</button></div></div>
     <div class="rv-body"><div id="rvContent"></div></div>
   </div>
 </div>
 <div class="mov" id="modalEleve">
   <div class="modal" style="width:580px">
-    <div class="m-t" id="modalEleveTitle"><i data-lucide="plus"></i> Ajouter un élève</div>
+    <div class="m-t" id="modalEleveTitle"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> Ajouter un élève</div>
     <div class="m-s">Remplissez les informations de l'élève</div>
     <input type="hidden" id="eleveEditId" value="-1">
     <div class="fg2">
@@ -926,16 +922,16 @@ service cloud.firestore {
       <div class="fg2">
         <div class="fg"><label class="lbl">Frais mensuels</label><input class="inp" type="number" id="el_frais" placeholder="850" min="0"></div>
         <div class="fg"><label class="lbl">Frais d'inscription</label><input class="inp" type="number" id="el_fraisInscription" placeholder="500" min="0"></div>
-      <div class="fg" style="margin-top:-4px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="el_inscriptionPayee" style="accent-color:var(--ac);width:15px;height:15px"><i data-lucide="check-circle-2" class="ic-sm" style="color:var(--g2)"></i> Frais d'inscription déjà payés</label></div>
+      <div class="fg" style="margin-top:-4px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tx)"><input type="checkbox" id="el_inscriptionPayee" style="accent-color:var(--ac);width:15px;height:15px"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2 ic-sm" style="color:var(--g2)"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> Frais d'inscription déjà payés</label></div>
       </div>
       <div class="fg"><label class="lbl">Statut</label><select class="inp" id="el_statut"><option value="en attente">⏳ En attente</option><option value="payé">✅ Payé</option><option value="retard">🔴 Retard</option></select></div>
     </div>
-    <div class="m-ft"><button class="btn bg" onclick="closeM('modalEleve')">Annuler</button><button class="btn bp" onclick="saveEleve()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
+    <div class="m-ft"><button class="btn bg" onclick="closeM('modalEleve')">Annuler</button><button class="btn bp" onclick="saveEleve()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save ic-sm"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Enregistrer</button></div>
   </div>
 </div>
 <div class="mov" id="modalAssurance">
   <div class="modal" style="width:520px">
-    <div class="m-t"><i data-lucide="shield"></i> Assurance Annuelle</div>
+    <div class="m-t"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield" aria-hidden="true" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg> Assurance Annuelle</div>
     <div class="m-s" id="assuranceSubtitle">Gérer le paiement de l'assurance</div>
     <input type="hidden" id="assuranceEleveId" value="-1">
     <div class="fg2">
@@ -955,14 +951,14 @@ service cloud.firestore {
     </div>
     <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);display:flex;align-items:center;gap:8px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--tx);flex:1">
-        <input type="checkbox" id="ass_genRecu" checked style="accent-color:var(--ac);width:16px;height:16px">
-        <i data-lucide="printer" class="ic-sm"></i> Générer un reçu (uniquement si intégralement payé)
+        <input type="checkbox" id="ass_genRecu" checked="" style="accent-color:var(--ac);width:16px;height:16px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="printer" aria-hidden="true" class="lucide lucide-printer ic-sm"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"></path><rect x="6" y="14" width="12" height="8" rx="1"></rect></svg> Générer un reçu (uniquement si intégralement payé)
       </label>
     </div>
-    <div class="m-ft"><button class="btn bg" onclick="closeM('modalAssurance')">Annuler</button><button class="btn bp" onclick="saveAssurance()"><i data-lucide="save" class="ic-sm"></i> Enregistrer</button></div>
+    <div class="m-ft"><button class="btn bg" onclick="closeM('modalAssurance')">Annuler</button><button class="btn bp" onclick="saveAssurance()"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="save" aria-hidden="true" class="lucide lucide-save ic-sm"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg> Enregistrer</button></div>
   </div>
 </div>
-<div class="toast" id="toast"><span class="t-ico" id="tIco"></span><div><div class="t-msg" id="tMsg"></div><div class="t-sub" id="tSub"></div></div></div>
+<div class="toast show" id="toast"><span class="t-ico" id="tIco"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame" aria-hidden="true" class="lucide lucide-flame"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg></span><div><div class="t-msg" id="tMsg">Firebase connecté !</div><div class="t-sub" id="tSub"></div></div></div>
 <script>
 // ═══════════════════════════════════════════
 //  STATE
@@ -981,7 +977,7 @@ let S={
   rShowSignature:true, rShowStamp:true, rShowGenerated:true,
   rExtraFields:{matricule:'',niveau:'',section:''},
   alertMsg:`🎓 *{ecole}*\n✅ Reçu n°{recu}\n👤 {eleve} · {classe}\n📅 {mois} · 💰 {montant} {devise}\n📝 {remarque}\n📆 {date}`,
-  fbConfig:/*FBCONFIG_START*/null/*FBCONFIG_END*/
+  fbConfig:/*FBCONFIG_START*/{"apiKey":"AIzaSyCp-BmezA5282R_qgJDBD9jlPIP2DrZuPg","projectId":"edurecu-lanouvellevaguekenitra","appId":"1:1094528058712:web:8c80097460d3e87150912d","authDomain":"edurecu-lanouvellevaguekenitra.firebaseapp.com"}/*FBCONFIG_END*/
 };
 
 // ─── Session ───
@@ -2706,5 +2702,6 @@ window.FB = {
   }
 };
 </script>
-</body>
-</html>
+
+
+</body></html>
